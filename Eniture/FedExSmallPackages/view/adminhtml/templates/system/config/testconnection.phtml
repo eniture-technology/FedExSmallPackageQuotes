@@ -1,0 +1,47 @@
+ 
+<?php
+$formData = [
+    'divElement'       =>  '#success',
+];
+$serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonEncode($formData);
+?>
+
+<div class="pp-buttons-container">
+    <button class="primary" id="<?php echo $block->getId() ?>" onclick="return fedexSmpkgTestConn('<?php echo $this->getAjaxCheckUrl() ?>');">
+        <span>
+            <span>
+                <span>
+                    <?php echo $block->escapeHtml($block->getButtonLabel()); ?>
+                </span>
+            </span>
+        </span>
+    </button>
+</div>
+
+<!-- Display Success Message -->
+<div id="successCon" style="display: none;" class="test_connection_sccs">
+    <strong>
+        <?=
+            __('Success!')
+        ?>
+    </strong>
+    <span id="succesText">
+        <?=
+            __('The test resulted in a successful connection.')
+        ?>
+    </span>
+</div>
+
+<!-- Display Error Message -->
+<div id="failCon" style="display: none;" class="test_connection_err">
+    <strong>
+        <?=
+            __('Error!')
+        ?> 
+    </strong>
+    <span id="errorText">
+        <?=
+            __('The credentials entered did not result in a successful test. Confirm your credentials and try again.')
+        ?>
+    </span>
+</div>

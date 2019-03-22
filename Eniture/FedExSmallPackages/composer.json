@@ -1,0 +1,27 @@
+{
+  "name": "eniture/fedex-small-packages",
+  "description": "Magento 2 Shipping Rates From FedEx Small Packages",
+  "type": "magento2-module",
+  "version": "1.0.0",
+  "license": [
+    "OSL-3.0",
+    "AFL-3.0"
+  ],
+  "require": {
+    "magento/framework": "~100.0.4"
+  },
+  "authors": [
+    {
+      "name": "Eniture Technology",
+      "email": "sales@eniture.com",
+      "homepage": "eniture.com",
+      "role": "Owner"
+    }
+  ],
+  "autoload": {
+    "files": [ "registration.php" ],
+    "psr-4": {
+      "Eniture\\FedExSmallPackages\\": ""
+    }
+  } 
+}

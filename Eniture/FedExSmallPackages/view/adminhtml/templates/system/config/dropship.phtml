@@ -1,0 +1,198 @@
+<script type="text/javascript">
+    var fedexSmpkgDSEditAjaxUrl = '<?php echo $this->editDropshipAjaxCheckUrl() ?>';
+    var fedexSmpkgDSDeleteAjaxUrl = '<?php echo $this->deleteDropshipAjaxCheckUrl() ?>';
+</script>
+<div class="main_container">
+    <h1>
+        <?= __('Drop Ships') ?>
+    </h1>
+    <a href="#delete_dropship_btn" class="delete_dropship_btn hide_drop_val"></a>
+    <div id="delete_dropship_btn" class="fedexSmpkg_warehouse_overlay">
+        <div class="add_warehouse_popup delete_ds_popup">
+            <h2 class="del_hdng">
+                <?= __('FedEx Small Packages') ?>
+            </h2>
+            <p class="delete_p">
+                <?= __('Warning! If you delete this location, Drop ship location settings will be disable against products.') ?>
+            </p>
+            <div class="del_btns">
+                <a href="#" class="cancel_delete">
+                    <?= __('Cancel') ?>
+                </a>
+                <a href="#" class="confirm_delete">
+                    <?= __('OK') ?>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <a href="#add_dropship_btn" class="add_dropship_btn hide_drop_val" title="Add Drop Ship">
+        <?= __('Add') ?>
+    </a>
+    <div class="warehouse_text ds">
+        <p>
+            <?= __("Locations that inventory specific items that are drop shipped to the destination. Use the product's settings page to identify it as a drop shipped item and its associated drop ship location. Orders that include drop shipped items will display a single figure for the shipping rate estimate that is equal to the sum of the cheapest option of each shipment required to fulfill the order.") ?>
+        </p>
+    </div>
+    <div class="message message-success success dropship_created">
+        <p>
+            <strong>
+                <?= __('Success! New drop ship added successfully.') ?>
+            </strong>
+        </p>
+    </div>
+    <div class="message message-success success dropship_updated">
+        <p>
+            <strong>
+                <?= __('Success! Drop ship updated successfully.') ?>
+            </strong>
+        </p>
+    </div>
+    <div class="message message-success success dropship_deleted">
+        <p>
+            <strong>
+                <?= __('Success! Drop ship deleted successfully.') ?>
+            </strong>
+        </p>
+    </div>
+    <table class="warehouse" id="append_dropship">
+        <thead>
+            <tr>
+                <th>
+                    <?= __('Nickname') ?>
+                </th>
+                <th>
+                    <?= __('City') ?>
+                </th>
+                <th>
+                    <?= __('State') ?>
+                </th>
+                <th>
+                    <?= __('Zip') ?>
+                </th>
+                <th>
+                    <?= __('Country') ?>
+                </th>
+                <th>
+                    <?= __('Action') ?>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php 
+                $getDropships   = $this->_dataHelper->fetchWarehouseSecData('dropship');
+                if($getDropships){
+                    foreach($getDropships as $r)
+                    {
+                    ?>
+                        <tr id="row_<?php echo $r['warehouse_id']; ?>" data-id="<?php echo $r['warehouse_id']; ?>">
+                            <td>
+                                <?php echo $r['nickname']; ?>
+                            </td>
+                            <td>
+                                <?php echo $r['city']; ?>
+                            </td>
+                            <td>
+                                <?php echo $r['state']; ?>
+                            </td>
+                            <td>
+                                <?php echo $r['zip']; ?>
+                            </td>
+                            <td>
+                                <?php echo $r['country']; ?>
+                            </td>
+                            <td>
+                                <a href="javascript(0)" class="edit_dropship" data-id="<?php echo $r['warehouse_id']; ?>;" title="Edit" onclick="return fedexSmpkgEditDropship(<?php echo $r['warehouse_id']; ?>, fedexSmpkgDSEditAjaxUrl);">
+                                    <?= __('Edit') ?>
+                                </a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteDropship(<?php echo $r['warehouse_id']; ?>, fedexSmpkgDSDeleteAjaxUrl);" data-id="<?php echo $r['warehouse_id']; ?>" title="Delete">
+                                    <?= __('Delete') ?>
+                                </a>
+                            </td>
+                        </tr>
+            <?php   }
+                } 
+            ?>
+        </tbody>
+    </table>
+</div>
+     <!-- Add Popup for new dropship -->
+    <div id="add_dropship_btn" class="fedexSmpkg_warehouse_overlay">
+        <div class="add_warehouse_popup ds-popup dropshipSection">
+            <h2 class="dropship_heading">
+                <?= __('Drop Ship') ?>
+            </h2>
+            <a class="close close-ds" href="#">&times;</a>
+            <div class="content FedEx_small_warehouseFormContent">
+                <div class="already_exist">
+                    <strong>
+                        <?= __('Error!') ?>
+                    </strong> 
+                    <?= __('Drop ship already exists.') ?>
+                </div>
+                <div class="not_allowed">
+                    <strong>
+                        <?= __('Error!') ?>
+                    </strong> 
+                    <?= __('Please select US or CA address.') ?>
+                </div>
+                <div class="api_error"></div>
+                
+                <!--<form method="post" id="fedexSmpkgDropshipForm">-->
+                <div id="fedexSmpkgDropshipForm">
+                    <input type="hidden" name="edit_dropship_form_id" value="" id="edit_dropship_form_id">
+                    <div class="add_warehouse_input ds-input">
+                        <span>
+                            <?= __('Nickname') ?>
+                        </span>
+                        <input type="text" title="Nickname" value="" data-optional="1" name="fedexSmpkg_dropship_nickname" placeholder="Nickname" id="fedexSmpkg_dropship_nickname">
+                    </div>
+                    <div class="add_warehouse_input">
+                        <label for="origin_zip">
+                            <?= __('Zip') ?>
+                        </label>
+                        <input type="text" title="Zip" maxlength="7" value="" name="fedexSmpkg_dropship_zip" placeholder="30214" id="fedexSmpkg_dropship_zip" onchange="return fedexSmpkgGetAddressFromZip('<?php echo $this->getAjaxDsAddressUrl() ?>', this, fedexSmpkgGetDsAddressResSettings)" data-action="dropship_get_address">
+                    </div>
+
+                    <div class="add_warehouse_input city_input">
+                        <label for="origin_city">
+                            <?= __('City') ?>
+                        </label>
+                        <input type="text" title="City" class="alphaonly" value="" name="dropship_city" placeholder="Fayetteville" id="dropship_city">
+                    </div>
+
+                    <div class="add_warehouse_input city_select" style="display:none;">
+                        <label for="origin_city">
+                                <?= __('City') ?>
+                        </label>
+                        <select id="dropship_actname" value=""></select>
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="origin_state">
+                            <?= __('State') ?>
+                        </label>
+                        <input type="text" title="State" maxlength="2" class="alphaonly" value="" name="dropship_state" placeholder="GA" id="dropship_state">
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="origin_country">
+                            <?= __('Country') ?>
+                        </label>
+                        <input type="text" title="Country" maxlength="2" class="alphaonly" name="dropship_country" value="" placeholder="US" id="dropship_country">
+                        <input type="hidden" name="dropship_location" value="dropship" id="dropship_location">
+                    </div>
+                    
+                    <?php   
+                        if($this->_dataHelper->checkPickupDeliveryAddon() == 'yes'){
+                            echo '<style>.FedEx_small_add_warehouse_popup {height: 70%; overflow-y: scroll;}</style>';
+                            echo $this->getLayout()->createBlock('Magento\Framework\View\Element\Template')->setTemplate('ZEniture_InstorePickupLocalDelivery::InstorePickupLocalDelivery.phtml')->toHtml();
+                        }
+                    ?>
+                    <div class="form-btns">
+                        <input type="submit" name="submit_dropship" value="Save" class="save_warehouse_form" onclick="return fedexSmpkgSaveDropship('<?php echo $this->saveDropshipAjaxCheckUrl() ?>');">
+                    </div>
+                    <!--</form>-->
+                </div>
+            </div>
+        </div>
+    </div>

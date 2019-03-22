@@ -1,0 +1,13 @@
+<section class="admin__page-section custom-tab-content">
+    <h1>Additional Order Details</h1>
+    <?php
+        $order = $this->getOrder();
+        $orderDetailData = $order->getData('order_detail_data');
+        $orderDetailData = isset($orderDetailData)?json_decode($orderDetailData, TRUE):'';
+        $count = 1;
+        foreach ($orderDetailData['shipmentData'] as $key => $orderDetail) {
+            $this->displayOrderDetailData($orderDetail, $count, $orderDetailData['residentialDelivery']);
+            $count++;
+        }
+    ?>
+</section>

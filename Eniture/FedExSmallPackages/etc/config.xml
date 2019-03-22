@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category   Shipping
+ * @package    Eniture_FedExSmallPackages
+ * @author     Eniture Technology : <sales@eniture.com>
+ * @website    http://eniture.com
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <fedexQuoteSetting>
+            <third>
+                <FedExDomesticServices>GROUND_HOME_DELIVERY,FEDEX_GROUND,FEDEX_EXPRESS_SAVER,FEDEX_2_DAY,FEDEX_2_DAY_AM,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT,FIRST_OVERNIGHT</FedExDomesticServices>
+                <FedExInternationalServices>FEDEX_GROUND,INTERNATIONAL_ECONOMY,INTERNATIONAL_ECONOMY_DISTRIBUTION,INTERNATIONAL_ECONOMY_FREIGHT,INTERNATIONAL_FIRST,INTERNATIONAL_PRIORITY,INTERNATIONAL_PRIORITY_DISTRIBUTION,INTERNATIONAL_PRIORITY_FREIGHT,INTERNATIONAL_DISTRIBUTION_FREIGHT</FedExInternationalServices>
+                <fedexRates>publish</fedexRates>
+            </third>
+        </fedexQuoteSetting>
+        <carriers>
+            <ENFedExSmpkg>
+                <active>1</active>
+                <sallowspecific>0</sallowspecific>
+                <price>0</price>
+                <model>Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgShipping</model>
+                <allowed_methods>GROUND_HOME_DELIVERY,FEDEX_GROUND,FEDEX_EXPRESS_SAVER,FEDEX_2_DAY,FEDEX_2_DAY_AM,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT,FIRST_OVERNIGHT,FEDEX_EXPRESS_SAVER,FEDEX_2_DAY,FEDEX_2_DAY_AM,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT,FIRST_OVERNIGHT,INTERNATIONAL_GROUND,INTERNATIONAL_ECONOMY,INTERNATIONAL_ECONOMY_DISTRIBUTION,INTERNATIONAL_ECONOMY_FREIGHT,INTERNATIONAL_FIRST,INTERNATIONAL_PRIORITY,INTERNATIONAL_PRIORITY_DISTRIBUTION,INTERNATIONAL_PRIORITY_FREIGHT,INTERNATIONAL_DISTRIBUTION_FREIGHT</allowed_methods>
+                <name>Fixed</name>
+                <title>FedEx Small Package Quotes</title>
+                <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
+            </ENFedExSmpkg>
+        </carriers>
+    </default>
+</config>

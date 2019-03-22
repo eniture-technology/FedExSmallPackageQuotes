@@ -1,0 +1,402 @@
+.main_container {
+    border-collapse: separate;
+    margin-left: -260px;
+    width: 200% !important;
+}
+.conn-setting-note, .fedex-onerate-note {
+    min-height: 23px !important;
+    padding: 8px 8px 8px 15px !important;
+    font-size: .85em !important;
+    font-weight: bold !important;
+    border: 1px solid #ffd967 !important;
+    background: #fffbf0;
+    color: #3d6611 !important;
+    margin-bottom: 10px !important;
+    line-height: 2;
+}
+.warehouse {
+    background: #f5f5f5 none repeat scroll 0 0;
+    border-collapse: separate;
+    font-size: 14px;
+    line-height: 24px;
+    margin-top: 10px;
+    text-align: left;
+    width: 100% !important;
+}
+.warehouse_hr{
+    border: 1px solid #ccc;
+    margin-bottom: 30px;
+    margin-top: 50px;
+    width: 100%;
+}
+
+.warehouse_heading, .dropship_heading{
+    font-weight: bold !important;
+}
+
+.warehouse th {
+    background: #514943 none repeat scroll 0 0;
+    border-left: 1px solid #8a837f;
+    color: #fff;
+    font-weight: 600;
+    padding: 8px;
+    position: relative;
+}
+
+.warehouse td {
+    padding: 8px !important;
+    position: relative;
+    transition: all 300ms;
+    border-left: 1px solid #fff;
+}
+
+/*add warehouse popup style Start*/
+   
+.fedexSmpkg_warehouse_overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 2ms;
+    visibility: hidden;
+    opacity: 0;
+}
+.fedexSmpkg_warehouse_overlay:target {
+    visibility: visible;
+    opacity: 1;
+    z-index: 1000;
+}
+.warehouseSection{
+    /*height: 47%;*/
+}
+.dropshipSection{
+    /*height: 55%;*/
+}
+.add_warehouse_popup {
+    margin: 70px auto;
+    padding: 20px;
+    background: #fafafa;
+    width: 50%;
+    position: relative;
+    transition: all 5s ease-in-out;
+}
+.FedEx_small_warehouseFormContent {
+    width: 75%;
+    margin: 0px -10px 0px;
+}
+.add_warehouse_popup h2 {
+    margin: 0 -12px 20px;
+    color: #333 !important;
+    font-family: Tahoma, Arial, sans-serif;
+}
+.add_warehouse_popup .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    transition: all 200ms;
+    font-size: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+.add_warehouse_popup .close:hover {
+    color: #ea6153;
+}
+.add_warehouse_popup .content {
+    max-height: 30%;
+    overflow: auto;
+}
+
+.add_warehouse_popup .content span, .content label{
+    font-weight: 600;
+    float: left;
+    font-size: 1.2rem;
+    margin: 20px 0px 0px;
+}
+.add_warehouse_popup .content .add_warehouse_input{
+    width: 100%;
+    text-align: right;
+}
+.add_warehouse_popup .content .add_warehouse_input input{
+    margin: 10px;
+    width: 55% !important;
+    padding: 5px;
+}
+.add_warehouse_popup .content .add_warehouse_input select{
+    margin: 10px;   
+    padding: 5px;
+    /*width: 75.2% !important;*/
+    width: 55% !important;
+}
+.delete_ds_popup{
+    height: 25% !important;
+    overflow: hidden !important;
+}
+.save_warehouse_form{
+    background-color: #eb5202 !important;
+    border-color: #eb5202 !important;
+    color: #fff !important;
+    float: right;
+    margin: 10px 118px;
+    text-decoration: none;
+    width: 20% !important;
+    padding: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+.save_warehouse_form:focus + div#add_warehouse_btn {
+      display: none;
+}
+.already_exist{
+    display: none;
+    font-size: 12px;
+    background: #faebe7;
+    border: 1px solid #f16048 !important;
+    color: #df280a !important;
+    padding: 5px;
+}
+.zip_invalid{
+    color: #ed6502;
+    font-size: 11px;
+    font-weight: normal !important;
+    left: 165px;
+    margin-top: 40px;
+    position: absolute;
+}
+.not_allowed, .api_error{
+    display: none;
+    font-size: 12px;
+    background: #faebe7;
+    border: 1px solid #f16048 !important;
+    color: #df280a !important;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+/*add warehouse popup style End*/
+
+.add_warehouse_btn{
+    background-color: #eb5202;
+    border-color: #eb5202;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
+    font-weight: bold;
+    margin-bottom: 10px !important;
+    padding: 4px 15px;
+    text-decoration: none;
+    border-style: solid;
+    border-width: 1px;
+}
+.add_warehouse_btn:hover{
+    color: #fff;
+    text-decoration: none;
+    background: #ba4000;
+    border-color: #b84002; 
+}
+.add_dropship_btn{
+    background-color: #eb5202;
+    border-color: #eb5202;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
+    font-weight: bold;
+    margin-bottom: 10px !important;
+    padding: 4px 15px;
+    text-decoration: none;
+    border-style: solid;
+    border-width: 1px;
+}
+.add_dropship_btn:hover{
+    color: #fff;
+    text-decoration: none;
+    background: #ba4000;
+    border-color: #b84002; 
+}
+.city_select_css{
+    border-radius: 5px;
+    margin: 10px;
+    padding: 5px;
+    width: 70% !important;
+}
+.zip_validation_err{
+    color: #ed6502;
+    font-size: 11px;
+    font-weight: normal !important;
+    left: 165px;
+    margin-top: 40px;
+    position: absolute;
+}
+.warehouse_created{
+    display: none;
+}
+.warehouse_updated{
+    display: none;
+}
+.warehouse_deleted{
+    display: none;
+}
+.dropship_created{
+    display: none;
+}
+.dropship_updated{
+    display: none;
+}
+.dropship_deleted{
+    display: none;
+}
+.del_hdng{
+    font-weight: normal;
+}
+.delete_p{
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    font-size: 15px;
+    font-weight: normal;
+    padding: 25px 3px;
+    margin: 0px -10px 0px;
+}
+.del_btns{
+    margin-right: 40px;
+    text-align: right;
+    margin-top: 20px;
+}
+.cancel_delete{
+    background: #fff none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+.cancel_delete:hover{
+    text-decoration: none;
+}
+.confirm_delete{
+    background-color: #eb5202;
+    border-color: #eb5202;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
+    font-weight: bold;
+    margin-bottom: 10px !important;
+    padding: 4px 15px;
+    text-decoration: none;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 3px;
+}
+.confirm_delete:hover{
+    color: #fff;
+    text-decoration: none;
+    background: #ba4000;
+    border-color: #b84002; 
+}
+
+.test_connection_err{
+    background: #F2DEDE;
+    border: 1px solid #EED3D7 !important;
+    color: #B94A48 !important;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+}
+.test_connection_sccs{
+    color:#3d6611;
+    background: #eff5ea none repeat scroll 0 0;
+    border: 1px solid #D6E9C6;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+}
+.err{
+    color: #D40707;
+    font-size: 11px;
+    font-weight: bold !important;
+}
+.add_warehouse_input .err {
+    position: absolute;
+    margin-top: 17px;
+    font-size: 1.1rem !important;
+}
+.warehouse_text{
+    font-size: 14px;
+    margin: 20px 0 0;
+    width: 100%;
+}
+
+#row_fedexUserGuide_fifth_fedexSmpkgUserGuide .label, #row_boxSizesTab_fourth_fedexSmpkgBoxSizes .label {
+    display: none;
+}
+
+#row_fedexUserGuide_fifth_fedexSmpkgUserGuide .value, #row_boxSizesTab_fourth_fedexSmpkgBoxSizes .value {
+    width: 100%;
+}
+
+
+#append_dropship th, #append_dropship td, #append_warehouse th, #append_warehouse td{
+    text-align: center;
+}
+.form-btns{
+    float: right;
+    margin-top: 5px;
+    width: 100%;
+}
+.form-btns input[type="submit"]{
+    float: right;
+    margin-right: 10px;
+}
+
+label[for="origin_zip"]:after, label[for="origin_city"]:after, label[for="origin_state"]:after, label[for="origin_country"]:after {
+    content: " *";
+    color: red;
+}
+label[for="carriers_fedexConnectionSettings_AccountNumber"]:after, label[for="carriers_fedexConnectionSettings_ProdutionPassword"]:after, label[for="carriers_fedexConnectionSettings_MeterNumber"]:after, label[for="carriers_fedexConnectionSettings_AuthenticationKey"]:after, label[for="carriers_fedexConnectionSettings_licnsKey"]:after{
+    content: '*';
+    color: red;
+    padding: 5px;
+}
+#fedexQuoteSetting_third_fedexRatespublish, #fedexQuoteSetting_third_fedexRatesnegotiate{
+    margin: 0px -8px 0px !important;
+}
+#row_fedexQuoteSetting_third_fedexRates td.value div.admin__field{
+    padding-top: 0.05rem !important;
+}
+#fedexConnectionSettings_first span{
+    margin: 8px 0px 0px;
+}
+#fedexQuoteSetting_third_fedexRateSourcenegotiate{
+    margin: 0px -8px 15px !important;
+}
+#fedexQuoteSetting_third_fedexRateSourceretail{
+    margin: 0px -8px 0px !important;
+}
+
+.order-detail-hdng{
+    text-decoration: underline;
+    margin-top: 20px;
+}
+.en-order-info-ul{
+    margin: 0px 20px 5px;
+}
+.en-order-info-ul .en-order-info-list{
+    list-style: disc;
+}
+.order-info-hr{
+    margin: 20px 0px 25px;
+}
+.list-item{
+    display: list-item;
+}
+
+/*#row-Eniture-Menu-Option-section-three-AutoDetectResidentialAddress .label{
+    display : none;
+}*/
+
+
+#row-Eniture-Menu-Option-section-three-AutoDetectResidentialAddress .value, #row-Eniture-Menu-Option-section-three-AutoDetectResidentialAddress .value > *{
+    width: 98% !important;
+}
+label[for='Eniture-Menu-Option-section-three-AutoDetectResidentialAddress'] {
+    /*display: none;*/
+    content: '';
+}

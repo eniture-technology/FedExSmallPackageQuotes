@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <link src="Eniture_FedExSmallPackages::js/fedexSmpkgCommon.js"/>
+        <link src="Eniture_FedExSmallPackages::js/fedexSmpkgTestconnection.js"/>
+        <link src="Eniture_FedExSmallPackages::js/fedexSmpkgWarehouse.js"/>
+        <link src="Eniture_FedExSmallPackages::js/fedexSmpkgDropship.js"/>
+        <link src="Eniture_FedExSmallPackages::js/fedexOneRate.js"/>
+        <link src="Eniture_FedExSmallPackages::js/fedexRAD.js"/>
+    </head>
+</page>
