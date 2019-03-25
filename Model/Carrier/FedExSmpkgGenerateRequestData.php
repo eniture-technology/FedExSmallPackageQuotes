@@ -60,7 +60,7 @@ class FedExSmpkgGenerateRequestData{
      * @param $itemsArr
      * @return array
      */
-    public function generateRequestArray($request,$fedexSmpkgArr,$itemsArr, $dataHelper, $objectmanager, $cart){
+    public function generateRequestArray($request,$fedexSmpkgArr,$itemsArr, $objectmanager, $cart){
         $carriers = $this->_registry->registry('enitureCarriers');
 
         $carriers['fedexSmall'] = $fedexSmpkgArr;
@@ -83,7 +83,7 @@ class FedExSmpkgGenerateRequestData{
         
         if($this->_moduleManager->isEnabled('Eniture_BoxSizes')){
             $binsData = $this->getSavedBins($objectmanager);
-            $requestArr = array_merge($requestArr, $binsData);
+            $requestArr = array_merge($requestArr, isset($binsData)?$binsData:array());
         }
         
         return  $requestArr;

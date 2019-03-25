@@ -64,9 +64,6 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements \Mage
     {
         if(is_null($this->coreRegistry->registry('orderWidgetFlag'))){
             $this->coreRegistry->register('orderWidgetFlag', 'yes');
-            // For me, I wanted this tab to always show
-            // You can play around with the ACL settings 
-            // to selectively show later if you want
             return true;
         }
     }
@@ -76,9 +73,6 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements \Mage
      */
     public function isHidden()
     {
-        // For me, I wanted this tab to always show
-        // You can play around with conditions to
-        // show the tab later
         return false;
     }
 
@@ -89,8 +83,6 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements \Mage
      */
     public function getTabClass()
     {
-        // I wanted mine to load via AJAX when it's selected
-        // That's what this does
         return 'ajax only';
     }
 
@@ -111,8 +103,6 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements \Mage
      */
     public function getTabUrl()
     {
-        // customtab is a adminhtml router we're about to define
-        // the full route can really be whatever you want
         return $this->getUrl('orderdetailwidget/*/OrderDetailWidget', ['_current' => true]);
     }
     

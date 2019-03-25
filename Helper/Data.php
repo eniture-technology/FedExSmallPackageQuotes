@@ -262,7 +262,7 @@ class Data extends AbstractHelper
      * @param type $validateData
      * @return string
      */
-        function checkUpdateInstrorePickupDelivery($getWarehouse, $validateData){
+        function checkUpdateInstrorePickupDelivery($getWarehouse, array $validateData){
             $update = 'no';
 
             if(empty($getWarehouse)){
@@ -742,7 +742,7 @@ class Data extends AbstractHelper
      * @param type $servicesArr
      * @param type $QCount
      */
-    function setOrderDetailWidgetData($servicesArr, $scopeConfig) {
+    function setOrderDetailWidgetData(array $servicesArr, $scopeConfig) {
         $orderDetail['residentialDelivery'] = ($this->residentialDelivery != '' || $this->residentialDlvry == '1')?'Residential Delivery':'';
         $setPkgForOrderDetailReg = null !== $this->_registry->registry('setPackageDataForOrderDetail')?$this->_registry->registry('setPackageDataForOrderDetail'):array();
         $orderDetail['shipmentData'] = array_replace_recursive($setPkgForOrderDetailReg, $servicesArr);
@@ -957,40 +957,40 @@ class Data extends AbstractHelper
      */
     function fedexCarriersWithTitle() {
         return [
-                'GROUND_HOME_DELIVERY'  => 'FedEx Home Delivery',
-                'FEDEX_GROUND'          => 'FedEx Ground',
-                'FEDEX_EXPRESS_SAVER'   => 'FedEx Express Saver',
-                'FEDEX_2_DAY'           => 'FedEx 2Day',
-                'FEDEX_2_DAY_AM'        => 'FedEx 2Day AM',
-                'STANDARD_OVERNIGHT'    => 'FedEx Standard Overnight',
-                'PRIORITY_OVERNIGHT'    => 'FedEx Priority Overnight',
-                'FIRST_OVERNIGHT'       => 'FedEx First Overnight',
+                'GROUND_HOME_DELIVERY'  => __('FedEx Home Delivery'),
+                'FEDEX_GROUND'          => __('FedEx Ground'),
+                'FEDEX_EXPRESS_SAVER'   => __('FedEx Express Saver'),
+                'FEDEX_2_DAY'           => __('FedEx 2Day'),
+                'FEDEX_2_DAY_AM'        => __('FedEx 2Day AM'),
+                'STANDARD_OVERNIGHT'    => __('FedEx Standard Overnight'),
+                'PRIORITY_OVERNIGHT'    => __('FedEx Priority Overnight'),
+                'FIRST_OVERNIGHT'       => __('FedEx First Overnight'),
             ];
     }
     
     function fedexInternationalCarriersWithTitle(){
         return array(
             //international services
-            'FEDEX_GROUND'                          => 'FedEx International Ground',
-            'INTERNATIONAL_ECONOMY'                 => 'FedEx International Economy',
-            'INTERNATIONAL_ECONOMY_DISTRIBUTION'    => 'FedEx International Economy Distribution',
-            'INTERNATIONAL_ECONOMY_FREIGHT'         => 'FedEx International Economy Freight',
-            'INTERNATIONAL_FIRST'                   => 'FedEx International First',
-            'INTERNATIONAL_PRIORITY'                => 'FedEx International Priority',
-            'INTERNATIONAL_PRIORITY_DISTRIBUTION'   => 'FedEx International Priority Distribution',
-            'INTERNATIONAL_PRIORITY_FREIGHT'        => 'FedEx International Priority Freight',
-            'INTERNATIONAL_DISTRIBUTION_FREIGHT'    => 'FedEx International Distribution Freight',
+            'FEDEX_GROUND'                          => __('FedEx International Ground'),
+            'INTERNATIONAL_ECONOMY'                 => __('FedEx International Economy'),
+            'INTERNATIONAL_ECONOMY_DISTRIBUTION'    => __('FedEx International Economy Distribution'),
+            'INTERNATIONAL_ECONOMY_FREIGHT'         => __('FedEx International Economy Freight'),
+            'INTERNATIONAL_FIRST'                   => __('FedEx International First'),
+            'INTERNATIONAL_PRIORITY'                => __('FedEx International Priority'),
+            'INTERNATIONAL_PRIORITY_DISTRIBUTION'   => __('FedEx International Priority Distribution'),
+            'INTERNATIONAL_PRIORITY_FREIGHT'        => __('FedEx International Priority Freight'),
+            'INTERNATIONAL_DISTRIBUTION_FREIGHT'    => __('FedEx International Distribution Freight'),
         );
     }
     function fedexOnerateCarriersWithTitle() {
         return array(
             //onerate services
-            'FEDEX_EXPRESS_SAVER'   => 'FedEx One Rate Express Saver',
-            'FEDEX_2_DAY'           => 'FedEx One Rate 2Day',
-            'FEDEX_2_DAY_AM'        => 'FedEx One Rate 2Day AM',
-            'STANDARD_OVERNIGHT'    => 'FedEx One Rate Standard Overnight',
-            'PRIORITY_OVERNIGHT'    => 'FedEx One Rate Priority Overnight',
-            'FIRST_OVERNIGHT'       => 'FedEx One Rate First Overnight',
+            'FEDEX_EXPRESS_SAVER'   => __('FedEx One Rate Express Saver'),
+            'FEDEX_2_DAY'           => __('FedEx One Rate 2Day'),
+            'FEDEX_2_DAY_AM'        => __('FedEx One Rate 2Day AM'),
+            'STANDARD_OVERNIGHT'    => __('FedEx One Rate Standard Overnight'),
+            'PRIORITY_OVERNIGHT'    => __('FedEx One Rate Priority Overnight'),
+            'FIRST_OVERNIGHT'       => __('FedEx One Rate First Overnight'),
         );
     }
 }

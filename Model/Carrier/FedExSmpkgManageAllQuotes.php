@@ -143,7 +143,7 @@ class FedExSmpkgManageAllQuotes{
             }
         }else{
             if($minimumSmallRate > 0){
-                foreach ($ltlModulesArr as $key => $value) {
+                foreach ($ltlQuotesArr as $key => $value) {
                     $ltlQuotesFinalArr[$key][] = [
                         'code'  => 'Freight',
                         'title' => 'Freight',  

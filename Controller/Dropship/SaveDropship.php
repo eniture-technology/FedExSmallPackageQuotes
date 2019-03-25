@@ -40,7 +40,7 @@ class SaveDropship extends Action
         extract($validateData);
 
         $getDropship  = $this->checkDropshipList($city, $state, $zip, $nickname);
-                
+        
         // add instore pickup and local delivery data to array
         $updateInstrorePickupDelivery = $this->_dataHelper->checkUpdateInstrorePickupDelivery($getDropship, $validateData);
 
@@ -50,7 +50,6 @@ class SaveDropship extends Action
             if ( $dropshipId && (empty( $getDropship ) || $updateInstrorePickupDelivery == 'yes') ) {
                 $updateQry = $this->_dataHelper->updateWarehousData( $validateData, "warehouse_id='".$dropshipId."'" );
             }else{
-                
                 if ( empty( $getDropship ) && ($this->countNickname($nickname) == 0 || $nickname == "")) {
                     $insertQry = $this->_dataHelper->insertWarehouseData( $validateData, $dropshipId );
                 }
@@ -95,7 +94,7 @@ class SaveDropship extends Action
                                         ->addFilter('location', array('eq' => 'dropship'))
                                         ->addFilter('nickname', array('eq' => $nickname));
 
-            return $this->_dataHelper->purifyCollectionData($dsCollection);
+            return count($this->_dataHelper->purifyCollectionData($dsCollection));
         }
     }
 }

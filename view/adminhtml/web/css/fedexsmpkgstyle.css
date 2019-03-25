@@ -68,12 +68,6 @@
     opacity: 1;
     z-index: 1000;
 }
-.warehouseSection{
-    /*height: 47%;*/
-}
-.dropshipSection{
-    /*height: 55%;*/
-}
 .add_warehouse_popup {
     margin: 70px auto;
     padding: 20px;

@@ -157,14 +157,14 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             return FALSE;
         }
         
-        $requestArr = $this->_fedExReqData->generateRequestArray($request,$fedexSmpkgArr,$package['items'], $this->_dataHelper, $this->_objectManager, $this->_cart);
+        $requestArr = $this->_fedExReqData->generateRequestArray($request,$fedexSmpkgArr,$package['items'], $this->_objectManager, $this->_cart);
 
         if(empty($requestArr)){
             return FALSE;
         }
 
         $quotes = $this->_dataHelper->fedexSmpkgSendCurlRequest('https://eniture.com/ws/v2.0/index.php',$requestArr);
-
+        
         $this->_fedexMangQuotes->_init($quotes, $this->_dataHelper, $this->_scopeConfig, $this->_registry, $this->_moduleManager, $this->_objectManager);
         $quotesResult = $this->_fedexMangQuotes->getQuotesResultArr($request);
         

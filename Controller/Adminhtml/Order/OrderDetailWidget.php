@@ -69,7 +69,7 @@ class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
     {
         $this->_initOrder();
         $layout = $this->layoutFactory->create();
-        // Yes, this is the same block class that we defined in sales_order_view.xml
+        // Block class assosiated with sales_order_view.xml
         $html = $layout->createBlock('Eniture\FedExSmallPackages\Block\Adminhtml\Order\View\Tab\OrderDetailWidget')
             ->toHtml();
         $this->_translateInline->processResponseBody($html);
