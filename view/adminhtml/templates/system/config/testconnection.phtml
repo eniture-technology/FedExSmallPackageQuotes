@@ -7,11 +7,11 @@ $serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonE
 ?>
 
 <div class="pp-buttons-container">
-    <button class="primary" id="<?php echo $block->getId() ?>" onclick="return fedexSmpkgTestConn('<?php echo $this->getAjaxCheckUrl() ?>');">
+    <button class="primary" id="<?= $block->getId() ?>" onclick="return fedexSmpkgTestConn('<?= $this->getAjaxCheckUrl() ?>');">
         <span>
             <span>
                 <span>
-                    <?php echo $block->escapeHtml($block->getButtonLabel()); ?>
+                    <?= $block->escapeHtml($block->getButtonLabel()); ?>
                 </span>
             </span>
         </span>

@@ -1,6 +1,6 @@
 <script type="text/javascript">
-    var fedexSmpkgWHEditAjaxUrl = '<?php echo $this->editWarehouseAjaxCall() ?>';
-    var fedexSmpkgWHDeleteAjaxUrl = '<?php echo $this->deleteWarehouseAjaxCall() ?>';
+    var fedexSmpkgWHEditAjaxUrl = '<?= $this->editWarehouseAjaxCall() ?>';
+    var fedexSmpkgWHDeleteAjaxUrl = '<?= $this->deleteWarehouseAjaxCall() ?>';
 </script>
 <div class="main_container">
     <h1>
@@ -85,23 +85,23 @@
                     foreach($getWarehouses as $r)
                     {
                 ?>
-                        <tr id="row_<?php echo $r['warehouse_id']; ?>" data-id="<?php echo $r['warehouse_id']; ?>">
+                        <tr id="row_<?= $r['warehouse_id']; ?>" data-id="<?= $r['warehouse_id']; ?>">
                             <td>
-                                <?php echo $r['city']; ?>
+                                <?= $r['city']; ?>
                             </td>
                             <td>
-                                <?php echo $r['state']; ?>
+                                <?= $r['state']; ?>
                             </td>
                             <td>
-                                <?php echo $r['zip']; ?>
+                                <?= $r['zip']; ?>
                             </td>
                             <td>
-                                <?php echo $r['country']; ?>
+                                <?= $r['country']; ?>
                             </td>
                             <td>
-                                <a href="javascript(0)" class="edit_warehouse" data-id="<?php echo $r['warehouse_id']; ?>;" title=<?= __('Edit') ?> onclick="return fedexSmpkgEditWarehouse(<?php echo $r['warehouse_id']; ?>, fedexSmpkgWHEditAjaxUrl);">
+                                <a href="javascript(0)" class="edit_warehouse" data-id="<?= $r['warehouse_id']; ?>;" title="<?= __('Edit') ?>" onclick="return fedexSmpkgEditWarehouse(<?= $r['warehouse_id']; ?>, fedexSmpkgWHEditAjaxUrl);">
                                     <?= __('Edit') ?>
-                                </a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse(<?php echo $r['warehouse_id']; ?>, fedexSmpkgWHDeleteAjaxUrl);" data-id="<?php echo $r['warehouse_id']; ?>" title=<?= __('Delete') ?>>
+                                </a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse(<?= $r['warehouse_id']; ?>, fedexSmpkgWHDeleteAjaxUrl);" data-id="<?= $r['warehouse_id']; ?>" title="<?= __('Delete') ?>">
                                     <?= __('Delete') ?>
                                 </a>
                             </td>
@@ -149,7 +149,7 @@
                         <label for="origin_zip">
                             <?= __('Zip') ?>
                         </label>
-                        <input type="text" title=<?= __('Zip') ?> maxlength="7" value="" name="fedexSmpkg_warehouse_zip" placeholder="30214" id="fedexSmpkg_warehouse_zip" onchange="return fedexSmpkgGetAddressFromZip('<?php echo $this->getAjaxAddressUrl() ?>', this, fedexSmpkgGetAddressResSettings)" data-action="warehouse_get_address">
+                        <input type="text" title="<?= __('Zip') ?>" maxlength="7" value="" name="fedexSmpkg_warehouse_zip" placeholder="30214" id="fedexSmpkg_warehouse_zip" onchange="return fedexSmpkgGetAddressFromZip('<?= $this->getAjaxAddressUrl() ?>', this, fedexSmpkgGetAddressResSettings)" data-action="warehouse_get_address">
                     </div>
               
                     <div class="add_warehouse_input city_input">
@@ -181,14 +181,8 @@
                         <input type="hidden" name="warehouse_location" value="warehouse" id="warehouse_location">
                     </div>
               
-                    <?php     
-                        if($this->_dataHelper->checkPickupDeliveryAddon() == 'yes'){
-                            echo '<style>.add_warehouse_popup {height: 70%; overflow-y: scroll;}</style>';
-                            echo $this->getLayout()->createBlock('Magento\Framework\View\Element\Template')->setTemplate('ZEniture_InstorePickupLocalDelivery::InstorePickupLocalDelivery.phtml')->toHtml();
-                        }
-                    ?>
                     <div class="form-btns">
-                        <input type="submit" name="warehouse_submit_warehouse" value="Save" onclick="return fedexSmpkgSaveWarehouseData('<?php echo $this->savefedexSmpkgWarehouseAjaxCall() ?>');" class="save_warehouse_form">
+                        <input type="submit" name="warehouse_submit_warehouse" value="Save" onclick="return fedexSmpkgSaveWarehouseData('<?= $this->savefedexSmpkgWarehouseAjaxCall() ?>');" class="save_warehouse_form">
                     </div>
                 </div>
             </div>

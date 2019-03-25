@@ -4,10 +4,80 @@
         $order = $this->getOrder();
         $orderDetailData = $order->getData('order_detail_data');
         $orderDetailData = isset($orderDetailData)?json_decode($orderDetailData, TRUE):'';
-        $count = 1;
-        foreach ($orderDetailData['shipmentData'] as $key => $orderDetail) {
-            $this->displayOrderDetailData($orderDetail, $count, $orderDetailData['residentialDelivery']);
-            $count++;
+        $shimentNumber = 1;
+        foreach ($orderDetailData['shipmentData'] as $key => $order) {
+            $residential = $orderDetailData['residentialDelivery'];
+            
+            if(isset($order) && !empty($order)){
+                $title = (isset($order['quotes']['title']))?$order['quotes']['title'].' :':'';
+                $rate = (isset($order['quotes']['rate']))?number_format($order['quotes']['rate'], 2, '.', ''):'0.00';
+                
+                if($shimentNumber > 1 ) { ?>
+                    <hr class="order-info-hr">
+                <?php } ?>
+                
+                <div class="order-detail-block">
+                    <h4 class='order-detail-hdng'>
+                        Shipment <?= $shimentNumber ?> > Origin & Services
+                    </h4>
+                    
+                    <div class="order-shipment-block">
+                        <span class="list-item">
+                            <?= ucfirst($order['origin']['location']) .': '. $order['origin']['senderCity'] .', '. $order['origin']['senderState'] .' '. $order['origin']['senderZip'] .'</span>' ?>
+                            <span class="list-item">
+                                <?= $title .' $' . $rate?>
+                            </span>
+                    </div>
+                    <?php
+                    $lineItems = $order['item'];
+                    $findHazardous = array_column($lineItems, 'hazardousMaterial');
+        
+                    $residential = ($residential)?'Residential Delivery':'';
+                    $hazordusFee = ($findHazardous[0] == 'Y')?'Hazardous material':'';
+
+                    if($residential || $hazordusFee){
+                    ?>
+                        <h4 class='order-detail-hdng'>Additional Information</h4>
+                        <div class="order-additionalInfo-block">
+                        <?php
+                                if($residential){
+                                    ?>
+                                    <span class="list-item">
+                                        <?= $residential ?>
+                                    </span>
+                                    <?php
+                                }
+                                if($hazordusFee){
+                                    ?>
+                                    <span class="list-item">
+                                        <?= $hazordusFee ?>
+                                    </span>
+                                    <?php
+                                }
+                                ?>
+                        </div>
+                        <?php
+                    }
+                    ?>
+                    <h4 class='order-detail-hdng'>
+                        Shipment <?= $shimentNumber?> > items
+                    </h4>
+                    <?php
+                    foreach($order['item'] as $key=>$lineItem){
+                    ?>
+                        <div class="order-item-block">
+                            <span class="list-item">
+                                <?= $lineItem['piecesOfLineItem'] .' x '. $lineItem['lineItemName'] ?>
+                            </span>
+                        </div>
+                    <?php } ?>
+
+                <!-- Clear the float effect -->
+                <div class="en-clear"></div>
+                </div>
+                <?php
+            }
+            $shimentNumber++;
         }
     ?>
 </section>

@@ -33,9 +33,7 @@ class TestConnection extends Action
         foreach ($this->getRequest()->getPostValue() as $key => $data) {
             $credentials[$key] = filter_var($data, FILTER_SANITIZE_STRING);
         }
-        echo '<pre>';
-        print_r($credentials);
-        echo '</pre>';
+        
         extract($credentials);
         $postData = array(
             'platform'              => 'magento2',

@@ -81,21 +81,19 @@ class FedExSmallPkgOriginAddress extends Action
     /**
      * Check If Error
      * @param $mapResult
-     * @return array
      */
     public function errorChecking($mapResult) {
         $error = array();
         if( isset( $mapResult['error'] ) && !empty( $mapResult['error'] ) ) {
-            echo json_encode(array( 'error' => $mapResult['error'] ) );
-            exit;
+            $error = array( 'error' => $mapResult['error'] );
         }
 
         if ( isset($mapResult['results']) && count( $mapResult['results'] ) == 0 ) {
-            echo json_encode(array('result' => 'false'));
-            exit;
+            $error = array('result' => 'false');
         }
         
-        return $error;
+        $this->getResponse()->setHeader('Content-type', 'application/json');
+        $this->getResponse()->setBody(json_encode($error));
     }
     
     /**
