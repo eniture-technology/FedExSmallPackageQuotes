@@ -1,21 +1,22 @@
 <?php
+
 namespace Eniture\FedExSmallPackages\Model\Source;
+
 /**
  * Source class for Warehouse and Dropship
  */
 class DropshipOptions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
-    protected $_dataHelper;
-    protected $_options = array();
+    public $dataHelper;
+    public $options = [];
     
     /**
-     * 
      * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
      */
     public function __construct(
         \Eniture\FedExSmallPackages\Helper\Data $dataHelper
     ) {
-        $this->_dataHelper = $dataHelper;
+        $this->dataHelper = $dataHelper;
     }
     /**
      * Abstract method of source class
@@ -23,22 +24,23 @@ class DropshipOptions extends \Magento\Eav\Model\Entity\Attribute\Source\Abstrac
      */
     public function getAllOptions()
     {
-        $get_dropship = $this->_dataHelper->fetchWarehouseSecData('dropship');
+        $get_dropship = $this->dataHelper->fetchWarehouseSecData('dropship');
         
-        if(isset($get_dropship) && count($get_dropship) > 0){
+        if (isset($get_dropship) && !empty($get_dropship)) {
             foreach ($get_dropship as $manufacturer) {
-                ( isset( $manufacturer['nickname'] ) && $manufacturer['nickname'] == '' ) ? $nickname = '' : $nickname = html_entity_decode($manufacturer['nickname'],ENT_QUOTES).' - ';
+                (isset($manufacturer['nickname']) && $manufacturer['nickname'] == '') ?
+                $nickname = '' : $nickname = html_entity_decode($manufacturer['nickname'], ENT_QUOTES).' - ';
                 $city       = $manufacturer['city'];
                 $state      = $manufacturer['state'];
                 $zip        = $manufacturer['zip'];
                 $dropship   = $nickname.$city.', '.$state.', '.$zip;
-                $this->_options[] = array(
+                $this->options[] = [
                         'label' => __($dropship),
                         'value' => $manufacturer['warehouse_id'],
-                    );
+                    ];
             }
         }
-        return $this->_options;
+        return $this->options;
     }
     /**
      * Abstract method of source class that returns data

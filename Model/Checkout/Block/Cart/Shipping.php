@@ -1,7 +1,6 @@
 <?php
 /**
  * FedEx Small Packages
- *
  * @package EnableCity
  * @author Eniture
  * @license https://eniture.com
@@ -15,20 +14,13 @@ namespace Eniture\FedExSmallPackages\Model\Checkout\Block\Cart;
 class Shipping extends \Magento\Checkout\Block\Cart\LayoutProcessor
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $_scopeConfig;
- 
-    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Checkout\Block\Checkout\AttributeMerger $merger,
         \Magento\Directory\Model\ResourceModel\Country\Collection $countryCollection,
         \Magento\Directory\Model\ResourceModel\Region\Collection $regionCollection
     ) {
-        $this->_scopeConfig = $scopeConfig;
         parent::__construct($merger, $countryCollection, $regionCollection);
     }
  

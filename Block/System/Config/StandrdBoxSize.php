@@ -6,7 +6,7 @@ use Magento\Backend\Block\Template\Context;
 class StandrdBoxSize extends \Magento\Config\Block\System\Config\Form\Field
 {
     
-    const StndrdBox_TEMPLATE = 'system/config/standrdboxsize.phtml';
+    const STNDRDBOX_TEMPLATE = 'system/config/standrdboxsize.phtml';
     
     /**
      * @param Context $context
@@ -22,22 +22,20 @@ class StandrdBoxSize extends \Magento\Config\Block\System\Config\Form\Field
     }
     
     /**
-     * 
      * @return $this
      */
-    protected function _prepareLayout()
+    public function _prepareLayout()
     {
         parent::_prepareLayout();
         if ($this->moduleManager->isOutputEnabled('Vendor_Module')) {
             if (!$this->getTemplate()) {
-                $this->setTemplate(static::StndrdBox_TEMPLATE);
+                $this->setTemplate(static::STNDRDBOX_TEMPLATE);
             }
         }
         return $this;
     }
     
     /**
-     * 
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return element
      */
@@ -49,13 +47,11 @@ class StandrdBoxSize extends \Magento\Config\Block\System\Config\Form\Field
     }
     
     /**
-     * 
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return html
      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
     }
-    
 }

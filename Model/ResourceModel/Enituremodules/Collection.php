@@ -15,5 +15,4 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         $this->_init('Eniture\FedExSmallPackages\Model\Enituremodules', 'Eniture\FedExSmallPackages\Model\ResourceModel\Enituremodules');
         $this->_map['fields']['page_id'] = 'main_table.page_id';
     }
-
 }

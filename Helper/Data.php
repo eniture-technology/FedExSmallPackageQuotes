@@ -7,23 +7,24 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 namespace Eniture\FedExSmallPackages\Helper;
+
 use \Magento\Framework\App\Helper\AbstractHelper;
  
 class Data extends AbstractHelper
 {
-    protected $_connection;
-    protected $_WHtableName;
-    protected $_shippingConfig;
-    protected $_storeManager;
-    protected $_currencyFactory;
-    protected $_priceCurrency;
-    protected $_registry;
-    protected $_coreSession;
-    protected $originZip;
-    protected $residentialDelivery;
+    public $connection;
+    public $WHtableName;
+    public $shippingConfig;
+    public $storeManager;
+    public $currencyFactory;
+    public $priceCurrency;
+    public $registry;
+    public $coreSession;
+    public $originZip;
+    public $residentialDelivery;
+    public $curl;
     
     /**
-     * 
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Framework\App\ResourceConnection $resource
      * @param \Magento\Shipping\Model\Config $shippingConfig
@@ -35,6 +36,7 @@ class Data extends AbstractHelper
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Session\SessionManagerInterface $coreSession
      * @param \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory
+     * @param \Magento\Framework\HTTP\Client\Curl $curl
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -48,68 +50,76 @@ class Data extends AbstractHelper
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Session\SessionManagerInterface $coreSession,
         \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory,
-        \Eniture\FedExSmallPackages\Model\EnituremodulesFactory $enituremodulesFactory
+        \Eniture\FedExSmallPackages\Model\EnituremodulesFactory $enituremodulesFactory,
+        \Magento\Framework\HTTP\Client\Curl $curl
     ) {
-        $this->_connection          =  $resource->getConnection(\Magento\Framework\App\ResourceConnection::DEFAULT_CONNECTION); 
-        $this->_WHtableName         = $resource->getTableName('warehouse');
-        $this->_shippingConfig      = $shippingConfig;
-        $this->_storeManager        = $storeManager;
-        $this->_currencyFactory     = $currencyFactory;
+        $this->resource            = $resource;
+        $this->shippingConfig      = $shippingConfig;
+        $this->storeManager        = $storeManager;
+        $this->currencyFactory     = $currencyFactory;
         $this->currenciesModel      = $currencyModel;
-        $this->_priceCurrency       = $priceCurrency;
+        $this->priceCurrency       = $priceCurrency;
         $this->directoryHelper      = $directoryHelper;
-        $this->_registry            = $registry;
-        $this->_coreSession         = $coreSession;
-        $this->_warehouseFactory    = $warehouseFactory->create();
-        $this->_enituremodulesFactory    = $enituremodulesFactory->create();
-        $this->_moduleManager       = $context->getModuleManager();
+        $this->registry            = $registry;
+        $this->coreSession         = $coreSession;
+        $this->warehouseFactory    = $warehouseFactory;
+        $this->enituremodulesFactory    = $enituremodulesFactory;
+        $this->context       = $context;
+        $this->curl = $curl;
         parent::__construct($context);
     }
     
     /**
-     * 
      * @return array
      */
-    public function getOneRateServices(){
-        $checked = array();
-        if($this->_moduleManager->isEnabled('Eniture_BoxSizes')){
-            $checked = $this->_connection->fetchAll($this->_enituremodulesFactory->getCollection()->getSelect()->where("type=(?) AND boxavailable=(?)", 'onerate', '1'));
+    public function getOneRateServices()
+    {
+        $checked = [];
+        $moduleManager = $this->context->getModuleManager();
+        if ($moduleManager->isEnabled('Eniture_BoxSizes')) {
+            $defualtConn = \Magento\Framework\App\ResourceConnection::DEFAULTCONNECTION;
+            $checked = $this->resource->getConnection($defualtConn)->fetchAll(
+                $this->enituremodulesFactory->create()->getCollection()->getSelect()
+                ->where("type=(?) AND boxavailable=(?)", 'onerate', '1')->limit(30)
+            );
         }
         
-        return $checked;   
+        return $checked;
     }
     
     /**
-     * 
      * @param $section
      * @param $whereClause
      * @return array
      */
-    function fetchWarehouseSecData($location) {
-        $whCollection       = $this->_warehouseFactory->getCollection()->addFilter('location', array('eq' => $location));
+    public function fetchWarehouseSecData($location)
+    {
+        $whCollection       = $this->warehouseFactory->create()
+        ->getCollection()->addFilter('location', ['eq' => $location]);
         $warehouseSecData   = $this->purifyCollectionData($whCollection);
         
         return $warehouseSecData;
     }
     
-    function purifyCollectionData($whCollection) {
-        $warehouseSecData = array();
-        foreach($whCollection as $wh){
+    public function purifyCollectionData($whCollection)
+    {
+        $warehouseSecData = [];
+        foreach ($whCollection as $wh) {
             $warehouseSecData[] = $wh->getData();
         }
         return $warehouseSecData;
     }
     /**
-     * 
      * @param $section
      * @param $whereClause
      * @return array
      */
-    function fetchDropshipWithID($warehouseId) {
-        $whFactory = $this->_warehouseFactory;
+    public function fetchDropshipWithID($warehouseId)
+    {
+        $whFactory = $this->warehouseFactory->create();
         $dsCollection  = $whFactory->getCollection()
-                            ->addFilter('location', array('eq' => 'dropship'))
-                            ->addFilter('warehouse_id', array('eq' => $warehouseId));
+                            ->addFilter('location', ['eq' => 'dropship'])
+                            ->addFilter('warehouse_id', ['eq' => $warehouseId]);
         
         $dropshipSecData   = $this->purifyCollectionData($dsCollection);
         
@@ -117,47 +127,55 @@ class Data extends AbstractHelper
     }
     
     /**
-     * 
      * @param type $data
      * @param type $whereClause
      * @return type
      */
-    function updateWarehousData($data, $whereClause) {
-        return $this->_connection->update( "$this->_WHtableName", $data, "$whereClause" );
+    public function updateWarehousData($data, $whereClause)
+    {
+        $defualtConn = \Magento\Framework\App\ResourceConnection::DEFAULTCONNECTION;
+        $whTableName = $this->resource->getTableName('warehouse');
+        return $this->resource->getConnection($defualtConn)->update("$whTableName", $data, "$whereClause");
     }
     
     /**
-     * 
-     * @param type $id
      * @param type $data
+     * @param type $id
      * @return type
      */
-    function insertWarehouseData($data, $id) {
-        $insertQry = $this->_connection->insert( "$this->_WHtableName", $data );
+    public function insertWarehouseData($data, $id)
+    {
+        $defualtConn    = \Magento\Framework\App\ResourceConnection::DEFAULTCONNECTION;
+        $connection     =  $this->resource->getConnection($defualtConn);
+        $whTableName    = $this->resource->getTableName('warehouse');
+        $insertQry = $connection->insert("$whTableName", $data);
         if ($insertQry == 0) {
             $lastid = $id;
-        }else{
-            $lastid = $this->_connection->lastInsertId();
+        } else {
+            $lastid = $connection->lastInsertId();
         }
-        return array('insertId' => $insertQry, 'lastId' => $lastid);
+        return ['insertId' => $insertQry, 'lastId' => $lastid];
     }
     
     /**
-     * 
      * @param type $data
      * @return type
      */
-    function deleteWarehouseSecData($data) {
-        return $this->_connection->delete("$this->_WHtableName", $data);
+    public function deleteWarehouseSecData($data)
+    {
+        $defualtConn    = \Magento\Framework\App\ResourceConnection::DEFAULTCONNECTION;
+        $whTableName    = $this->resource->getTableName('warehouse');
+        return $this->resource->getConnection($defualtConn)->delete("$whTableName", $data);
     }
     
     /**
-     * 
      * @return string
      */
-    function checkPickupDeliveryAddon() {
+    public function checkPickupDeliveryAddon()
+    {
         $enable = 'no';
-        if($this->_moduleManager->isEnabled('ZEniture_InstorePickupLocalDelivery')){
+        $moduleManager = $this->context->getModuleManager();
+        if ($moduleManager->isEnabled('ZEniture_InstorePickupLocalDelivery')) {
             $enable = 'yes';
         }
         return $enable;
@@ -169,18 +187,19 @@ class Data extends AbstractHelper
      * @return array
      */
     
-    function fedexSmpkgOriginArray($inputData) {
-        $dataArr = array(
-                'city'                          => $inputData['city'],
-                'state'                         => $inputData['state'],
-                'zip'                           => $inputData['zip'],
-                'country'                       => $inputData['country'],
-                'location'                      => $inputData['location'], 
-                'nickname'                      => (isset($inputData['nickname']))?$inputData['nickname']:'',
-            );
-                        
-        if($this->_moduleManager->isEnabled('ZEniture_InstorePickupLocalDelivery')){
-            $pickupDelvryArr = array(
+    public function fedexSmpkgOriginArray($inputData)
+    {
+        $dataArr = [
+                'city'      => $inputData['city'],
+                'state'     => $inputData['state'],
+                'zip'       => $inputData['zip'],
+                'country'   => $inputData['country'],
+                'location'  => $inputData['location'],
+                'nickname'  => (isset($inputData['nickname'])) ? $inputData['nickname'] : '',
+            ];
+        $moduleManager = $this->context->getModuleManager();
+        if ($moduleManager->isEnabled('ZEniture_InstorePickupLocalDelivery')) {
+            $pickupDelvryArr = [
                 'enable_store_pickup'           => ($inputData['enable_instore'] === 'true')?1:0,
                 'miles_store_pickup'            => $inputData['address_miles_instore'],
                 'match_postal_store_pickup'     => $inputData['zipmatch_instore'],
@@ -191,24 +210,24 @@ class Data extends AbstractHelper
                 'checkout_desc_local_delivery'  => $inputData['desc_delivery'],
                 'fee_local_delivery'            => $inputData['fee_delivery'],
                 'suppress_local_delivery'       => ($inputData['supppress_delivery'] === 'true')?1:0,
-            );
+            ];
             $dataArr = array_merge($dataArr, $pickupDelvryArr);
         }
         return $dataArr;
     }
     
     /**
-     * 
      * @param type $scopeConfig
      */
-    function quoteSettingsData($scopeConfig) {
-        $fields = array(
+    public function quoteSettingsData($scopeConfig)
+    {
+        $fields = [
             'residentialDlvry'  => 'residentialDlvry',
             'fedexRates'        => 'fedexRates',
             'onlyGndService'    => 'onlyGndService',
             'gndHzrdousFee'     => 'gndHzrdousFee',
             'airHzrdousFee'     => 'airHzrdousFee',
-        );
+        ];
         foreach ($fields as $key => $field) {
             $this->$key = $this->adminConfigData($field, $scopeConfig);
         }
@@ -220,9 +239,10 @@ class Data extends AbstractHelper
     /**
      * getOriginZipCodeArr
      */
-    function getOriginZipCodeArr() {
-        if(!is_null($this->_registry->registry('shipmentOrigin'))){
-            $originArr = $this->_registry->registry('shipmentOrigin');
+    public function getOriginZipCodeArr()
+    {
+        if ($this->registry->registry('shipmentOrigin') !== null) {
+            $originArr = $this->registry->registry('shipmentOrigin');
         }
         
         foreach ($originArr as $key => $origin) {
@@ -235,18 +255,19 @@ class Data extends AbstractHelper
      * @param $sPostData
      * @return mixed
      */
-    function fedexSmpkgValidatedPostData($sPostData)
+    public function fedexSmpkgValidatedPostData($sPostData)
     {
-        foreach ($sPostData as $key => $tag) 
-        {            
-            $check_characters = (!$key == 'nickname') ? preg_match('/[#$%@^&_*!()+=\-\[\]\';,.\/{}|":<>?~\\\\]/', $tag) : '';
-            if ($check_characters != 1 ) 
-            {
-                if ($key === 'city' || $key === 'nickname' || $key === 'checkout_desc_store_pickup' || $key === 'checkout_desc_local_delivery' )
-                {
+        foreach ($sPostData as $key => $tag) {
+            $preg = '/[#$%@^&_*!()+=\-\[\]\';,.\/{}|":<>?~\\\\]/';
+            $check_characters = (!$key == 'nickname') ? preg_match($preg, $tag) : '';
+            if ($check_characters != 1) {
+                if ($key === 'city' ||
+                    $key === 'nickname' ||
+                    $key === 'checkout_desc_store_pickup' ||
+                    $key === 'checkout_desc_local_delivery') {
                     $data[$key] = $tag;
                 } else {
-                    $data[$key] = preg_replace( '/\s+/', '', $tag);
+                    $data[$key] = preg_replace('/\s+/', '', $tag);
                 }
             } else {
                 $data[$key] = 'Error';
@@ -257,78 +278,68 @@ class Data extends AbstractHelper
     }
         
     /**
-     * 
      * @param type $getWarehouse
      * @param type $validateData
      * @return string
      */
-        function checkUpdateInstrorePickupDelivery($getWarehouse, array $validateData){
-            $update = 'no';
+    public function checkUpdatePickupDelivery($getWarehouse, array $validateData)
+    {
+        $update = 'no';
 
-            if(empty($getWarehouse)){
-                return $update;
-            }
-            
-            $newData = array();
-            $oldData = array();
-
-            $getWarehouse = reset($getWarehouse);
-            unset($getWarehouse['warehouse_id']);
-            unset($getWarehouse['nickname']);
-            unset($validateData['nickname']);
-
-            foreach ($getWarehouse as $key => $value) {
-                if(empty($value) || is_null($value)){
-                    $newData[$key] = 'empty'; 
-                }else{
-                    $oldData[$key] = $value;
-                }
-            }
-
-            $whData = array_merge($newData, $oldData);
-            $diff1 = array_diff($whData, $validateData);
-            $diff2 = array_diff($validateData, $whData);
-
-            if((is_array($diff1) && !empty($diff1)) || (is_array($diff2) && !empty($diff2)) ){
-                $update = 'yes';
-            }
-
+        if (empty($getWarehouse)) {
             return $update;
         }
+
+        $newData = $oldData = [];
+        $getWarehouse = reset($getWarehouse);
+        unset($getWarehouse['warehouse_id']);
+        unset($getWarehouse['nickname']);
+        unset($validateData['nickname']);
+
+        foreach ($getWarehouse as $key => $value) {
+            if (empty($value) || $value === null) {
+                $newData[$key] = 'empty';
+            } else {
+                $oldData[$key] = $value;
+            }
+        }
+
+        $whData = array_merge($newData, $oldData);
+        $diff1 = array_diff($whData, $validateData);
+        $diff2 = array_diff($validateData, $whData);
+
+        if ((is_array($diff1) && !empty($diff1)) || (is_array($diff2) && !empty($diff2))) {
+            $update = 'yes';
+        }
+
+        return $update;
+    }
     
     /**
      * This function send request and return responce
-     * $isAssocArray Paramiter When TRUE, then returned objects will 
+     * $isAssocArray Paramiter When TRUE, then returned objects will
      * be converted into associative arrays, otherwise its an object
      * @param $url
      * @param $postData
      * @param $isAssocArray
      * @return
      */
-    public function fedexSmpkgSendCurlRequest($url,$postData,$isAssocArray=FALSE){
-        $field_string = http_build_query($postData);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $field_string);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
-        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        $info = curl_getinfo($ch);
-        curl_close($ch);
-        $result = json_decode($output,$isAssocArray);
-        return $result;  
+    public function fedexSmpkgSendCurlRequest($url, $postData, $isAssocArray = false)
+    {
+        $fieldString = http_build_query($postData);
+        $this->curl->post($url, $fieldString);
+        $output = $this->curl->getBody();
+        $result = json_decode($output, $isAssocArray);
+        return $result;
     }
     
     /**
-     * 
      * @param type $key
      * @return string|empty
      */
     public function getZipcode($key)
     {
-        $key =  explode("_" , $key);
+        $key = explode("_", $key);
         return (isset($key[0])) ? $key[0] : "";
     }
     
@@ -336,60 +347,60 @@ class Data extends AbstractHelper
      * FedEx Get Shipment Rated Array
      * @param $locationGroups
      */
-    function RatedShipmentDetails($locationGroups)
+    public function ratedShipmentDetails($locationGroups)
     {
         $rates_option = 'negotiated';
-        ( $rates_option == 'negotiated' ) ? $searchword = 'PAYOR_ACCOUNT' : $searchword = 'PAYOR_LIST';
+        ($rates_option == 'negotiated') ? $searchword = 'PAYOR_ACCOUNT' : $searchword = 'PAYOR_LIST';
 
-        $allLocations = array_filter($locationGroups,
-            function( $var ) use ( $searchword )
-        {
-            return preg_match("/^$searchword/",
-                $var->ShipmentRateDetail->RateType);
+        $allLocations = array_filter($locationGroups, function ($var) use ($searchword) {
+            return preg_match(
+                "/^$searchword/",
+                $var->ShipmentRateDetail->RateType
+            );
         });
 
         return $allLocations;
     }
-
-
+    
     /**
-    * Method Quotes
-    * @param $quotes
-    * @param $getMinimum
-    * @return array
-    */
-    public function getQuotesResults($quotes,$getMinimum,$isMultishipmentQuantity, $scopeConfig, $registry) {
-        
+     * @param type $quotes
+     * @param type $isMultishipmentQuantity
+     * @param type $scopeConfig
+     * @return type
+     */
+    public function getQuotesResults($quotes, $isMultishipmentQuantity, $scopeConfig)
+    {
         $allConfigServices = $this->getAllConfigServicesArray($scopeConfig);
         $this->quoteSettingsData($scopeConfig);
         
-        if($isMultishipmentQuantity){
-            return $this->getOriginsMinimumQuotes($quotes,$allConfigServices, $scopeConfig);
+        if ($isMultishipmentQuantity) {
+            return $this->getOriginsMinimumQuotes($quotes, $allConfigServices, $scopeConfig);
         }
         
-        $servicesArr = array();
-        $multiShipment = (count($quotes)>1 ? true : false);
+        $servicesArr = $filteredQuotes = [];
+        $multiShipment = (count($quotes) > 1 ? true : false);
         $totalMultiRate = 0;
-        $filteredQuotes = array();
 
         foreach ($quotes as $key => $quote) {
-            if(isset($quote->severity) && $quote->severity == 'ERROR') { return array(); }
-            $binPackaging[] = $this->setBinPackagingData($quote,$key);
+            if (isset($quote->severity) && $quote->severity == 'ERROR') {
+                return [];
+            }
+            $binPackaging[] = $this->setBinPackagingData($quote, $key);
 
             $shipment = $quote->shipment;
-            $quoteServices[$shipment] = (isset($allConfigServices[$shipment]))?$allConfigServices[$shipment]:array();
-            $onerateServices['fedexOneRate'] = $allConfigServices['onerateServices'];
+            $quoteServices[$shipment] = (isset($allConfigServices[$shipment])) ? $allConfigServices[$shipment] : [];
+            $onerateSrvcs['fedexOneRate'] = $allConfigServices['onerateServices'];
             
-            $filteredQuotes[$key] = $this->parseFedexSmallOutput($quote , $quoteServices, $onerateServices, $scopeConfig);
+            $filteredQuotes[$key] = $this->parseFedexSmallOutput($quote, $quoteServices, $onerateSrvcs, $scopeConfig);
         }
         
-        $this->_coreSession->start();
-        $this->_coreSession->setOrderBinPackaging($binPackaging);
+        $this->coreSession->start();
+        $this->coreSession->setOrderBinPackaging($binPackaging);
         
-        if(!$multiShipment){
-            $this->setOrderDetailWidgetData(array(), $scopeConfig);
+        if (!$multiShipment) {
+            $this->setOrderDetailWidgetData([], $scopeConfig);
             return reset($filteredQuotes);
-        }else{
+        } else {
             $multiShipQuotes = $this->getMultishipmentQuotes($filteredQuotes);
             $this->setOrderDetailWidgetData($multiShipQuotes['orderWidgetQ'], $scopeConfig);
             return $multiShipQuotes['multiShipQ'];
@@ -397,41 +408,45 @@ class Data extends AbstractHelper
     }
     
     /**
-     * 
      * @param type $filteredQuotes
      * @return array
      */
-    function getMultishipmentQuotes($filteredQuotes) {
+    public function getMultishipmentQuotes($filteredQuotes)
+    {
         $totalRate = 0;
         foreach ($filteredQuotes as $key => $multiQuotes) {
-            if(isset($multiQuotes[0])){
+            if (isset($multiQuotes[0])) {
                 $totalRate += $multiQuotes[0]['rate'];
                 $multiship[$key]['quotes'] = $multiQuotes[0];
             }
         }
         
-        $response['multiShipQ']['fedexSmall'] = $this->getFinalQuoteArray($totalRate, 'FedExSPMS', 'Shipping '.$this->residentialDelivery);
+        $response['multiShipQ']['fedexSmall'] = $this->getFinalQuoteArray(
+            $totalRate,
+            'FedExSPMS',
+            'Shipping '.$this->residentialDelivery
+        );
         $response['orderWidgetQ'] = $multiship;
         
         return $response;
     }
     
     /**
-     * 
      * @param type $quote
      * @param type $key
      * @return array
      */
-    function setBinPackagingData($quote,$key) {
-        $binPackaging = array();
-        isset($quote->fedexServices->binPackagingData)?
-            $binPackaging[$key]['fedexServices'] = $quote->fedexServices->binPackagingData : array();
+    public function setBinPackagingData($quote, $key)
+    {
+        $binPackaging = [];
+        isset($quote->fedexServices->binPackagingData) ?
+            $binPackaging[$key]['fedexServices'] = $quote->fedexServices->binPackagingData : [];
         
-        isset($quote->fedexOneRate->binPackagingData)?
-            $binPackaging[$key]['fedexOneRate'] = $quote->fedexOneRate->binPackagingData : array();
+        isset($quote->fedexOneRate->binPackagingData) ?
+            $binPackaging[$key]['fedexOneRate'] = $quote->fedexOneRate->binPackagingData : [];
         
-        isset($quote->fedexAirServices->binPackagingData)?
-            $binPackaging[$key]['fedexAirServices'] = $quote->fedexAirServices->binPackagingData : array();
+        isset($quote->fedexAirServices->binPackagingData) ?
+            $binPackaging[$key]['fedexAirServices'] = $quote->fedexAirServices->binPackagingData : [];
         
         return $binPackaging;
     }
@@ -442,105 +457,112 @@ class Data extends AbstractHelper
      * @param $serviceType
      * @return array
      */
-    function parseFedexSmallOutput($result , $idServices , $oneRateServices,$scopeConfig){  
-        $allServicesArray = array();
+    public function parseFedexSmallOutput($result, $idServices, $oneRateSrvcs, $scopeConfig)
+    {
+        $quote = $accessorials = $allServicesArray = [];
         $transitTime = "";
-        $accessorials = array();
         ($this->residentialDlvry == "1") ? $accessorials[] = "R" : "";
         
-        $quote = array();
-
-        if(isset($result->fedexServices) && !(isset($result->fedexAirServices,$result->fedexOneRate)))
-        {
+        if (isset($result->fedexServices) && !(isset($result->fedexAirServices, $result->fedexOneRate))) {
             $quote['fedexServices'] = $this->quoteDetail($result->fedexServices);
             $simpleQuotes = 1;
-        }
-        else
-        {
-            isset($result->fedexOneRate) ? 
+        } else {
+            isset($result->fedexOneRate) ?
                 $quote['fedexOneRate'] = $this->quoteDetail($result->fedexOneRate) : "";
 
-            isset($result->fedexAirServices) ? 
+            isset($result->fedexAirServices) ?
                 $quote['fedexAirServices'] = $this->quoteDetail($result->fedexAirServices) : "";
 
-            isset($result->fedexServices) ? 
+            isset($result->fedexServices) ?
                 $quote['fedexServices'] = $this->quoteDetail($result->fedexServices) : "";
         }
 
-        foreach ($quote as $serviceName => $servicesList) 
-        {   
-            if(isset($servicesList->serviceType,$servicesList->RatedShipmentDetails) && $servicesList->serviceType == "SMART_POST")
-            {
+        foreach ($quote as $serviceName => $servicesList) {
+            if (isset($servicesList->serviceType, $servicesList->ratedShipmentDetails)
+                && $servicesList->serviceType == "SMART_POST") {
                 //this condtion is working for smart post feature
-                $RatedShipmentDetails = $servicesList->RatedShipmentDetails;
+                $ratedShipmentDetails = $servicesList->ratedShipmentDetails;
                 $serviceType = $servicesList->serviceType;
                 $services = $idServices;
                 $serviceKeyName = key($services);
-                $service = $this->RatedShipmentDetails($RatedShipmentDetails);
+                $service = $this->ratedShipmentDetails($ratedShipmentDetails);
                 
-                $serviceTitle = (isset($services[$serviceKeyName][$serviceType])) ? $services[$serviceKeyName][$serviceType] : "";
+                $serviceTitle = (isset($services[$serviceKeyName][$serviceType])) ?
+                        $services[$serviceKeyName][$serviceType] : "";
 
-                $service = (!empty($service)) ? reset($service) : array();
+                $service = (!empty($service)) ? reset($service) : [];
                 
                 $totalCharge = $this->getQuoteAmount($service);
                 
                 $addedHandling = $this->calculateHandlingFee($totalCharge, $scopeConfig);
                 $grandTotal = $this->calculateHazardousFee($serviceType, $addedHandling);
 
-                $allServicesArray[$serviceType] = $this->getAllServicesArr($serviceType . "_" . $serviceName, $this->getQuoteServiceCode($serviceType . "_" . $serviceName), $grandTotal, $transitTime, $serviceTitle, $serviceName);
-            }
-            elseif(isset($servicesList) && (!empty($servicesList)))
-            {
-                $services = ($serviceName == "fedexOneRate") ? $oneRateServices : $idServices;
+                $allServicesArray[$serviceType] = $this->getAllServicesArr(
+                    $serviceType . "_" . $serviceName,
+                    $this->getQuoteServiceCode($serviceType . "_" . $serviceName),
+                    $grandTotal,
+                    $transitTime,
+                    $serviceTitle,
+                    $serviceName
+                );
+            } elseif (isset($servicesList) && (!empty($servicesList))) {
+                $services = ($serviceName == "fedexOneRate") ? $oneRateSrvcs : $idServices;
 
                 $serviceKeyName = key($services);
                 
-                if($serviceKeyName != "international" && (!isset($simpleQuotes)))
-                {
-                    if($serviceName == "fedexAirServices")
-                    {
-                        $homeGrdServices = array();
-                        (isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) ? $homeGrdServices[$serviceKeyName]['GROUND_HOME_DELIVERY'] = 'FedEx Home Delivery' : "";
-                        (isset($services[$serviceKeyName]['FEDEX_GROUND'])) ? $homeGrdServices[$serviceKeyName]['FEDEX_GROUND'] = 'FedEx Ground' : "";
+                if ($serviceKeyName != "international" && (!isset($simpleQuotes))) {
+                    if ($serviceName == "fedexAirServices") {
+                        $homeGrdServices = [];
+                        (isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) ?
+                        $homeGrdServices[$serviceKeyName]['GROUND_HOME_DELIVERY'] = 'FedEx Home Delivery' : "";
+                        (isset($services[$serviceKeyName]['FEDEX_GROUND'])) ?
+                        $homeGrdServices[$serviceKeyName]['FEDEX_GROUND'] = 'FedEx Ground' : "";
                         $services = $homeGrdServices;
+                    } elseif ($serviceName == "fedexServices") {
+                        if (isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) {
+                            unset($services[$serviceKeyName]['GROUND_HOME_DELIVERY']);
+                        }
+                        if (isset($services[$serviceKeyName]['FEDEX_GROUND'])) {
+                            unset($services[$serviceKeyName]['FEDEX_GROUND']);
+                        }
                     }
-                    elseif($serviceName == "fedexServices")
-                    {
-                        if(isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) unset ($services[$serviceKeyName]['GROUND_HOME_DELIVERY']);
-                        if(isset($services[$serviceKeyName]['FEDEX_GROUND'])) unset($services[$serviceKeyName]['FEDEX_GROUND']);
-                    }
-                }   
+                }
 
-                foreach ($servicesList as $serviceKey => $service) 
-                {
-                    if($serviceTitle = (isset($services[$serviceKeyName][$service->serviceType])) ? $services[$serviceKeyName][$service->serviceType] : "")
-                    {
+                foreach ($servicesList as $serviceKey => $service) {
+                    if ($serviceTitle = (isset($services[$serviceKeyName][$service->serviceType])) ?
+                        $services[$serviceKeyName][$service->serviceType] : "") {
+                        $autoResTitle = $this->getAutoResidentialTitle($service);
                     
-                    $autoResTitle = $this->getAutoResidentialTitle($service);
-                    
-                    if($serviceKeyName == "international" && $serviceName != "fedexAirServices" || $serviceKeyName != "international")
-                    {
-                        $transitTime = ( isset($service->transitTime) ) ? $service->transitTime : '';
+                        if ($serviceKeyName == "international"
+                                && $serviceName != "fedexAirServices"
+                                || $serviceKeyName != "international") {
+                            $transitTime = (isset($service->transitTime)) ? $service->transitTime : '';
 
-                        $serviceType = $service->serviceType;
+                            $serviceType = $service->serviceType;
 
-                        $totalCharge = $this->getQuoteAmount($service);
+                            $totalCharge = $this->getQuoteAmount($service);
 
-                        $addedHandling = $this->calculateHandlingFee($totalCharge, $scopeConfig);
-                        $grandTotal = $this->calculateHazardousFee($serviceType, $addedHandling);
+                            $addedHandling = $this->calculateHandlingFee($totalCharge, $scopeConfig);
+                            $grandTotal = $this->calculateHazardousFee($serviceType, $addedHandling);
 
-                        
-                        $allServicesArray[] = $this->getAllServicesArr($serviceType . "_" . $serviceName, $this->getQuoteServiceCode($serviceType . "_" . $serviceName), $grandTotal, $transitTime, $serviceTitle.' '.$autoResTitle, $serviceName);
+                            $allServicesArray[] = $this->getAllServicesArr(
+                                $serviceType . "_" . $serviceName,
+                                $this->getQuoteServiceCode($serviceType . "_" . $serviceName),
+                                $grandTotal,
+                                $transitTime,
+                                $serviceTitle.' '.$autoResTitle,
+                                $serviceName
+                            );
+                        }
                     }
                 }
             }
         }
-        }
 
-        $priceSortedKey = array();
+        $priceSortedKey = [];
         $allServicesArray = array_filter($allServicesArray);
         foreach ($allServicesArray as $key => $costCarrier) {
-                $priceSortedKey[$key] = $costCarrier['rate'];
+            $priceSortedKey[$key] = $costCarrier['rate'];
         }
         array_multisort($priceSortedKey, SORT_ASC, $allServicesArray);
 
@@ -548,21 +570,26 @@ class Data extends AbstractHelper
     }
     
     /**
-     * 
      * @param type $service
      * @return string
      */
-    function getAutoResidentialTitle($service) {
+    public function getAutoResidentialTitle($service)
+    {
         $append = '';
-
-        if($this->_moduleManager->isEnabled('Eniture_AutoDetectResidential') && (is_null($this->residentialDlvry) || $this->residentialDlvry == '0')){
-            if(isset($service->Surcharges->SurchargeType) && $service->Surcharges->SurchargeType == 'RESIDENTIAL_DELIVERY'){
+        $moduleManager = $this->context->getModuleManager();
+        if ($moduleManager->isEnabled('Eniture_AutoDetectResidential')
+            && $this->residentialDlvry == null
+            || $this->residentialDlvry == '0') {
+            if (isset($service->Surcharges->SurchargeType)
+                && $service->Surcharges->SurchargeType == 'RESIDENTIAL_DELIVERY') {
                 $append = ' with residential delivery';
-            }else{
-	        if(isset($service->Surcharges))
-                foreach ($service->Surcharges as $key => $surcharge) {
-                    if(isset($surcharge->SurchargeType) && $surcharge->SurchargeType == 'RESIDENTIAL_DELIVERY'){
-                        $append = ' with residential delivery';
+            } else {
+                if (isset($service->Surcharges)) {
+                    foreach ($service->Surcharges as $key => $surcharge) {
+                        if (isset($surcharge->SurchargeType)
+                            && $surcharge->SurchargeType == 'RESIDENTIAL_DELIVERY') {
+                            $append = ' with residential delivery';
+                        }
                     }
                 }
             }
@@ -572,16 +599,15 @@ class Data extends AbstractHelper
     }
     
     /**
-     * 
      * @param type $result
      * @return array
      */
-    public function quoteDetail($result){
-        return isset($result->RateReplyDetails) ? $result->RateReplyDetails : ((isset($result->q)) ? $result->q : array());
+    public function quoteDetail($result)
+    {
+        return isset($result->RateReplyDetails) ? $result->RateReplyDetails : ((isset($result->q)) ? $result->q : []);
     }
     
     /**
-     * 
      * @param type $serviceType
      * @param type $code
      * @param type $grandTotal
@@ -590,47 +616,48 @@ class Data extends AbstractHelper
      * @param type $serviceName
      * @return array
      */
-    function getAllServicesArr($serviceType, $code, $grandTotal, $transitTime, $serviceTitle, $serviceName) {
-        $allowed = array();
-        if( $grandTotal > 0 ) {
-            $allowed = array(
+    public function getAllServicesArr($serviceType, $code, $grandTotal, $transitTime, $serviceTitle, $serviceName)
+    {
+        $allowed = [];
+        if ($grandTotal > 0) {
+            $allowed = [
                 'serviceType'   => $serviceType,
                 'code'          => $code,
                 'rate'          => $grandTotal,
                 'transitTime'   => $transitTime,
                 'title'         => $serviceTitle,
                 'serviceName'   => $serviceName,
-            );
+            ];
         }
         return $allowed;
     }
     
     /**
-     * 
      * @param type $serviceType
      * @return string
      */
-    function getQuoteServiceCode($serviceType) {
+    public function getQuoteServiceCode($serviceType)
+    {
         $explode = explode('_', $serviceType);
         $lastKey = end($explode);         // move the internal pointer to the end of the array
         $lastKeyCode = $this->getLastKeyCode($lastKey);
         
         array_pop($explode);
-        $first  = (isset($explode[0]))?substr($explode[0], 0, 1):'';
-        $second = (isset($explode[1]))?substr($explode[1], 0, 1):'';
-        $third  = (isset($explode[2]))?substr($explode[2], 0, 1):'';
-        $fourth = (isset($explode[3]))?substr($explode[3], 0, 1):'';
+        $first  = (isset($explode[0])) ? substr($explode[0], 0, 1) : '';
+        $second = (isset($explode[1])) ? substr($explode[1], 0, 1) : '';
+        $third  = (isset($explode[2])) ? substr($explode[2], 0, 1) : '';
+        $fourth = (isset($explode[3])) ? substr($explode[3], 0, 1) : '';
         
-        $code = $first.$second.$third.$fourth.$lastKeyCode; 
+        $code = $first.$second.$third.$fourth.$lastKeyCode;
         return $code;
     }
     
     /**
-     * 
      * @param type $lastKey
      * @return string
      */
-    function getLastKeyCode($lastKey) {
+    public function getLastKeyCode($lastKey)
+    {
         $code = '';
         switch ($lastKey) {
             case 'fedexAirServices':
@@ -642,7 +669,6 @@ class Data extends AbstractHelper
             case 'fedexServices':
                 $code = 'NML';
                 break;
-
             default:
                 break;
         }
@@ -650,56 +676,53 @@ class Data extends AbstractHelper
     }
 
     /**
-     * 
      * @param type $serviceType
      * @param type $addedHandling
      * @return type
      */
-    function calculateHazardousFee($serviceType, $addedHandling) {
+    public function calculateHazardousFee($serviceType, $addedHandling)
+    {
         $hazourdous = $this->checkHazardousShipment();
-        if(count($hazourdous) > 0){
-            $ground = ($serviceType == 'FEDEX_GROUND' || $serviceType == 'GROUND_HOME_DELIVERY')?true:false;
+        if (!empty($hazourdous)) {
+            $ground = ($serviceType == 'FEDEX_GROUND' || $serviceType == 'GROUND_HOME_DELIVERY') ? true : false;
             $addedHazardous = 0 ;
-            if($this->onlyGndService == '1' ){
-                if($ground){
-                    $addedHazardous = $this->gndHzrdousFee + $addedHandling; 
+            if ($this->onlyGndService == '1') {
+                if ($ground) {
+                    $addedHazardous = $this->gndHzrdousFee + $addedHandling;
+                } elseif (!$ground && $this->airHzrdousFee !== '') {
+                    $addedHazardous = 0 ;
                 }
-                else if(!$ground && strlen($this->airHzrdousFee ) > 0 ){
-                        $addedHazardous = 0 ; 
-                }
-            }
-            else{
-                if($ground && strlen($this->gndHzrdousFee ) > 0 ){
-                    $addedHazardous = $this->gndHzrdousFee + $addedHandling; 
-                }else if(!$ground && strlen($this->airHzrdousFee ) > 0 ){
-                        $addedHazardous = $this->airHzrdousFee + $addedHandling; 
-                }else{
+            } else {
+                if ($ground && $this->gndHzrdousFee !== '') {
+                    $addedHazardous = $this->gndHzrdousFee + $addedHandling;
+                } elseif (!$ground && $this->airHzrdousFee !== '') {
+                    $addedHazardous = $this->airHzrdousFee + $addedHandling;
+                } else {
                     $addedHazardous = $addedHandling;
                 }
             }
-        }else{
+        } else {
             $addedHazardous = $addedHandling;
         }
         return $addedHazardous;
     }
     
     /**
-     * 
      * @return type
      */
-    public function checkHazardousShipment() {
-        $hazourdous = array();
-        $checkHazordous = $this->_registry->registry('hazardousShipment');
-        if(isset($checkHazordous)){
-            foreach($checkHazordous as $key => $data){
-                foreach ($data as $k => $d){
-                    if($d['isHazordous'] == '1'){
+    public function checkHazardousShipment()
+    {
+        $hazourdous = [];
+        $checkHazordous = $this->registry->registry('hazardousShipment');
+        if (isset($checkHazordous)) {
+            foreach ($checkHazordous as $key => $data) {
+                foreach ($data as $k => $d) {
+                    if ($d['isHazordous'] == '1') {
                         $hazourdous[] =  $k;
-                    } 
-                }  
-            } 
+                    }
+                }
+            }
         }
-
         return $hazourdous;
     }
     
@@ -707,17 +730,18 @@ class Data extends AbstractHelper
      * Convert Quotes currency to store base currency
      * @param type $availableServ
      */
-    function getQuoteAmount($availableServ) {
+    public function getQuoteAmount($availableServ)
+    {
         $fedexRateSource = $this->fedexRates;
-        if($fedexRateSource == 'negotiate'){
-            if($availableServ->NegotiatedRates->Amount){
+        if ($fedexRateSource == 'negotiate') {
+            if ($availableServ->NegotiatedRates->Amount) {
                 $quoteCurrency = $availableServ->NegotiatedRates->Currency;
                 $quoteAmmount = $availableServ->NegotiatedRates->Amount;
-            }else{
+            } else {
                 $quoteCurrency = $availableServ->totalNetCharge->Currency;
                 $quoteAmmount = $availableServ->totalNetCharge->Amount;
             }
-        }else{
+        } else {
             $quoteCurrency = $availableServ->totalNetCharge->Currency;
             $quoteAmmount = $availableServ->totalNetCharge->Amount;
         }
@@ -726,30 +750,32 @@ class Data extends AbstractHelper
     }
     
     /**
-     * 
      * @param type $serviceType
      * @param type $serviceTitle
      * @param type $minInQ
      * @return type
      */
-    function multishipSetOrderData($serviceType, $serviceTitle, $minInQ) {
+    public function multishipSetOrderData($serviceType, $serviceTitle, $minInQ)
+    {
         $servicesArr['quotes'] = $this->getFinalQuoteArray($minInQ, $serviceType, $serviceTitle);
         return $servicesArr;
     }
     
     /**
-     * 
      * @param type $servicesArr
      * @param type $QCount
      */
-    function setOrderDetailWidgetData(array $servicesArr, $scopeConfig) {
-        $orderDetail['residentialDelivery'] = ($this->residentialDelivery != '' || $this->residentialDlvry == '1')?'Residential Delivery':'';
-        $setPkgForOrderDetailReg = null !== $this->_registry->registry('setPackageDataForOrderDetail')?$this->_registry->registry('setPackageDataForOrderDetail'):array();
+    public function setOrderDetailWidgetData(array $servicesArr, $scopeConfig)
+    {
+        $orderDetail['residentialDelivery'] = ($this->residentialDelivery != '' || $this->residentialDlvry == '1') ?
+            'Residential Delivery' : '';
+        $setPkgForOrderDetailReg = null !== $this->registry->registry('setPackageDataForOrderDetail') ?
+                $this->registry->registry('setPackageDataForOrderDetail') : [];
         $orderDetail['shipmentData'] = array_replace_recursive($setPkgForOrderDetailReg, $servicesArr);
         
         // set order detail widget data
-        $this->_coreSession->start();
-        $this->_coreSession->setOrderDetailSession($orderDetail);
+        $this->coreSession->start();
+        $this->coreSession->setOrderDetailSession($orderDetail);
     }
     
     /**
@@ -757,50 +783,50 @@ class Data extends AbstractHelper
      * @param $servicesArr
      * @return array
      */
-    public function findArrayMininum($servicesArr){
+    public function findArrayMininum($servicesArr)
+    {
         $counter = 1;
-        $minIndex = array();
+        $minIndex = [];
         foreach ($servicesArr as $key => $value) {
-            if($counter == 1){
-               $minimum =  $value['rate'];
-               $minIndex = $value;
-               $counter = 0;
-            }else{
-               if($value['rate'] < $minimum){
-                   $minimum =  $value['rate'];
-                   $minIndex = $value;
-               }
+            if ($counter == 1) {
+                $minimum =  $value['rate'];
+                $minIndex = $value;
+                $counter = 0;
+            } else {
+                if ($value['rate'] < $minimum) {
+                    $minimum =  $value['rate'];
+                    $minIndex = $value;
+                }
             }
         }
         return $minIndex;
     }
     
     /**
-     * 
      * @param array $quotes
      * @param array $allConfigServices
      * @param array $hazardousOriginArr
      * @return array
      */
-    public function getOriginsMinimumQuotes($quotes,$allConfigServices, $scopeConfig) {
-
-        $minIndexArr = array();
+    public function getOriginsMinimumQuotes($quotes, $allConfigServices, $scopeConfig)
+    {
+        $minIndexArr = [];
         foreach ($quotes as $key => $quote) {
             $minInQ = $counter = 0;
-            if(isset($quote->q)){
+            if (isset($quote->q)) {
                 foreach ($quote->q as $servkey => $availableServ) {
-                    if( isset($availableServ->serviceType) && in_array( $availableServ->serviceType, $allConfigServices ) ){
+                    if (isset($availableServ->serviceType)
+                        && in_array($availableServ->serviceType, $allConfigServices)) {
                         $curruntAmount = $availableServ->totalNetCharge->Amount;
-                        if($counter == 0){
+                        if ($counter == 0) {
                             $minInQ = $curruntAmount;
-                        }else{
+                        } else {
                             $minInQ = ($curruntAmount < $minInQ ? $curruntAmount : $minInQ);
-                        }   
-
+                        }
                         $counter ++;
                     }
                 }
-                if($minInQ > 0){
+                if ($minInQ > 0) {
                     $minInQ = $this->calculateHandlingFee($minInQ, $scopeConfig);
                     $minIndexArr[$key] = $minInQ;
                 }
@@ -814,10 +840,10 @@ class Data extends AbstractHelper
     * @return Avg Rate
     */
 
-    function fedexSmpkgLtlGetAvgRate($allServices, $numberOption, $activCarriers) {
-        $price = 0;
-        $totalPrice = 0;
-        if(count($allServices) > 0){
+    public function fedexSmpkgLtlGetAvgRate($allServices, $numberOption, $activCarriers)
+    {
+        $totalPrice = $price = 0;
+        if (!empty($allServices)) {
             foreach ($allServices as $services) {
                 $totalPrice += $services['rate'];
             }
@@ -828,7 +854,7 @@ class Data extends AbstractHelper
                     $price += $services['rate'];
                 }
                 $totalPrice = $price / $numberOption;
-            } else if(count($activCarriers) < $numberOption && count($activCarriers) < count($allServices)) {
+            } elseif (count($activCarriers) < $numberOption && count($activCarriers) < count($allServices)) {
                 $totalPrice = $totalPrice / count($activCarriers);
             } else {
                 $totalPrice = $totalPrice / count($allServices);
@@ -842,93 +868,116 @@ class Data extends AbstractHelper
      * This Function returns all active services array from configurations
      * @return array
      */
-    public function getAllConfigServicesArray($scopeConfig){
-        $domesticServices     = $scopeConfig->getValue('fedexQuoteSetting/third/FedExDomesticServices', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $domesticServices     = explode(',', $domesticServices);
+    public function getAllConfigServicesArray($scopeConfig)
+    {
+        $grpSec = 'fedexQuoteSetting/third';
+        $domSrvcs     = $scopeConfig->getValue(
+            $grpSec.'/FedExDomesticServices',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        $domSrvcs     = explode(',', $domSrvcs);
         
-        $internationalServices     = $scopeConfig->getValue('fedexQuoteSetting/third/FedExInternationalServices', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $internationalServices     = explode(',', $internationalServices);
+        $intSrvcs     = $scopeConfig->getValue(
+            $grpSec.'/FedExInternationalServices',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        $intSrvcs     = explode(',', $intSrvcs);
         
-        $onerateServices     = $scopeConfig->getValue('fedexQuoteSetting/third/FedExOneRateServices', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $onerateServices     = explode(',', $onerateServices);
+        $onerateSrvcs     = $scopeConfig->getValue(
+            $grpSec.'/FedExOneRateServices',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        $onerateSrvcs     = explode(',', $onerateSrvcs);
         
-        foreach ($domesticServices as $key => $service) {
+        foreach ($domSrvcs as $key => $service) {
             $domestic[$service] = $this->getServiceTitle($service, 'domestic');
         }
-        foreach ($internationalServices as $key => $service) {
+        foreach ($intSrvcs as $key => $service) {
             $international[$service] = $this->getServiceTitle($service, 'international');
         }
-        foreach ($onerateServices as $key => $service) {
+        foreach ($onerateSrvcs as $key => $service) {
             $onerate[$service] = $this->getServiceTitle($service, 'onerate');
         }
         
-        $allConfigServices = array(
+        $allConfigServices = [
             'domestic' => $domestic,
             'international' => $international,
             'onerateServices' => $onerate
-        );
+        ];
         
         return $allConfigServices;
     }
     
     /**
-    * Final quotes array
-    * @param $grandTotal
-    * @param $code
-    * @param $title
-    * @return array
-    */    
-    public function getFinalQuoteArray($grandTotal, $code, $title) {
-        $allowed = array();
-        if( $grandTotal > 0 ) {
-            $allowed = array(
+     * Final quotes array
+     * @param $grandTotal
+     * @param $code
+     * @param $title
+     * @return array
+     */
+    public function getFinalQuoteArray($grandTotal, $code, $title)
+    {
+        $allowed = [];
+        if ($grandTotal > 0) {
+            $allowed = [
                 'code'  => $code,// or carrier name
                 'title' => $title,
                 'rate'  => $grandTotal
-            );
+            ];
         }
         
         return $allowed;
     }
     
     /**
-    * Calculate Handling Fee
-    * @param $cost
-    * @return int
-    */
-    public function calculateHandlingFee($totalPrice, $scopeConfig) {
-        $hndlngFeeMarkup = $scopeConfig->getValue('fedexQuoteSetting/third/hndlngFee', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);;
-        $symbolicHndlngFee = $scopeConfig->getValue('fedexQuoteSetting/third/symbolicHndlngFee', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);;
+     * Calculate Handling Fee
+     * @param $cost
+     * @return int
+     */
+    public function calculateHandlingFee($totalPrice, $scopeConfig)
+    {
+        $grpSec = 'fedexQuoteSetting/third';
+        $hndlngFeeMarkup = $scopeConfig->getValue(
+            $grpSec.'/hndlngFee',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        $symbolicHndlngFee = $scopeConfig->getValue(
+            $grpSec.'/symbolicHndlngFee',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
 
-        if( strlen( $hndlngFeeMarkup ) > 0 ){
-            if( $symbolicHndlngFee == '%' ){
+        if ($hndlngFeeMarkup !== '') {
+            if ($symbolicHndlngFee == '%') {
                 $prcntVal = $hndlngFeeMarkup / 100 * $totalPrice;
                 $grandTotal = $prcntVal + $totalPrice;
-            }else{
+            } else {
                 $grandTotal = $hndlngFeeMarkup + $totalPrice;
             }
-        }else{
+        } else {
             $grandTotal = $totalPrice;
         }
         return $grandTotal;
     }
     
     /**
-     * 
      * @param type $fieldId
      * @param type $scopeConfig
      * @return type
      */
-    function adminConfigData($fieldId, $scopeConfig) {
-        return $scopeConfig->getValue("fedexQuoteSetting/third/$fieldId", \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    public function adminConfigData($fieldId, $scopeConfig)
+    {
+        return $scopeConfig->getValue(
+            "fedexQuoteSetting/third/$fieldId",
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
     
     /**
-     * 
      * @return type
      */
-    function getActiveCarriersForENCount() {
-        return $this->_shippingConfig->getActiveCarriers();
+    public function getActiveCarriersForENCount()
+    {
+        return $this->shippingConfig->getActiveCarriers();
     }
     
     /**
@@ -936,17 +985,17 @@ class Data extends AbstractHelper
      * @param $serviceId
      * @return array
      */
-    public function getServiceTitle($serviceId, $getServiceOf){
-        if($getServiceOf == 'onerate'){
+    public function getServiceTitle($serviceId, $getServiceOf)
+    {
+        if ($getServiceOf == 'onerate') {
             $haystack = $this->fedexOnerateCarriersWithTitle();
-        }elseif($getServiceOf == 'international'){
+        } elseif ($getServiceOf == 'international') {
             $haystack = $this->fedexInternationalCarriersWithTitle();
-        }else{
+        } else {
             $haystack = $this->fedexCarriersWithTitle();
         }
         
-        if(isset($haystack[$serviceId]))
-        {
+        if (isset($haystack[$serviceId])) {
             return $haystack[$serviceId];
         }
     }
@@ -955,7 +1004,8 @@ class Data extends AbstractHelper
      * fedex carrier codes with title
      * @return array
      */
-    function fedexCarriersWithTitle() {
+    public function fedexCarriersWithTitle()
+    {
         return [
                 'GROUND_HOME_DELIVERY'  => __('FedEx Home Delivery'),
                 'FEDEX_GROUND'          => __('FedEx Ground'),
@@ -968,8 +1018,9 @@ class Data extends AbstractHelper
             ];
     }
     
-    function fedexInternationalCarriersWithTitle(){
-        return array(
+    public function fedexInternationalCarriersWithTitle()
+    {
+        return [
             //international services
             'FEDEX_GROUND'                          => __('FedEx International Ground'),
             'INTERNATIONAL_ECONOMY'                 => __('FedEx International Economy'),
@@ -980,10 +1031,11 @@ class Data extends AbstractHelper
             'INTERNATIONAL_PRIORITY_DISTRIBUTION'   => __('FedEx International Priority Distribution'),
             'INTERNATIONAL_PRIORITY_FREIGHT'        => __('FedEx International Priority Freight'),
             'INTERNATIONAL_DISTRIBUTION_FREIGHT'    => __('FedEx International Distribution Freight'),
-        );
+        ];
     }
-    function fedexOnerateCarriersWithTitle() {
-        return array(
+    public function fedexOnerateCarriersWithTitle()
+    {
+        return [
             //onerate services
             'FEDEX_EXPRESS_SAVER'   => __('FedEx One Rate Express Saver'),
             'FEDEX_2_DAY'           => __('FedEx One Rate 2Day'),
@@ -991,6 +1043,6 @@ class Data extends AbstractHelper
             'STANDARD_OVERNIGHT'    => __('FedEx One Rate Standard Overnight'),
             'PRIORITY_OVERNIGHT'    => __('FedEx One Rate Priority Overnight'),
             'FIRST_OVERNIGHT'       => __('FedEx One Rate First Overnight'),
-        );
+        ];
     }
 }

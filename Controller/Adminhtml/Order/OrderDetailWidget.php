@@ -11,7 +11,7 @@ class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
     /**
      * @var \Magento\Framework\View\LayoutFactory
      */
-    protected $layoutFactory;
+    private $layoutFactory;
 
     /**
      * @param Action\Context $context

@@ -1,22 +1,22 @@
 <script type="text/javascript">
-    var fedexSmpkgWHEditAjaxUrl = '<?= $this->editWarehouseAjaxCall() ?>';
-    var fedexSmpkgWHDeleteAjaxUrl = '<?= $this->deleteWarehouseAjaxCall() ?>';
+    var fedexSmpkgWHEditAjaxUrl = '<?= /* @noEscape */ $block->editWarehouseAjaxCall() ?>';
+    var fedexSmpkgWHDeleteAjaxUrl = '<?= /* @noEscape */ $block->deleteWarehouseAjaxCall() ?>';
 </script>
 <div class="main_container">
     <h1>
-        <?= 
-            __('Warehouses')
+        <?=
+            /* @noEscape */ __('Warehouses')
         ?>
     </h1>
-    <a href="#add_warehouse_btn" class="add_warehouse_btn hide_val" name="avc" title=<?= __('Add Warehouse') ?>>
-        <?= 
-            __('Add')
+    <a href="#add_warehouse_btn" class="add_warehouse_btn hide_val" name="avc" title=<?= /* @noEscape */ __('Add Warehouse') ?>>
+        <?=
+            /* @noEscape */ __('Add')
         ?>
     </a>
     <div class="warehouse_text">
         <p>
-            <?= 
-                __('Warehouses that inventory all products not otherwise identified as drop shipped items. The warehouse with the lowest shipping cost to the destination is used for quoting purposes.')
+            <?=
+                /* @noEscape */ __('Warehouses that inventory all products not otherwise identified as drop shipped items. The warehouse with the lowest shipping cost to the destination is used for quoting purposes.')
             ?>
         </p>
     </div>
@@ -24,7 +24,7 @@
             <p>
                 <strong>
                     <?=
-                        __('Success! New warehouse added successfully.')
+                        /* @noEscape */ __('Success! New warehouse added successfully.')
                     ?>
                 </strong>
             </p>
@@ -33,7 +33,7 @@
             <p>
                 <strong>
                     <?=
-                        __('Success! Warehouse updated successfully.')
+                        /* @noEscape */ __('Success! Warehouse updated successfully.')
                     ?>
                 </strong>
             </p>
@@ -42,7 +42,7 @@
             <p>
                 <strong>
                     <?=
-                        __('Success! Warehouse deleted successfully.')
+                        /* @noEscape */ __('Success! Warehouse deleted successfully.')
                     ?>
                 </strong>
             </p>
@@ -52,139 +52,138 @@
         <thead>
             <tr>
                 <th>
-                    <?= 
-                        __('City')
+                    <?=
+                        /* @noEscape */ __('City')
                     ?>
                 </th>
                 <th>
-                    <?= 
-                        __('State')
+                    <?=
+                        /* @noEscape */ __('State')
                     ?>
                 </th>
                 <th>
-                    <?= 
-                        __('Zip')
+                    <?=
+                        /* @noEscape */ __('Zip')
                     ?>
                 </th>
                 <th>
-                    <?= 
-                        __('Country')
+                    <?=
+                        /* @noEscape */ __('Country')
                     ?>
                 </th>
                 <th>
-                    <?= 
-                        __('Action')
+                    <?=
+                        /* @noEscape */ __('Action')
                     ?>
                 </th>
             </tr>
         </thead>
          <tbody>
-            <?php 
-                $getWarehouses  = $this->_dataHelper->fetchWarehouseSecData('warehouse');
-                if($getWarehouses){
-                    foreach($getWarehouses as $r)
-                    {
+            <?php
+                $getWarehouses  = $block->dataHelper->fetchWarehouseSecData('warehouse');
+            if ($getWarehouses) {
+                foreach ($getWarehouses as $r) {
                 ?>
-                        <tr id="row_<?= $r['warehouse_id']; ?>" data-id="<?= $r['warehouse_id']; ?>">
+                    <tr id="row_<?= /* @noEscape */ $r['warehouse_id']; ?>" data-id="<?= /* @noEscape */ $r['warehouse_id']; ?>">
                             <td>
-                                <?= $r['city']; ?>
+                            <?= /* @noEscape */ $r['city']; ?>
                             </td>
                             <td>
-                                <?= $r['state']; ?>
+                            <?= /* @noEscape */ $r['state']; ?>
                             </td>
                             <td>
-                                <?= $r['zip']; ?>
+                            <?= /* @noEscape */ $r['zip']; ?>
                             </td>
                             <td>
-                                <?= $r['country']; ?>
+                            <?= /* @noEscape */ $r['country']; ?>
                             </td>
                             <td>
-                                <a href="javascript(0)" class="edit_warehouse" data-id="<?= $r['warehouse_id']; ?>;" title="<?= __('Edit') ?>" onclick="return fedexSmpkgEditWarehouse(<?= $r['warehouse_id']; ?>, fedexSmpkgWHEditAjaxUrl);">
-                                    <?= __('Edit') ?>
-                                </a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse(<?= $r['warehouse_id']; ?>, fedexSmpkgWHDeleteAjaxUrl);" data-id="<?= $r['warehouse_id']; ?>" title="<?= __('Delete') ?>">
-                                    <?= __('Delete') ?>
+                            <a href="javascript(0)" class="edit_warehouse" data-id="<?= /* @noEscape */ $r['warehouse_id']; ?>;" title="<?= /* @noEscape */ __('Edit') ?>" onclick="return fedexSmpkgEditWarehouse(<?= /* @noEscape */ $r['warehouse_id']; ?>, fedexSmpkgWHEditAjaxUrl);">
+                                <?= /* @noEscape */ __('Edit') ?>
+                            </a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse(<?= /* @noEscape */ $r['warehouse_id']; ?>, fedexSmpkgWHDeleteAjaxUrl);" data-id="<?= /* @noEscape */ $r['warehouse_id']; ?>" title="<?= /* @noEscape */ __('Delete') ?>">
+                                <?= /* @noEscape */ __('Delete') ?>
                                 </a>
                             </td>
                         </tr>
-            <?php   } 
-                }
+                <?php   }
+            }
             ?>
         </tbody>
     </table>
 
     <hr class="warehouse_hr">
 </div>
-    <!-- Add Popup for new warehouse -->
-    <div id="add_warehouse_btn" class="fedexSmpkg_warehouse_overlay">
-        <div class="add_warehouse_popup warehouseSection">
-            <h2 class="warehouse_heading">
-                <?= 
-                    __('Warehouse') 
-                ?>
-            </h2>
-            <a class="close" href="#">&times;</a>
-            
-            <div class="content FedEx_small_warehouseFormContent">
-                <div class="already_exist">
-                    <strong>
-                        <?= 
-                            __('Error!') 
-                        ?>
-                    </strong> 
-                    <?= __('Warehouse already exists.') ?>
-                </div>
-                <div class="not_allowed">
-                    <strong>
-                        <?= 
-                            __('Error!') 
-                        ?>
-                    </strong> 
-                    <?= __('Please select US or CA address.') ?>
-                </div>
-                <div class="api_error"></div>
+<!-- Add Popup for new warehouse -->
+<div id="add_warehouse_btn" class="fedexSmpkg_warehouse_overlay">
+    <div class="add_warehouse_popup warehouseSection">
+        <h2 class="warehouse_heading">
+            <?=
+                /* @noEscape */ __('Warehouse')
+            ?>
+        </h2>
+        <a class="close" href="#">&times;</a>
 
-                <div id="fedexSmpkgWarehouseForm">
-                    <input type="hidden" name="edit_form_id" value="" id="edit_form_id">
-                    <div class="add_warehouse_input">
-                        <label for="origin_zip">
-                            <?= __('Zip') ?>
-                        </label>
-                        <input type="text" title="<?= __('Zip') ?>" maxlength="7" value="" name="fedexSmpkg_warehouse_zip" placeholder="30214" id="fedexSmpkg_warehouse_zip" onchange="return fedexSmpkgGetAddressFromZip('<?= $this->getAjaxAddressUrl() ?>', this, fedexSmpkgGetAddressResSettings)" data-action="warehouse_get_address">
-                    </div>
-              
-                    <div class="add_warehouse_input city_input">
-                        <label for="origin_city">
-                            <?= __('City') ?>
-                        </label>
-                        <input type="text" title=<?= __('City') ?> class="alphaonly" value="" name="warehouse_origin_city" placeholder="Fayetteville" id="warehouse_origin_city">
-                    </div>
-              
-                    <div class="add_warehouse_input city_select" style="display:none;">
-                        <label for="origin_city">
-                            <?= __('City') ?>
-                        </label>
-                        <select id="actname" value=""></select>
-                    </div>
-              
-                    <div class="add_warehouse_input">
-                        <label for="origin_state">
-                            <?= __('State') ?>
-                        </label>
-                        <input type="text" title=<?= __('State') ?> class="alphaonly" maxlength="2" value="" name="warehouse_origin_state" placeholder="GA" id="warehouse_origin_state">
-                    </div>
-              
-                    <div class="add_warehouse_input">
-                        <label for="origin_country">
-                            <?= __('Country') ?>
-                        </label>
-                        <input type="text" title=<?= __('Country') ?> class="alphaonly" maxlength="2" name="warehouse_origin_country" value="" placeholder="US" id="warehouse_origin_country">
-                        <input type="hidden" name="warehouse_location" value="warehouse" id="warehouse_location">
-                    </div>
-              
-                    <div class="form-btns">
-                        <input type="submit" name="warehouse_submit_warehouse" value="Save" onclick="return fedexSmpkgSaveWarehouseData('<?= $this->savefedexSmpkgWarehouseAjaxCall() ?>');" class="save_warehouse_form">
-                    </div>
+        <div class="content FedEx_small_warehouseFormContent">
+            <div class="already_exist">
+                <strong>
+                    <?=
+                        /* @noEscape */ __('Error!')
+                    ?>
+                </strong> 
+                <?= /* @noEscape */ __('Warehouse already exists.') ?>
+            </div>
+            <div class="not_allowed">
+                <strong>
+                    <?=
+                        /* @noEscape */ __('Error!')
+                    ?>
+                </strong> 
+                <?= /* @noEscape */ __('Please select US or CA address.') ?>
+            </div>
+            <div class="api_error"></div>
+
+            <div id="fedexSmpkgWarehouseForm">
+                <input type="hidden" name="edit_form_id" value="" id="edit_form_id">
+                <div class="add_warehouse_input">
+                    <label for="origin_zip">
+                        <?= /* @noEscape */ __('Zip') ?>
+                    </label>
+                    <input type="text" title="<?= /* @noEscape */ __('Zip') ?>" maxlength="7" value="" name="fedexSmpkg_warehouse_zip" placeholder="30214" id="fedexSmpkg_warehouse_zip" onchange="return fedexSmpkgGetAddressFromZip('<?= /* @noEscape */ $block->getAjaxAddressUrl() ?>', this, /* @noEscape */ fedexSmpkgGetAddressResSettings)" data-action="warehouse_get_address">
+                </div>
+
+                <div class="add_warehouse_input city_input">
+                    <label for="origin_city">
+                        <?= /* @noEscape */ __('City') ?>
+                    </label>
+                    <input type="text" title=<?= /* @noEscape */ __('City') ?> class="alphaonly" value="" name="warehouse_origin_city" placeholder="Fayetteville" id="warehouse_origin_city">
+                </div>
+
+                <div class="add_warehouse_input city_select" style="display:none;">
+                    <label for="origin_city">
+                        <?= /* @noEscape */ __('City') ?>
+                    </label>
+                    <select id="actname" value=""></select>
+                </div>
+
+                <div class="add_warehouse_input">
+                    <label for="origin_state">
+                        <?= /* @noEscape */ __('State') ?>
+                    </label>
+                    <input type="text" title=<?= /* @noEscape */ __('State') ?> class="alphaonly" maxlength="2" value="" name="warehouse_origin_state" placeholder="GA" id="warehouse_origin_state">
+                </div>
+
+                <div class="add_warehouse_input">
+                    <label for="origin_country">
+                        <?= /* @noEscape */ __('Country') ?>
+                    </label>
+                    <input type="text" title=<?= /* @noEscape */ __('Country') ?> class="alphaonly" maxlength="2" name="warehouse_origin_country" value="" placeholder="US" id="warehouse_origin_country">
+                    <input type="hidden" name="warehouse_location" value="warehouse" id="warehouse_location">
+                </div>
+
+                <div class="form-btns">
+                    <input type="submit" name="warehouse_submit_warehouse" value="Save" onclick="return fedexSmpkgSaveWarehouseData('<?= /* @noEscape */ $block->savefedexSmpkgWarehouseAjaxCall() ?>');" class="save_warehouse_form">
                 </div>
             </div>
         </div>
     </div>
+</div>

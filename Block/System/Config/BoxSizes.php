@@ -1,36 +1,34 @@
 <?php
+
 namespace Eniture\FedExSmallPackages\Block\System\Config;
+
+use \Magento\Backend\Block\Template\Context;
+use \Magento\Framework\Module\Manager;
 
 class BoxSizes extends \Magento\Config\Block\System\Config\Form\Field
 {
     const BOXSIZES_TEMPLATE = 'system/config/boxsizes.phtml';
     
-    protected $_moduleManager;
+    private $moduleManager;
     public $enable = 'no';
     
     /**
-     * 
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Module\Manager $moduleManager
      * @param array $data
      */
-    public function __construct(
-            \Magento\Backend\Block\Template\Context $context,
-            \Magento\Framework\Module\Manager $moduleManager,
-            array $data = []
-    )
+    public function __construct(Context $context, Manager $moduleManager, array $data = [])
     {
-        $this->_moduleManager   = $moduleManager;
-        $this->checkBinPackagingModule();
+        $this->moduleManager   = $moduleManager;
         parent::__construct($context, $data);
     }
 
     /**
-     * 
      * @return $this
      */
-    protected function _prepareLayout()
+    public function _prepareLayout()
     {
+        $this->checkBinPackagingModule();
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
             $this->setTemplate(static::BOXSIZES_TEMPLATE);
@@ -39,11 +37,10 @@ class BoxSizes extends \Magento\Config\Block\System\Config\Form\Field
     }
   
     /**
-     * 
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return html
      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
     }
@@ -51,9 +48,9 @@ class BoxSizes extends \Magento\Config\Block\System\Config\Form\Field
     /**
      * checkBinPackagingModule
      */
-    protected function checkBinPackagingModule() 
+    public function checkBinPackagingModule()
     {
-        if($this->_moduleManager->isEnabled('Eniture_BoxSizes')){
+        if ($this->moduleManager->isEnabled('Eniture_BoxSizes')) {
             $this->enable = 'yes';
         }
     }

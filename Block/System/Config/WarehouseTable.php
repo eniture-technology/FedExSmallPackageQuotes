@@ -1,4 +1,5 @@
 <?php
+
 namespace Eniture\FedExSmallPackages\Block\System\Config;
 
 use Magento\Backend\Block\Template\Context;
@@ -10,7 +11,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
     
     const WAREHOUSE_TEMPLATE = 'system/config/warehouse.phtml';
     
-    public $_dataHelper;
+    public $dataHelper;
     /**
      * @param Context $context
      * @param array $data
@@ -20,15 +21,14 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
         \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
         array $data = []
     ) {
-        $this->_dataHelper = $dataHelper;
+        $this->dataHelper = $dataHelper;
         parent::__construct($context, $data);
     }
     
     /**
-     * 
      * @return $this
      */
-    protected function _prepareLayout()
+    public function _prepareLayout()
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
@@ -38,7 +38,6 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
     }
     
     /**
-     * 
      * @param AbstractElement $element
      * @return element
      */
@@ -50,48 +49,42 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
     }
     
     /**
-     * 
      * @return url
      */
     public function getAjaxAddressUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/FedExSmallPkgOriginAddress/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/FedExSmallPkgOriginAddress/';
     }
     
     /**
-     * 
      * @return url
      */
-    public function saveFedExSmpkgWarehouseAjaxCall ()
+    public function saveFedExSmpkgWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/SaveWarehouse/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/SaveWarehouse/';
     }
     
     /**
-     * 
      * @return url
      */
-    public function editWarehouseAjaxCall ()
+    public function editWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/EditWarehouse/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/EditWarehouse/';
     }
     
     /**
-     * 
      * @return url
      */
-    public function deleteWarehouseAjaxCall ()
+    public function deleteWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/DeleteWarehouse/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/DeleteWarehouse/';
     }
 
     /**
-     * 
      * @return url
      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
     }
-    
 }

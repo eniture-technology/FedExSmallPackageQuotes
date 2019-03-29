@@ -9,10 +9,9 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
     const BUTTON_TEMPLATE = 'system/config/testconnection.phtml';
  
     /**
-     * 
      * @return $this
      */
-    protected function _prepareLayout()
+    public function _prepareLayout()
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
@@ -22,7 +21,6 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
     }
     
     /**
-     * 
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return element
      */
@@ -34,20 +32,18 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
     }
     
     /**
-     * 
      * @return url
      */
     public function getAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Test/TestConnection/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Test/TestConnection/';
     }
     
     /**
-     * 
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return array
      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         $this->addData(
             [

@@ -5,76 +5,75 @@ use \Magento\Framework\App\Action\Action;
 
 class FedExSmallPkgOriginAddress extends Action
 {
-	/**
-         * class property that have google api url
-         * @var string 
-         */
-        protected $_curlUrl = 'http://eniture.com/ws/addon/google-location.php';
-        protected $_dataHelper;
-        protected $_scopeConfig;
+    /**
+     * class property that have google api url
+     * @var string
+     */
+    public $curlUrl = 'http://eniture.com/ws/addon/google-location.php';
+    public $dataHelper;
+    public $scopeConfig;
 
-        /**
-         * 
-         * @param \Magento\Framework\App\Action\Context $context
-         * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
-         * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-         */
+    /**
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     */
 
-        public function __construct(
-                \Magento\Framework\App\Action\Context $context,
-                \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
-                \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-        ) {
-            $this->_dataHelper  = $dataHelper;
-            $this->_scopeConfig = $scopeConfig;
-            parent::__construct($context);
+    public function __construct(
+        \Magento\Framework\App\Action\Context $context,
+        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\App\RequestInterface $httpRequest
+    ) {
+        $this->dataHelper  = $dataHelper;
+        $this->scopeConfig = $scopeConfig;
+        $this->request = $httpRequest;
+        parent::__construct($context);
+    }
+
+    /**
+     * @return string
+     */
+    public function execute()
+    {
+        foreach ($this->getRequest()->getPostValue() as $key => $post) {
+            $data[$key] = filter_var($post, FILTER_SANITIZE_STRING);
         }
-        
-        /**
-         * @return string
-         */
-	function execute()
-        {
-            foreach ($this->getRequest()->getPostValue() as $key => $post){
-                $data[$key] = filter_var( $post, FILTER_SANITIZE_STRING );
-            }
-            
-            $originZip = isset( $data['origin_zip'] ) ? str_replace(' ', '', $data['origin_zip']) : '';
-        
-            if($originZip){
-                $mapResult = $this->googleApiCurl( $originZip, $this->_curlUrl );
-                $error = $this->errorChecking($mapResult);
 
-                if (empty($error)) {
-                    $addressArray = $this->addressArray( $mapResult );
-                }else {
-                    $addressArray = $error;
-                }
-                
-                $this->getResponse()->setHeader('Content-type', 'application/json');
-                $this->getResponse()->setBody(json_encode($addressArray));
+        $originZip = isset($data['origin_zip']) ? str_replace(' ', '', $data['origin_zip']) : '';
+
+        if ($originZip) {
+            $mapResult = $this->googleApiCurl($originZip, $this->curlUrl);
+            $error = $this->errorChecking($mapResult);
+
+            if (empty($error)) {
+                $addressArray = $this->addressArray($mapResult);
+            } else {
+                $addressArray = $error;
             }
+
+            $this->getResponse()->setHeader('Content-type', 'application/json');
+            $this->getResponse()->setBody(json_encode($addressArray));
         }
-        
-        
+    }
 
-    
     /**
      * Google API Curl
      * @param $originZip
      * @param $curlUrl
      * @return array
      */
-    public function googleApiCurl($originZip, $curlUrl) {
-        $licnsKey = $this->_scopeConfig->getValue('carriers/fedexConnectionSettings/licnsKey');
-        $post = array(
+    public function googleApiCurl($originZip, $curlUrl)
+    {
+        $licnsKey = $this->scopeConfig->getValue('carriers/fedexConnectionSettings/licnsKey');
+        $post = [
             'acessLevel'        => 'address',
             'address'           => $originZip,
             'eniureLicenceKey'  => $licnsKey,
-            'ServerName'        => $_SERVER['SERVER_NAME'],
-        );
+            'ServerName'        => $this->request->getServer('SERVER_NAME'),
+        ];
         
-        $response = $this->_dataHelper->fedexSmpkgSendCurlRequest($curlUrl, $post, true);
+        $response = $this->dataHelper->fedexSmpkgSendCurlRequest($curlUrl, $post, true);
         return $response;
     }
     
@@ -82,14 +81,15 @@ class FedExSmallPkgOriginAddress extends Action
      * Check If Error
      * @param $mapResult
      */
-    public function errorChecking($mapResult) {
-        $error = array();
-        if( isset( $mapResult['error'] ) && !empty( $mapResult['error'] ) ) {
-            $error = array( 'error' => $mapResult['error'] );
+    public function errorChecking($mapResult)
+    {
+        $error = [];
+        if (isset($mapResult['error']) && !empty($mapResult['error'])) {
+            $error = ['error' => $mapResult['error']];
         }
 
-        if ( isset($mapResult['results']) && count( $mapResult['results'] ) == 0 ) {
-            $error = array('result' => 'false');
+        if (isset($mapResult['results']) && count($mapResult['results']) == 0) {
+            $error = ['result' => 'false'];
         }
         
         $this->getResponse()->setHeader('Content-type', 'application/json');
@@ -101,34 +101,30 @@ class FedExSmallPkgOriginAddress extends Action
      * @param $mapResult
      * @return array
      */
-    public function addressArray($mapResult) {
+    public function addressArray($mapResult)
+    {
+        $city = $state = $country = $fstcity = $city_option = $cityName = "";
+        $zipcodeLocalities    = 0;
         
-        $city                   = "";
-        $state                  = "";
-        $country                = "";
-        $first_city             = "";
-        $city_option            = "";
-        $address_type           = "";
-        $city_name              = "";
-        $postcode_localities    = 0;
+        $arrComponents = isset($mapResult['results'][0]) ?
+                $mapResult['results'][0]['address_components'] : '';
+        $checkPostcodeLocalities = (isset($mapResult['results'][0]['postcode_localities'])) ?
+                $mapResult['results'][0]['postcode_localities'] : '';
         
-        $arrComponents = $mapResult['results'][0]['address_components'];
-        $checkPostcodeLocalities = (isset($mapResult['results'][0]['postcode_localities']))?$mapResult['results'][0]['postcode_localities']:'';
-        
-        if ( $checkPostcodeLocalities ) {
-            foreach ( $mapResult['results'][0]['postcode_localities'] as $index => $component ) {
-                $first_city = ( $index == 0 ) ? $component : $first_city;
-                $city_option .= '<option value="' . trim( $component ) . ' "> ' . $component . ' </option>';
+        if ($checkPostcodeLocalities) {
+            foreach ($mapResult['results'][0]['postcode_localities'] as $index => $component) {
+                $fstcity = ($index == 0) ? $component : $fstcity;
+                $city_option .= '<option value="' . trim($component) . ' "> ' . $component . ' </option>';
             }
 
-            $city = '<select id="' . $address_type . '_city" class="city-multiselect warehouse_multi_city select purolator_small_multi_state city_select_css" name="' . $address_type . '_city" aria-required="true" aria-invalid="false">
+            $city = '<select id="_city" class="city-multiselect city_select_css" name="_city">
                 ' . $city_option . '</select>';
-            $postcode_localities = 1;
-        } elseif ( $arrComponents ) {
-            foreach ( $arrComponents as $index => $component ) {
+            $zipcodeLocalities = 1;
+        } elseif ($arrComponents) {
+            foreach ($arrComponents as $index => $component) {
                 $type = $component['types'][0];
-                if ( $city == "" && ( $type == "sublocality_level_1" || $type == "locality" ) ) {
-                    $city_name = trim( $component['long_name'] );
+                if ($city == "" && ( $type == "sublocality_level_1" || $type == "locality")) {
+                    $cityName = trim($component['long_name']);
                 }
             }
         }
@@ -136,62 +132,75 @@ class FedExSmallPkgOriginAddress extends Action
         if ($arrComponents) {
             foreach ($arrComponents as $index => $state_app) {
                 $type = $state_app['types'][0];
-                if ($state == "" && ( $type == "administrative_area_level_1" )) {
+                if ($state == "" && ($type == "administrative_area_level_1")) {
                     $state_name = trim($state_app['short_name']);
                     $state = $state_name;
                 }
 
-                if ($country == "" && ( $type == "country" )) {
+                if ($country == "" && ($type == "country")) {
                     $country_name = trim($state_app['short_name']);
                     $country = $country_name;
                 }
             }
         }
         
-        return $this->originAddressArray($first_city, $city_name, $city, $state, $this->getCountryCode($country), $postcode_localities);
+        return $this->originAddressArray(
+            $fstcity,
+            $cityName,
+            $city,
+            $state,
+            $this->getCountryCode($country),
+            $zipcodeLocalities
+        );
     }
     
     /**
      * This function returns address array
-     * @param $first_city
-     * @param $city_name
+     * @param $fstcity
+     * @param $cityName
      * @param $city
      * @param $state
      * @param $country
-     * @param $postcode_localities
+     * @param $zipcodeLocalities
      * @return Array
      */
-    public function originAddressArray($first_city, $city_name, $city, $state, $country, $postcode_localities) {
-        return array(
-            'first_city'            => $first_city, 
-            'city'                  => $city_name, 
-            'city_option'           => $city, 
-            'state'                 => $state, 
-            'country'               => $country, 
-            'postcode_localities'   => $postcode_localities
-        );
+    public function originAddressArray($fstcity, $cityName, $city, $state, $country, $zipcodeLocalities)
+    {
+        return [
+            'first_city'            => $fstcity,
+            'city'                  => $cityName,
+            'city_option'           => $city,
+            'state'                 => $state,
+            'country'               => $country,
+            'postcode_localities'   => $zipcodeLocalities
+        ];
     }
 
     /**
-     * 
      * @param type $country
      * @return string
      */
-    public function getCountryCode( $country ) { 
-	$countryCode = $country; 
-	$country = strtolower( $country ); 
-	switch ( $country ) { 
-		case 'usa': $countryCode = 'US'; 
-		break; 
-		case 'can': $countryCode = 'CA'; 
-		break; 
-		case 'ca': $countryCode = 'CA'; 
-		break; 
-		case 'cn': $countryCode = 'CA'; 
-		break; 
-		default: $countryCode = strtoupper( $country ); 
-		break; 
-	} 
-	return $countryCode; 
-	}
+    public function getCountryCode($country)
+    {
+        $countryCode = $country;
+        $country = strtolower($country);
+        switch ($country) {
+            case 'usa':
+                $countryCode = 'US';
+                break;
+            case 'can':
+                $countryCode = 'CA';
+                break;
+            case 'ca':
+                $countryCode = 'CA';
+                break;
+            case 'cn':
+                $countryCode = 'CA';
+                break;
+            default:
+                $countryCode = strtoupper($country);
+                break;
+        }
+        return $countryCode;
     }
+}

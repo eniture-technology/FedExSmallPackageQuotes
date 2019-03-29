@@ -9,10 +9,9 @@ class UserGuide extends \Magento\Config\Block\System\Config\Form\Field
     const GUIDE_TEMPLATE = 'system/config/userguide.phtml';
  
     /**
-     * 
      * @return $this
      */
-    protected function _prepareLayout()
+    public function _prepareLayout()
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
@@ -22,11 +21,10 @@ class UserGuide extends \Magento\Config\Block\System\Config\Form\Field
     }
   
     /**
-     * 
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return html
      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
     }

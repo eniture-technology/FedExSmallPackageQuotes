@@ -7,38 +7,34 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
 {
     const RAD_TEMPLATE = 'system/config/resaddressdetection.phtml';
     
-    protected $_moduleManager;
+    public $moduleManager;
     public $enable = 'no';
-    protected $_objectManager;
+    public $objectManager;
     
     /**
-     * 
      * @param \Magento\Backend\Block\Template\Context $context
-     * @param ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\Module\Manager $moduleManager
      * @param \Magento\Framework\ObjectManagerInterface $objectmanager
      * @param array $data
      */
     public function __construct(
-            \Magento\Backend\Block\Template\Context $context,
-            \Magento\Framework\Module\Manager $moduleManager,
-            \Magento\Framework\ObjectManagerInterface $objectmanager,
-            array $data = []
-    )
-    {
-        $this->_objectManager   = $objectmanager;
-        $this->_moduleManager   = $moduleManager;
-        $this->_licenseKey      = $context->getScopeConfig()->getValue("carriers/fedexConnectionSettings/licnsKey", \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $this->checkBinPackagingModule();
+        \Magento\Backend\Block\Template\Context $context,
+        \Magento\Framework\Module\Manager $moduleManager,
+        \Magento\Framework\ObjectManagerInterface $objectmanager,
+        array $data = []
+    ) {
+        $this->moduleManager   = $moduleManager;
+        $this->context         = $context;
+        $this->objectManager   = $objectmanager;
         parent::__construct($context, $data);
     }
 
     /**
-     * 
      * @return $this
      */
-    protected function _prepareLayout()
+    public function _prepareLayout()
     {
+        $this->checkBinPackagingModule();
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
             $this->setTemplate(static::RAD_TEMPLATE);
@@ -47,11 +43,10 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     }
   
     /**
-     * 
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return html
      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
     }
@@ -59,20 +54,22 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     /**
      * checkBinPackagingModule
      */
-    protected function checkBinPackagingModule() 
+    public function checkBinPackagingModule()
     {
-        if($this->_moduleManager->isEnabled('Eniture_AutoDetectResidential')){
+        if ($this->moduleManager->isEnabled('Eniture_AutoDetectResidential')) {
+            $scopeConfig           = $this->context->getScopeConfig();
+            $configPath            = "carriers/fedexConnectionSettings/licnsKey";
+            $this->licenseKey = $scopeConfig->getValue($configPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        
             $this->enable = 'yes';
-            
-            $dataHelper             = $this->_objectManager->get("Eniture\AutoDetectResidential\Helper\Data");
-            $this->resAddDetectData = $dataHelper->resAddDetectDataHandling($this->_licenseKey);
+            $dataHelper             = $this->objectManager->get("Eniture\AutoDetectResidential\Helper\Data");
+            $this->resAddDetectData = $dataHelper->resAddDetectDataHandling($this->licenseKey);
             $this->smallTrialMsg    = $dataHelper->checkSmallModuleTrial();
             $this->radUseSuspended  = $dataHelper->radUseSuspended();
         }
     }
     
     /**
-     * 
      * @return url
      */
     public function suspendRADUrl()
@@ -81,7 +78,6 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     }
     
     /**
-     * 
      * @return url
      */
     public function autoRenewRADPlanUrl()

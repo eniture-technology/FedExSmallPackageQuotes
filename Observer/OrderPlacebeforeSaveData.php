@@ -6,57 +6,53 @@ use Magento\Framework\Event\ObserverInterface;
 
 class OrderPlacebeforeSaveData implements ObserverInterface
 {
-    
-    protected $_coreSession;
+    private $coreSession;
 
     /**
-     * 
      * @param \Magento\Framework\Session\SessionManagerInterface $coreSession
      */
     public function __construct(
         \Magento\Framework\Session\SessionManagerInterface $coreSession
-        
     ) {
-        $this->_coreSession = $coreSession;
+        $this->coreSession = $coreSession;
     }
 
     /**
-     * 
      * @param \Magento\Framework\Event\Observer $observer
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         try {
-            $orderDetailData = $this->_coreSession->getOrderDetailSession();
+            $orderDetailData = $this->coreSession->getOrderDetailSession();
             $order = $observer->getEvent()->getOrder();
             
-            if(count($orderDetailData['shipmentData']) == 1){
+            if (count($orderDetailData['shipmentData']) == 1) {
                 $orderDetailData['shipmentData'] = $this->setQuotesIfSingleShipment($orderDetailData, $order);
             }
             
             $order->setData('order_detail_data', json_encode($orderDetailData));
             $order->save();
         } catch (\Exception $e) {
-            error_log($e->getMessage());
+            $e->getMessage();
         }
     }
     
     /**
-     * 
      * @param type $orderDetailData
      * @param type $order
      * @return type
      */
-    public function setQuotesIfSingleShipment($orderDetailData, $order) {
+    private function setQuotesIfSingleShipment($orderDetailData, $order)
+    {
         $shippingMethod = explode('_', $order->getShippingMethod());
-        $newData = array();
+        $titlePart = "FedEx Small Packages Quotes - ";
+        $newData = [];
         foreach ($orderDetailData['shipmentData'] as $key => $data) {
-            $newData[$key]['quotes'] = array(
+            $newData[$key]['quotes'] = [
                                         'code'  => $shippingMethod[1],
-                                        'title' => str_replace("FedEx Small Packages Quotes - ", "", $order->getShippingDescription()),
+                                        'title' => str_replace($titlePart, "", $order->getShippingDescription()),
                                         'rate'  => number_format((float)$order->getShippingAmount(), 2, '.', '')
-                                    );
-            
+                                    ];
         }
         
         $mergedNewData = array_replace_recursive($orderDetailData['shipmentData'], $newData);

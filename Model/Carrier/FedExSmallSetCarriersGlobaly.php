@@ -2,19 +2,22 @@
 /**
  * FedEx Small Package
  * @package     FedEx Small Package
- * @author      Eniture Technology 
+ * @author      Eniture Technology
  */
 namespace Eniture\FedExSmallPackages\Model\Carrier;
+
 /**
  * Class for set carriers globally
  */
-class FedExSmallSetCarriersGlobaly{
-    protected $_dataHelper;
+class FedExSmallSetCarriersGlobaly
+{
+    public $dataHelper;
     /**
      * constructor of class
      */
-    public function _init($dataHelper) {
-        $this->_dataHelper = $dataHelper;
+    public function _init($dataHelper)
+    {
+        $this->dataHelper = $dataHelper;
     }
     
     /**
@@ -22,13 +25,14 @@ class FedExSmallSetCarriersGlobaly{
      * @param $FedExArr
      * @return boolean
      */
-    public function manageCarriersGlobaly($FedExArr, $registry){
+    public function manageCarriersGlobaly($FedExArr, $registry)
+    {
         $this->_registry = $registry;
-        if(is_null($this->_registry->registry('enitureCarriers'))){
-            $enitureCarriersArray = array();
+        if ($this->_registry->registry('enitureCarriers') === null) {
+            $enitureCarriersArray = [];
             $enitureCarriersArray['fedexSmall'] = $FedExArr;
             $this->_registry->register('enitureCarriers', $enitureCarriersArray);
-        }else{
+        } else {
             $carriersArr = $this->_registry->registry('enitureCarriers');
             $carriersArr['fedexSmall'] = $FedExArr;
             $this->_registry->unregister('enitureCarriers');
@@ -37,27 +41,27 @@ class FedExSmallSetCarriersGlobaly{
         
         $activeEnitureModulesCount = $this->getActiveEnitureModulesCount();
 
-        if(count($this->_registry->registry('enitureCarriers')) < $activeEnitureModulesCount){
-            return False;
-        }else{
-            return TRUE;
+        if (count($this->_registry->registry('enitureCarriers')) < $activeEnitureModulesCount) {
+            return false;
+        } else {
+            return true;
         }
     }
     /**
      * function that return count of active eniture modules
      * @return int
      */
-    public function getActiveEnitureModulesCount(){
-        $activeModules = array_keys($this->_dataHelper->getActiveCarriersForENCount());
-        $activeEnitureModulesArr = array_filter($activeModules, function($moduleName){
-            if(substr($moduleName, 0, 2) == 'EN'){
+    public function getActiveEnitureModulesCount()
+    {
+        $activeModules = array_keys($this->dataHelper->getActiveCarriersForENCount());
+        $activeEnitureModulesArr = array_filter($activeModules, function ($moduleName) {
+            if (substr($moduleName, 0, 2) == 'EN') {
                 return true;
             }
-                return false;                                
+                return false;
         });
             
         return count($activeEnitureModulesArr);
-        
     }
     
     /**
@@ -66,17 +70,18 @@ class FedExSmallSetCarriersGlobaly{
      * @param $quotes
      * @return array
      */
-    public function manageQuotes($quotes){
+    public function manageQuotes($quotes)
+    {
         $helpersArr = $this->_registry->registry('enitureHelpersCodes');
-        $resultArr = array();
+        $resultArr = [];
         foreach ($quotes as $key => $quote) {
             $helperId = $helpersArr[$key];
             $FedExResultData = $this->_registry->helper($helperId)->getQuotesResults($quote);
-            if($FedExResultData != False){
+            if ($FedExResultData != false) {
                 $resultArr[$key] = $FedExResultData;
-            }   
+            }
         }
         
         return $resultArr;
-    }   
+    }
 }

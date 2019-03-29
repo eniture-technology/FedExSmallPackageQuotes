@@ -1,4 +1,5 @@
 <?php
+
 namespace Eniture\FedExSmallPackages\App;
 
 class State extends \Magento\Framework\App\State

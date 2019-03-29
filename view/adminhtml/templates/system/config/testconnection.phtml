@@ -1,17 +1,17 @@
- 
 <?php
+
 $formData = [
     'divElement'       =>  '#success',
 ];
-$serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonEncode($formData);
+$serializedFormData = $block->helper('Magento\Framework\Json\Helper\Data')->jsonEncode($formData);
 ?>
 
 <div class="pp-buttons-container">
-    <button class="primary" id="<?= $block->getId() ?>" onclick="return fedexSmpkgTestConn('<?= $this->getAjaxCheckUrl() ?>');">
+    <button class="primary" id="<?= /* @noEscape */ $block->getId() ?>" onclick="return fedexSmpkgTestConn('<?= /* @noEscape */ $block->getAjaxCheckUrl() ?>');">
         <span>
             <span>
                 <span>
-                    <?= $block->escapeHtml($block->getButtonLabel()); ?>
+                    <?= /* @noEscape */ $block->escapeHtml($block->getButtonLabel()); ?>
                 </span>
             </span>
         </span>
@@ -22,12 +22,12 @@ $serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonE
 <div id="successCon" style="display: none;" class="test_connection_sccs">
     <strong>
         <?=
-            __('Success!')
+            /* @noEscape */ __('Success!')
         ?>
     </strong>
     <span id="succesText">
         <?=
-            __('The test resulted in a successful connection.')
+            /* @noEscape */ __('The test resulted in a successful connection.')
         ?>
     </span>
 </div>
@@ -36,12 +36,12 @@ $serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonE
 <div id="failCon" style="display: none;" class="test_connection_err">
     <strong>
         <?=
-            __('Error!')
+            /* @noEscape */ __('Error!')
         ?> 
     </strong>
     <span id="errorText">
         <?=
-            __('The credentials entered did not result in a successful test. Confirm your credentials and try again.')
+            /* @noEscape */ __('The credentials entered did not result in a successful test. Confirm your credentials and try again.')
         ?>
     </span>
 </div>

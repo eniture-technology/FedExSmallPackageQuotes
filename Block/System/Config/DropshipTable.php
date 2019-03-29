@@ -1,4 +1,5 @@
 <?php
+
 namespace Eniture\FedExSmallPackages\Block\System\Config;
 
 use Magento\Backend\Block\Template\Context;
@@ -8,9 +9,7 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 class DropshipTable extends Field
 {
     const DROPSHIP_TEMPLATE = 'system/config/dropship.phtml';
- 
-    
-    public $_dataHelper;
+    public $dataHelper;
     /**
      * @param Context $context
      * @param array $data
@@ -20,15 +19,14 @@ class DropshipTable extends Field
         \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
         array $data = []
     ) {
-        $this->_dataHelper = $dataHelper;
+        $this->dataHelper = $dataHelper;
         parent::__construct($context, $data);
     }
     
     /**
-     * 
      * @return $this
      */
-    protected function _prepareLayout()
+    public function _prepareLayout()
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
@@ -38,7 +36,6 @@ class DropshipTable extends Field
     }
     
     /**
-     * 
      * @param AbstractElement $element
      * @return parent
      */
@@ -50,46 +47,41 @@ class DropshipTable extends Field
     }
     
     /**
-     * 
      * @return url
      */
     public function getAjaxDsAddressUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/FedExSmallPkgOriginAddress/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/FedExSmallPkgOriginAddress/';
     }
     
     /**
-     * 
      * @return url
      */
-    public function saveDropshipAjaxCheckUrl ()
+    public function saveDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/SaveDropship/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/SaveDropship/';
     }
     
     /**
-     * 
      * @return url
      */
-    public function editDropshipAjaxCheckUrl ()
+    public function editDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/EditDropship/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/EditDropship/';
     }
     
     /**
-     * 
      * @return url
      */
-    public function deleteDropshipAjaxCheckUrl ()
+    public function deleteDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/DeleteDropship/'; 
+        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/DeleteDropship/';
     }
 
     /**
-     * 
      * @return url
      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
     }

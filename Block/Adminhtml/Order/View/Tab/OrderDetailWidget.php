@@ -1,7 +1,9 @@
 <?php
 namespace Eniture\FedExSmallPackages\Block\Adminhtml\Order\View\Tab;
 
-class OrderDetailWidget extends \Magento\Backend\Block\Template implements \Magento\Backend\Block\Widget\Tab\TabInterface
+use Magento\Backend\Block\Widget\Tab\TabInterface;
+
+class OrderDetailWidget extends \Magento\Backend\Block\Template implements TabInterface
 {
     /**
      * Template
@@ -15,7 +17,7 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements \Mage
      *
      * @var \Magento\Framework\Registry
      */
-    protected $coreRegistry = null;
+    private $coreRegistry = null;
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -62,7 +64,7 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements \Mage
      */
     public function canShowTab()
     {
-        if(is_null($this->coreRegistry->registry('orderWidgetFlag'))){
+        if ($this->coreRegistry->registry('orderWidgetFlag') === null) {
             $this->coreRegistry->register('orderWidgetFlag', 'yes');
             return true;
         }
