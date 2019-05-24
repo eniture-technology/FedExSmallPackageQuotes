@@ -66,7 +66,8 @@ class Edit extends \Magento\Catalog\Controller\Adminhtml\Product\Edit
         if (count($enitureModules) == 0) {
             return parent::execute();
         }
-        $activeModuleList = implode("','", $enitureModules);
+//        $activeModuleList = implode("','", $enitureModules);
+        $activeModuleList = $enitureModules;
         
         $enitureTableName = $this->resource->getTableName('enituremodules');
 
@@ -99,10 +100,16 @@ class Edit extends \Magento\Catalog\Controller\Adminhtml\Product\Edit
      */
     public function validateSourceModel($activeModuleList, $enitureTableName, $eavTableName, $enitureModules)
     {
-        $modulesCountDb = $this->conn->fetchAll(
-            $this->enModuleFactoryCreate->getCollection()
-            ->getSelect()->where('module_name NOT IN (?)', $activeModuleList)->limit(100)
-        );
+        $modulesCountDb = $existedModules = [];
+        $enModuleCollection = $this->enModuleFactoryCreate->getCollection();
+        foreach ($enModuleCollection as $value) {
+            $data = $value->getData();
+            if (!in_array($data['module_name'], $activeModuleList)) {
+                $modulesCountDb[] = $data;
+            } else {
+                $existedModules[] = $data;
+            }
+        }
         
         if (!empty($modulesCountDb)) {
             foreach ($modulesCountDb as $value) {
@@ -126,12 +133,8 @@ class Edit extends \Magento\Catalog\Controller\Adminhtml\Product\Edit
             }
 
             if ($this->dsSourceModel == null) {
-                $dropshipSource = $this->conn->fetchAll(
-                    $this->enModuleFactoryCreate->getCollection()
-                    ->getSelect()->where('module_name = (?)', "$enitureModules[0]")->limit(100)
-                );
                 $dataArr = [
-                    'source_model' => $dropshipSource[0]['dropship_source'],
+                    'source_model' => $existedModules[0]['dropship_source'],
                 ];
                 $this->conn->update($eavTableName, $dataArr, "attribute_code = 'en_dropship_location'");
             }

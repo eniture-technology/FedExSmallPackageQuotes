@@ -34,6 +34,14 @@ class EditDropship extends Action
 
         $getDropshipId  = $editDsData['edit_id'];
         $dropshipList   = $this->fetchDropshipList('dropship', $getDropshipId);
+        
+        //Get plan
+        $plan = $this->dataHelper->fedexSmallPlanName('ENFedExSmpkg');
+        if ($plan['planNumber'] != 3) {
+            $dropshipList[0]['in_store'] = null;
+            $dropshipList[0]['local_delivery'] = null;
+        }
+        
         //Change html entities code
         $nick = $dropshipList[0]['nickname'];
         $dropshipList[0]['nickname'] = html_entity_decode($nick, ENT_QUOTES);

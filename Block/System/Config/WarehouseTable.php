@@ -38,6 +38,26 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
     }
     
     /**
+     * Show FedEx Small Plan Notice
+     * @return string
+     */
+    public function fedexSmallPlanNotice()
+    {
+        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice();
+        return $planMsg;
+    }
+    
+    public function addWhRestriction()
+    {
+        return $this->dataHelper->whPlanRestriction();
+    }
+
+    public function checkInstorePkpDlvry()
+    {
+        return $this->dataHelper->checkAdvancePlan();
+    }
+
+    /**
      * @param AbstractElement $element
      * @return element
      */
@@ -53,7 +73,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function getAjaxAddressUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/FedExSmallPkgOriginAddress/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/FedExSmallPkgOriginAddress/';
     }
     
     /**
@@ -61,7 +81,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function saveFedExSmpkgWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/SaveWarehouse/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/SaveWarehouse/';
     }
     
     /**
@@ -69,7 +89,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function editWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/EditWarehouse/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/EditWarehouse/';
     }
     
     /**
@@ -77,7 +97,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function deleteWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/DeleteWarehouse/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/DeleteWarehouse/';
     }
 
     /**
@@ -86,5 +106,14 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
     public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
+    }
+    
+    /**
+     * this function return the current plan active
+     * @return mixed
+     */
+    public function getCurrentPlan()
+    {
+        return $this->dataHelper->checkAdvancePlan();
     }
 }

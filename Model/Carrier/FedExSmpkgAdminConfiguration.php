@@ -54,7 +54,7 @@ class FedExSmpkgAdminConfiguration
      */
     public function checkModuleIsEnabled()
     {
-        $grpSecPath = "carriers/fedexConnectionSettings/active";
+        $grpSecPath = "carriers/ENFedExSmpkg/active";
         return $this->scopeConfig->getValue($grpSecPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
     

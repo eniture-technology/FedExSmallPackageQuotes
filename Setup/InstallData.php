@@ -48,17 +48,18 @@ class InstallData implements InstallDataInterface
     private $productloader;
     
     private $resource;
-    
-    private $enModuleFactory;
+
+
+    private $palnUpgrade;
     
     /**
-     *
      * @param EavSetupFactory $eavSetupFactory
-     * @param \Magento\Framework\App\State $state
+     * @param \Eniture\FedExSmallPackages\App\State $state
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
-     * @param \Magento\Catalog\Model\ProductFactory$_productloader
+     * @param \Magento\Catalog\Model\ProductFactory $productloader
      * @param \Magento\Framework\App\ResourceConnection $resource
+     * @param \Magento\Eav\Model\Config $eavConfig
      */
     public function __construct(
         EavSetupFactory $eavSetupFactory,
@@ -68,16 +69,20 @@ class InstallData implements InstallDataInterface
         \Magento\Catalog\Model\ProductFactory $productloader,
         \Magento\Framework\App\ResourceConnection $resource,
         \Magento\Eav\Model\Config $eavConfig,
-        \Eniture\FedExSmallPackages\Model\EnituremodulesFactory $enModuleFactory
+        \Magento\Framework\HTTP\Client\Curl $curl,
+        \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
+        \Eniture\FedExSmallPackages\Cron\PlanUpgrade $planUpgrade
     ) {
         $this->eavSetupFactory      = $eavSetupFactory;
         $this->productMetadata      = $productMetadata;
         $this->collectionFactory    = $collectionFactory;
-        $this->productloader       = $productloader;
-        $this->resource            = $resource;
-        $this->eavConfig        = $eavConfig;
-        $this->enModuleFactory  = $enModuleFactory;
-        $this->state            = $state;
+        $this->productloader        = $productloader;
+        $this->resource             = $resource;
+        $this->eavConfig            = $eavConfig;
+        $this->state                = $state;
+        $this->curl                 = $curl;
+        $this->resourceConfig       = $resourceConfig;
+        $this->palnUpgrade          = $planUpgrade;
     }
        
     /**
@@ -88,6 +93,8 @@ class InstallData implements InstallDataInterface
         if (!$this->state->validateAreaCode()) {
             $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
         }
+        // Check plan info of current module
+        $this->palnUpgrade->execute();
         
         $this->connection = $this->resource
         ->getConnection(\Magento\Framework\App\ResourceConnection::DEFAULT_CONNECTION);
@@ -108,6 +115,7 @@ class InstallData implements InstallDataInterface
         $this->createEnitureModulesTable($installer);
         $this->updateProductDimensionalAttr($installer, $eavSetup);
         $this->checkLTLExistanceColumForEnModules($installer);
+        $this->checkISLDColumForWarehouse($installer);
         $installer->endSetup();
     }
     
@@ -251,6 +259,20 @@ class InstallData implements InstallDataInterface
                 78
             );
         }
+        
+        $isInsurance = $this->eavConfig->getAttribute('catalog_product', 'en_insurance')->getAttributeId();
+
+        if ($isInsurance == null) {
+            $this->getAttributeArray(
+                $eavSetup,
+                'en_insurance',
+                'int',
+                'Insure this item',
+                'select',
+                'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                79
+            );
+        }
         $installer->endSetup();
     }
     
@@ -324,7 +346,21 @@ class InstallData implements InstallDataInterface
                         ], 'location')
                 ->addColumn('nickname', Table::TYPE_TEXT, 30, [
                         'nullable'  => false,
-                        ], 'nickname');
+                        ], 'nickname')
+                ->addColumn(
+                    'in_store',
+                    Table::TYPE_TEXT,
+                    512,
+                    [],
+                    'in store pick up'
+                )
+                ->addColumn(
+                    'local_delivery',
+                    Table::TYPE_TEXT,
+                    512,
+                    [],
+                    'local delivery'
+                );
             $installer->getConnection()->createTable($table);
         }
         $installer->endSetup();
@@ -367,10 +403,6 @@ class InstallData implements InstallDataInterface
         $isNewModuleExist  = $this->connection->fetchOne(
             "SELECT count(*) AS count FROM ".$moduleTableName." WHERE module_name = '".$newModuleName."'"
         );
-
-        $this->enModuleFactory->getCollection()->create()
-            ->addFilter('module_name', ['eq' => $newModuleName]);
-        
         if ($isNewModuleExist == 0) {
             $insertDataArr = [
                 'module_name' => $newModuleName,
@@ -462,6 +494,50 @@ class InstallData implements InstallDataInterface
         }
 
         $this->connection->update($tableName, ['is_ltl' => 0], "module_name = 'ENFedExSmpkg'");
+        $installer->endSetup();
+    }
+
+    /**
+     * @param type $path
+     * @param type $value
+     */
+    function saveConfigurations($path, $value)
+    {
+        $this->resourceConfig->saveConfig(
+            $path,
+            $value,
+            \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            \Magento\Store\Model\Store::DEFAULT_STORE_ID
+        );
+    }
+    
+    /**
+     * Add column to eniture modules table
+     * @param $installer
+     */
+    private function checkISLDColumForWarehouse($installer)
+    {
+        $tableName = $installer->getTable('warehouse');
+        if ($installer->getConnection()->isTableExists($tableName) == true) {
+            if ($installer->getConnection()->tableColumnExists($tableName, 'in_store') === false &&
+                $installer->getConnection()->tableColumnExists($tableName, 'local_delivery') === false) {
+                $columns = [
+                    'in_store' => [
+                        'type'      => Table::TYPE_TEXT,
+                        'comment'   => 'in store pick up'
+                    ],
+                    'local_delivery' => [
+                        'type'      => Table::TYPE_TEXT,
+                        'comment'   => 'local delivery'
+                    ]
+
+                ];
+                $connection = $installer->getConnection();
+                foreach ($columns as $name => $definition) {
+                    $connection->addColumn($tableName, $name, $definition);
+                }
+            }
+        }
         $installer->endSetup();
     }
 }

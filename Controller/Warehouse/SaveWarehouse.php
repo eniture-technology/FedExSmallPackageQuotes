@@ -60,8 +60,14 @@ class SaveWarehouse extends Action
         }
 
         $lastId = ($updateQry) ? $warehouseId : $insertQry['lastId'];
+        $canAddWh = $this->dataHelper->whPlanRestriction();
+        $warehousList = $this->warehousListData($validateData, $insertQry, $updateQry, $lastId, $canAddWh);
 
-        $warehousList = $this->warehousListData($validateData, $insertQry, $updateQry, $lastId);
+        if ($warehouseId) {
+            $warehousList['whID'] = $warehouseId;
+        }
+
+
 
         $this->getResponse()->setHeader('Content-type', 'application/json');
         $this->getResponse()->setBody(json_encode($warehousList));
@@ -74,7 +80,7 @@ class SaveWarehouse extends Action
      * @param type $lastId
      * @return array
      */
-    public function warehousListData($validateData, $insertQry, $updateQry, $lastId)
+    public function warehousListData($validateData, $insertQry, $updateQry, $lastId, $canAddWh)
     {
         return [
             'origin_city' => $validateData['city'],
@@ -83,7 +89,8 @@ class SaveWarehouse extends Action
             'origin_country' => $validateData['country'],
             'insert_qry' => $insertQry['insertId'],
             'update_qry' => $updateQry,
-            'id' => $lastId
+            'id' => $lastId,
+            'canAddWh' => $canAddWh
         ];
     }
     

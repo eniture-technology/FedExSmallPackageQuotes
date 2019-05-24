@@ -3,7 +3,7 @@
     margin-left: -260px;
     width: 200% !important;
 }
-.conn-setting-note, .fedex-onerate-note {
+.conn-setting-note, .fedex-onerate-note, .plan-note {
     min-height: 23px !important;
     padding: 8px 8px 8px 15px !important;
     font-size: .85em !important;
@@ -13,6 +13,7 @@
     color: #3d6611 !important;
     margin-bottom: 10px !important;
     line-height: 2;
+    margin-top: 10px;
 }
 .warehouse {
     background: #f5f5f5 none repeat scroll 0 0;
@@ -77,10 +78,10 @@
     transition: all 5s ease-in-out;
 }
 .FedEx_small_warehouseFormContent {
-    width: 75%;
+    width: 100%;
     margin: 0px -10px 0px;
 }
-.add_warehouse_popup h2 {
+.add_warehouse_popup warehouse_heading {
     margin: 0 -12px 20px;
     color: #333 !important;
     font-family: Tahoma, Arial, sans-serif;
@@ -99,7 +100,7 @@
     color: #ea6153;
 }
 .add_warehouse_popup .content {
-    max-height: 30%;
+    max-height: 90%;
     overflow: auto;
 }
 
@@ -113,16 +114,15 @@
     width: 100%;
     text-align: right;
 }
-.add_warehouse_popup .content .add_warehouse_input input{
-    margin: 10px;
-    width: 55% !important;
+.add_warehouse_popup .content .add_warehouse_input input[type="text"]{
+    margin: 10px 11px;
+    width: 40%;
     padding: 5px;
 }
 .add_warehouse_popup .content .add_warehouse_input select{
     margin: 10px;   
     padding: 5px;
-    /*width: 75.2% !important;*/
-    width: 55% !important;
+    width: 40% !important;
 }
 .delete_ds_popup{
     height: 25% !important;
@@ -133,10 +133,10 @@
     border-color: #eb5202 !important;
     color: #fff !important;
     float: right;
-    margin: 10px 118px;
+    margin: 0% 22%;
     text-decoration: none;
-    width: 20% !important;
-    padding: 4px;
+    width: 10% !important;
+    padding: 10px;
     font-weight: bold;
     cursor: pointer;
     border: none;
@@ -144,7 +144,7 @@
 .save_warehouse_form:focus + div#add_warehouse_btn {
       display: none;
 }
-.already_exist{
+.already_exist , .wh-instore-miles-postal-err, .wh-local-miles-postals-err, .ds-instore-miles-postal-err, .ds-local-miles-postals-err{
     display: none;
     font-size: 12px;
     background: #faebe7;
@@ -308,9 +308,12 @@
     font-weight: bold !important;
 }
 .add_warehouse_input .err {
-    position: absolute;
+    position: relative;
     margin-top: 17px;
     font-size: 1.1rem !important;
+    float: right !important;
+    width: 20%;
+    text-align: left;
 }
 .warehouse_text{
     font-size: 14px;
@@ -337,14 +340,13 @@
 }
 .form-btns input[type="submit"]{
     float: right;
-    margin-right: 10px;
 }
 
 label[for="origin_zip"]:after, label[for="origin_city"]:after, label[for="origin_state"]:after, label[for="origin_country"]:after {
     content: " *";
     color: red;
 }
-label[for="carriers_fedexConnectionSettings_AccountNumber"]:after, label[for="carriers_fedexConnectionSettings_ProdutionPassword"]:after, label[for="carriers_fedexConnectionSettings_MeterNumber"]:after, label[for="carriers_fedexConnectionSettings_AuthenticationKey"]:after, label[for="carriers_fedexConnectionSettings_licnsKey"]:after{
+label[for="carriers_ENFedExSmpkg_AccountNumber"]:after, label[for="carriers_ENFedExSmpkg_ProdutionPassword"]:after, label[for="carriers_ENFedExSmpkg_MeterNumber"]:after, label[for="carriers_ENFedExSmpkg_AuthenticationKey"]:after, label[for="carriers_ENFedExSmpkg_licnsKey"]:after{
     content: '*';
     color: red;
     padding: 5px;
@@ -352,10 +354,13 @@ label[for="carriers_fedexConnectionSettings_AccountNumber"]:after, label[for="ca
 #fedexQuoteSetting_third_fedexRatespublish, #fedexQuoteSetting_third_fedexRatesnegotiate{
     margin: 0px -8px 0px !important;
 }
+#fedexQuoteSetting_third_transitDaysRestrictionByTransitTimeInDays, #fedexQuoteSetting_third_transitDaysRestrictionByCalenderDaysInTransit{
+    margin: 0px -8px 0px !important;
+}
 #row_fedexQuoteSetting_third_fedexRates td.value div.admin__field{
     padding-top: 0.05rem !important;
 }
-#fedexConnectionSettings_first span{
+#ENFedExSmpkg_first span{
     margin: 8px 0px 0px;
 }
 #fedexQuoteSetting_third_fedexRateSourcenegotiate{
@@ -394,3 +399,108 @@ label[for='Eniture-Menu-Option-section-three-AutoDetectResidentialAddress'] {
     /*display: none;*/
     content: '';
 }
+.warehouseSection, .dropshipSection{
+    height: 70%;
+    width: 50%;
+}
+
+.disabledDiv input, .disabled-bootstrap-tagsinput{
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+.is_heading_left, .ld_heading_left{
+    float: left;
+    margin: 0 !important;
+    font-weight: bold !important;
+}
+
+.is_heading_right, .ld_heading_right{
+    float: right;
+    color: red;
+    margin: 0 33.5% 0 0 !important;
+    font-weight: bold !important;
+}
+
+.is_heading_right:hover, .ld_heading_right:hover{
+    color: red;
+    text-decoration: none;
+}
+
+.inactiveLink {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+}
+.required-plan-msg {
+    color: red;
+    font-weight: bold;
+    margin-left: 10px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.required-plan-msg:hover{
+    text-decoration: none;
+    color: red;
+}
+
+.adv-plan-err{
+    position: absolute;
+    margin-left: 295px !important;
+    margin-top: 10px;
+}
+.std-plan-err{
+    position: absolute;
+    margin-left: 295px !important;
+}
+
+.tag.label.label-info span{
+    float: right;
+    margin: 0;
+}
+.bootstrap-tagsinput{
+    text-align: left;
+    margin-right: 1.8%;
+    border-radius: 0 !important;
+    width: 228px  !important;
+    box-shadow: none !important;
+    border-color: #adadad !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.bootstrap-tagsinput input{
+    width: 20% !important;
+    margin: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+}
+.bootstrap-tagsinput .tag.label.label-info{
+    display: inline-block;
+    padding: 2px 3px 3px 4px !important;
+    border-radius: 5px;
+    background-color: #ccc;
+    vertical-align: middle !important
+}
+.bootstrap-tagsinput .tag.label.label-info span{
+    text-align: right;
+    float: none;
+}
+
+.enable_checkbox{
+    margin-top: 20px !important;
+    margin-right: 59% !important;
+    margin-bottom: 10px !important;
+}
+
+#fedexSmpkgWarehouseForm, #fedexSmpkgDropshipForm{
+    width: 92%;
+
+}
+
+/*#ld_sup_rates, #ds_ld_sup_rates{*/
+/*    margin-top: 0 !important;*/
+/*}*/

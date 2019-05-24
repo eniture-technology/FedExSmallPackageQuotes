@@ -1,3 +1,12 @@
+<script type="text/javascript">
+    require([ 'jquery', 'jquery/ui'], function($){ 
+        $(document).ready(function($) {
+            var carrierdiv = '#fedexQuoteSetting_third-head';
+            currentPlanNote($, '<?php echo $this->fedexSmallPlanNotice(); ?>', carrierdiv);
+            planQuoteRestriction('<?php echo $this->planRstrctnQuoteSettng(); ?>');
+        });
+    });
+</script>
 <?php
 
 if ($block->enable == 'yes') {
@@ -8,8 +17,9 @@ if ($block->enable == 'yes') {
         <p>
             <?=
             /* @noEscape */ __(
-                'Click <a href="%1" target="_blank">here</a> to add the Auto detect residential addresses module.(<a href="%1" target="_blank">Learn more</a>)',
-                "https://eniture.com/magento2-residential-address-detection/"
+                'Click <a href="%1" target="_blank">here</a> to add the Auto detect residential addresses module.(<a href="%2" target="_blank">Learn more</a>)',
+                "https://eniture.com/magento2-residential-address-detection/",
+                "https://eniture.com/magento2-residential-address-detection/#documentation"
             )
             ?>
             </p>

@@ -10,6 +10,7 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     public $moduleManager;
     public $enable = 'no';
     public $objectManager;
+    public $dataHelper;
     
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -21,11 +22,16 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Module\Manager $moduleManager,
         \Magento\Framework\ObjectManagerInterface $objectmanager,
+        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
         array $data = []
     ) {
         $this->moduleManager   = $moduleManager;
         $this->context         = $context;
         $this->objectManager   = $objectmanager;
+        $this->dataHelper      = $dataHelper;
+        
+        $this->planRstrctnQuoteSettng();
+        
         parent::__construct($context, $data);
     }
 
@@ -58,7 +64,7 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     {
         if ($this->moduleManager->isEnabled('Eniture_AutoDetectResidential')) {
             $scopeConfig           = $this->context->getScopeConfig();
-            $configPath            = "carriers/fedexConnectionSettings/licnsKey";
+            $configPath            = "carriers/ENFedExSmpkg/licnsKey";
             $this->licenseKey = $scopeConfig->getValue($configPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         
             $this->enable = 'yes';
@@ -83,5 +89,23 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     public function autoRenewRADPlanUrl()
     {
         return $this->getbaseUrl().'/AutoDetectResidential/RAD/AutoRenewPlan/';
+    }
+    
+    /**
+     * Show FedEx Small Plan Notice
+     * @return string
+     */
+    public function fedexSmallPlanNotice()
+    {
+        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice();
+        return $planMsg;
+    }
+    
+    /**
+     * @return array
+     */
+    public function planRstrctnQuoteSettng()
+    {
+        return json_encode($this->dataHelper->quoteSettingFieldsToRestrict());
     }
 }

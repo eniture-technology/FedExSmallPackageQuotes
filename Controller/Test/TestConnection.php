@@ -5,8 +5,6 @@ use \Magento\Framework\App\Action\Action;
 
 class TestConnection extends Action
 {
-    public $curlUrl = 'http://eniture.com/ws/s/fedex/fedex_shipment_rates_test.php';
-
     public $dataHelper;
     
     /**
@@ -15,11 +13,10 @@ class TestConnection extends Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
-        \Magento\Framework\App\RequestInterface $httpRequest
+        \Eniture\FedExSmallPackages\Helper\Data $dataHelper
     ) {
         $this->dataHelper = $dataHelper;
-        $this->request = $httpRequest;
+        $this->request = $context->getRequest();
         parent::__construct($context);
     }
     
@@ -31,7 +28,6 @@ class TestConnection extends Action
         foreach ($this->getRequest()->getPostValue() as $key => $data) {
             $credentials[$key] = filter_var($data, FILTER_SANITIZE_STRING);
         }
-        
         $postData = [
             'platform'              => 'magento2',
             'fedex_user_id'         => $credentials['authenticationKey'],
@@ -42,7 +38,7 @@ class TestConnection extends Action
             'server_name'           => $this->request->getServer('SERVER_NAME'),
         ];
 
-        $response = $this->dataHelper->fedexSmpkgSendCurlRequest($this->curlUrl, $postData);
+        $response = $this->dataHelper->fedexSmpkgSendCurlRequest($this->dataHelper->wsHittingUrls('testConnection'), $postData);
         $result = $this->fedexSmpkgLtlTestConnResponse($response);
 
         $this->getResponse()->setHeader('Content-type', 'application/json');
@@ -50,7 +46,7 @@ class TestConnection extends Action
     }
 
     /**
-     * @param type $post
+     * @param type $responce
      */
     public function fedexSmpkgLtlTestConnResponse($responce)
     {

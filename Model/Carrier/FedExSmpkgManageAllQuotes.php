@@ -57,13 +57,10 @@ class FedExSmpkgManageAllQuotes
         $this->quotes = $quotesArr;
 
         $quotesCount = count($quotesArr);
-        
+
         if ($quotesCount == 1) {
             $servicesArr = $this->fedExGetAllQuotes();
-            
-            if ($this->moduleManager->isEnabled('ZEniture_InstorePickupLocalDelivery')) {
-                $servicesArr = $this->dataHelper->supperessOtherRates($request, $servicesArr, $this->registry);
-            }
+
             
             return $servicesArr;
         } elseif ($quotesCount > 1) {

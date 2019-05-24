@@ -9,5 +9,6 @@
         <link src="Eniture_FedExSmallPackages::js/fedexSmpkgDropship.js"/>
         <link src="Eniture_FedExSmallPackages::js/fedexOneRate.js"/>
         <link src="Eniture_FedExSmallPackages::js/fedexRAD.js"/>
+        <link src="Eniture_FedExSmallPackages::js/tagsinput/fedexsm-bootstrap-tagsinput.js"/>
     </head>
 </page>

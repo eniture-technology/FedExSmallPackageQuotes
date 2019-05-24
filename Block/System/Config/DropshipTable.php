@@ -46,12 +46,17 @@ class DropshipTable extends Field
         return parent::render($element);
     }
     
+    public function checkInstorePkpDlvry()
+    {
+        return $this->dataHelper->checkAdvancePlan();
+    }
+    
     /**
      * @return url
      */
     public function getAjaxDsAddressUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/FedExSmallPkgOriginAddress/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/FedExSmallPkgOriginAddress/';
     }
     
     /**
@@ -59,7 +64,7 @@ class DropshipTable extends Field
      */
     public function saveDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/SaveDropship/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Dropship/SaveDropship/';
     }
     
     /**
@@ -67,7 +72,7 @@ class DropshipTable extends Field
      */
     public function editDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/EditDropship/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Dropship/EditDropship/';
     }
     
     /**
@@ -75,7 +80,7 @@ class DropshipTable extends Field
      */
     public function deleteDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Dropship/DeleteDropship/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Dropship/DeleteDropship/';
     }
 
     /**
@@ -84,5 +89,14 @@ class DropshipTable extends Field
     public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();
+    }
+    
+    /**
+     * this function return the current plan active
+     * @return mixed
+     */
+    public function getCurrentPlan()
+    {
+        return $this->dataHelper->checkAdvancePlan();
     }
 }

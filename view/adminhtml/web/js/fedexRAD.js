@@ -6,7 +6,7 @@
     require([ 'jquery', 'jquery/ui'], function($){ 
         $(document).ready(function($) {
             if($("#suspend-rad-use").length > 0 && $("#suspend-rad-use").is(":disabled") == false) {
-                disablealwaysresidentialFedexSmall();
+                disablealwaysresidential();
                 if (($('#suspend-rad-use:checkbox:checked').length)>0) {
                     $("#fedexQuoteSetting_third_residentialDlvry").prop({disabled: false});    
                 } else {
@@ -37,7 +37,7 @@
      * 
      * @return {undefined}
      */
-    function disablealwaysresidentialFedexSmall(){
+    function disablealwaysresidential(){
         jQuery("#suspend-rad-use").on('click', function ()
         {
             if (this.checked) {

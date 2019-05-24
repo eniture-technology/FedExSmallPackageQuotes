@@ -50,38 +50,6 @@ class FedexBoxSizes extends \Magento\Config\Block\System\Config\Form\Field
     /**
      * @return url
      */
-    public function getAjaxAddressUrl()
-    {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/FedExSmallPkgOriginAddress/';
-    }
-    
-    /**
-     * @return url
-     */
-    public function saveFedExSmpkgWarehouseAjaxCall()
-    {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/SaveWarehouse/';
-    }
-    
-    /**
-     * @return url
-     */
-    public function editWarehouseAjaxCall()
-    {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/EditWarehouse/';
-    }
-    
-    /**
-     * @return url
-     */
-    public function deleteWarehouseAjaxCall()
-    {
-        return $this->getbaseUrl().'/FedExSmallPackages/Warehouse/DeleteWarehouse/';
-    }
-
-    /**
-     * @return url
-     */
     public function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         return $this->_toHtml();

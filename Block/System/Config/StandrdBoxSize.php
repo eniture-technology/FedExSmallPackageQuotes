@@ -27,7 +27,7 @@ class StandrdBoxSize extends \Magento\Config\Block\System\Config\Form\Field
     public function _prepareLayout()
     {
         parent::_prepareLayout();
-        if ($this->moduleManager->isOutputEnabled('Vendor_Module')) {
+        if ($this->moduleManager->isOutputEnabled('Eniture_BoxSizes')) {
             if (!$this->getTemplate()) {
                 $this->setTemplate(static::STNDRDBOX_TEMPLATE);
             }

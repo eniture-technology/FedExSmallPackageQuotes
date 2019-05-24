@@ -32,7 +32,8 @@ class DeleteWarehouse extends Action
             $qry    = $this->_dataHelper->deleteWarehouseSecData("warehouse_id='".$deleteID."'");
         }
         
-        $response = ['deleteID' => $deleteID, 'qryResp' => $qry];
+        $canAddWh = $this->_dataHelper->whPlanRestriction();
+        $response = ['deleteID' => $deleteID, 'qryResp' => $qry, 'canAddWh' => $canAddWh];
         $this->getResponse()->setHeader('Content-type', 'application/json');
         $this->getResponse()->setBody(json_encode($response));
     }

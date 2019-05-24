@@ -1,13 +1,26 @@
 <?php
 namespace Eniture\FedExSmallPackages\Block\System\Config;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use \Magento\Backend\Block\Template\Context;
+use Eniture\FedExSmallPackages\Helper\Data;
 use Magento\Mtf\Client\BrowserInterface;
 
 class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
 {
     const BUTTON_TEMPLATE = 'system/config/testconnection.phtml';
- 
+    
+    private $dataHelper;
+    /**
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param array $data
+     */
+    public function __construct(Context $context, Data $dataHelper, array $data = [])
+    {
+        $this->context = $context;
+        $this->dataHelper = $dataHelper;
+        parent::__construct($context, $data);
+    }
+    
     /**
      * @return $this
      */
@@ -36,7 +49,7 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function getAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/FedExSmallPackages/Test/TestConnection/';
+        return $this->getbaseUrl().'/fedexsmallpackages/Test/TestConnection/';
     }
     
     /**
@@ -53,5 +66,15 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
             ]
         );
         return $this->_toHtml();
+    }
+    
+    /**
+     * Show FedEx Small Plan Notice
+     * @return string
+     */
+    function fedexSmallPlanNotice()
+    {
+        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice();
+        return $planMsg;
     }
 }

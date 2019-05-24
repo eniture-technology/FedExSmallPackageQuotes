@@ -35,7 +35,7 @@
                 </div>
                 <?php
                 $lineItems = $order['item'];
-                $findHazardous = array_column($lineItems, 'hazardousMaterial');
+                $findHazardous = array_column($lineItems, 'isHazmatLineItem');
 
                 $residential = ($residential)?'Residential Delivery':'';
                 $hazordusFee = ($findHazardous[0] == 'Y')?'Hazardous material':'';

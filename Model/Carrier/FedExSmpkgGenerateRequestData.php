@@ -13,7 +13,7 @@ class FedExSmpkgGenerateRequestData
     public $airServicesPricing = '0';
     public $homeGroundPricing = '0';
     /**
-     * This var stores service type e.g domestic, international, both
+     * This variable stores service type e.g domestic, international, both
      * @var string
      */
     private $serviceType;
@@ -54,12 +54,11 @@ class FedExSmpkgGenerateRequestData
             'api'           => $this->getApiInfoArr($request->getDestCountryId(), $origin, $objectManager),
             'getDistance'   => $getDistance,
         ];
-        
         return  $fedexSmpkgArr;
     }
     
     /**
-     * fuction that generates request array
+     * Function that generates request array
      * @param $request
      * @param $FedExArr
      * @param $itemsArr
@@ -68,7 +67,7 @@ class FedExSmpkgGenerateRequestData
     public function generateRequestArray($request, $fedexSmpkgArr, $itemsArr, $objectmanager, $cart)
     {
         $carriers = $this->registry->registry('enitureCarriers');
-
+        $smartPost = $this->getConfigData('FedExSmartPost');
         $carriers['fedexSmall'] = $fedexSmpkgArr;
         $receiverAddress = $this->getReceiverData($request);
         
@@ -79,7 +78,8 @@ class FedExSmpkgGenerateRequestData
             
             'autoResidentials' => $this->autoResidentialDelivery(),
             'liftGateWithAutoResidentials' => '0',
-            'FedexOneRatePricing' => $this->FedexOneRatePricing,
+            'FedexOneRatePricing' => ($smartPost) ? '0' : $this->FedexOneRatePricing,
+            'FedexSmartPostPricing' => $smartPost,
             
             'requestKey'        => $cart->getQuote()->getId(),
             'carriers'          => $carriers,
@@ -235,19 +235,24 @@ class FedExSmpkgGenerateRequestData
             $this->registry->register('fedexServiceType', $this->serviceType);
         }
         
+        $smartPostData = ($this->getConfigData('FedExSmartPost')) ?
+            ['hubId' => $this->getConfigData('hubId'), 'indicia' => 'PARCEL_SELECT'] : [];
+        
         $apiArray = [
             'MeterNumber'       => $this->getConfigData('MeterNumber'),
             'password'          => $this->getConfigData('ProdutionPassword'),
             'key'               => $this->getConfigData('AuthenticationKey'),
             'AccountNumber'     => $this->getConfigData('AccountNumber'),
-            'prefferedCurrency' => 'USD',
+            'prefferedCurrency' => $this->registry->registry('baseCurrency'),
+            'includeDeclaredValue' => $this->registry->registry('en_insurance'),
                 'shipmentDate'  =>  date("d/m/y"),
                 'pkgType' => '00',
                 'residentialDelivery'   => $residential,
                 'saturdayDelivery'      => 'on',
-                'oneRatePricing'        => $this->oneRatePricing ,
-                'airServicesPricing'    => $this->airServicesPricing ,
-                'homeGroundPricing'     => $this->homeGroundPricing ,
+                'oneRatePricing'        => $this->oneRatePricing,
+                'airServicesPricing'    => $this->airServicesPricing,
+                'homeGroundPricing'     => $this->homeGroundPricing,
+                'smartPostData'         => $smartPostData,
         ];
         
         return  $apiArray;
@@ -290,7 +295,7 @@ class FedExSmpkgGenerateRequestData
     }
     
     /**
-     * funtion that returns weather this service is active or not
+     * Function that returns weather this service is active or not
      * @param string $serviceId
      * @return string
      */
@@ -318,21 +323,22 @@ class FedExSmpkgGenerateRequestData
             'residentialDlvry',
             'FedExDomesticServices',
             'FedExInternationalServices',
-            'FedExOneRateServices'
+            'FedExOneRateServices',
+            'FedExSmartPost'
         ];
         if (in_array($fieldId, $secThreeIds)) {
             $sectionId = 'fedexQuoteSetting';
             $groupId = 'third';
         } else {
             $sectionId = 'carriers';
-            $groupId = 'fedexConnectionSettings';
+            $groupId = 'ENFedExSmpkg';
         }
         $confPath = "$sectionId/$groupId/$fieldId";
         return $this->scopeConfig->getValue($confPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
 
     /**
-     * This function returns Reveiver Data Array
+     * This function returns Receiver Data Array
      * @param $request
      * @return array
      */

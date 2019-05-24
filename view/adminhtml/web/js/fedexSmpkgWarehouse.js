@@ -63,14 +63,16 @@ window.addEventListener("load", function() {
                 jQuery( "#warehouse_origin_country" ).val( data.country );
              }
              
-        }else if( data.result === 'false' ){
+        }else if( data.error === 'false' ){
             jQuery( '.not_allowed' ).show('slow');
             setTimeout(function () {
                 jQuery('.not_allowed').hide('slow');
             }, 5000);
         }else if( data.error ){
+            if(data.msg){
+                jQuery( '.api_error' ).html("<strong>Error!</strong> Licence key is invalid.");
+            }
                 jQuery( '.api_error' ).show('slow');
-                jQuery( '.api_error' ).html(data.error);
                 setTimeout(function () {
                     jQuery('.api_error').hide('slow');
                 }, 5000);
@@ -94,57 +96,57 @@ window.addEventListener("load", function() {
      */
     function fedexSmpkgSaveWarehouseData(ajaxUrl){
         var fedexSmpkgWhFormID = '#fedexSmpkgWarehouseForm';
-        var enable_instore_pickup = jQuery(fedexSmpkgWhFormID + " #enable-instore-pickup").is(':checked');
-        var enable_local_delivery = jQuery(fedexSmpkgWhFormID + " #enable-local-delivery").is(':checked');
-
-        jQuery('.local-delivery-fee-err').remove();
+        var enable_instore_pickup = jQuery("#enable_instore_pickup").is(':checked');
+        var enable_local_delivery = jQuery("#enable_local_delivery").is(':checked');
+        
         switch(true){
-            case (enable_instore_pickup && ( jQuery(fedexSmpkgWhFormID + " #instore-pickup-address").val().length == 0 && en_wd_check_postal_length(fedexSmpkgWhFormID + " #instore-pickup-zipmatch") )):
-                jQuery('.instore-miles-postal-err').show('slow');
-                document.querySelector(fedexSmpkgWhFormID + " .instore-pickup-heading").scrollIntoView({ behavior: 'smooth' });
-                setTimeout(function(){ jQuery('.instore-miles-postal-err').hide('slow'); }, 5000);
+            case (enable_instore_pickup && ( jQuery("#within_miles").val().length == 0 && jQuery("#postcode_match").val().length == 0 )):
+                jQuery('.wh-instore-miles-postal-err').show('slow');
+                jQuery('.FedEx_small_warehouseFormContent').animate({ scrollTop:jQuery("#wh_is_heading_left").offset().top}, 'slow');
+                setTimeout(function(){ jQuery('.wh-instore-miles-postal-err').hide('slow'); }, 5000);
                 return false;
                     
-            case (enable_local_delivery && ( jQuery(fedexSmpkgWhFormID + " #local-delivery-address").val().length == 0 && en_wd_check_postal_length(fedexSmpkgWhFormID + " #local-delivery-zipmatch") )):
-                jQuery('.local-miles-postals-err').show('slow');
-                document.querySelector(fedexSmpkgWhFormID + " .local-miles-postals-err").scrollIntoView({ behavior: 'smooth' });
-                setTimeout(function(){ jQuery('.local-miles-postals-err').hide('slow'); }, 5000);
+            case (enable_local_delivery && ( jQuery("#ld_within_miles").val().length == 0 && jQuery("#ld_postcode_match").val().length == 0)):
+                jQuery('.wh-local-miles-postals-err').show('slow');
+                jQuery('.FedEx_small_warehouseFormContent').animate({ scrollTop:jQuery("#wh_ld_heading_left").offset().top}, 'slow');
+                setTimeout(function(){ jQuery('.wh-local-miles-postals-err').hide('slow'); }, 5000);
                 return false;
                     
-            case (enable_local_delivery && jQuery(fedexSmpkgWhFormID + " #local-delivery-fee").val().length <= 0):
-                jQuery(fedexSmpkgWhFormID + " #local-delivery-fee").after('<span class="local-delivery-fee-err">Local delivery fee is required.</span>');
-                return false;
+            case (enable_local_delivery && (jQuery("#ld_fee").val().length == 0 || jQuery("#ld_fee").val() <= 0)):
+                    jQuery("#ld_fee").next('.err').text('Local delivery fee is required.');
+                    return false;
             }
 
         var validationCheck = fedexSmpkgFieldsValidation(fedexSmpkgWhFormID);
-        var fedexSmpkgInstorePickupFileds = typeof instorePickupInputVal !== 'undefined' && jQuery.isFunction(instorePickupInputVal)?instorePickupInputVal(fedexSmpkgWhFormID):'';
-        var fedexSmpkgLocalDeliveryFileds = typeof localDeliveryInputVal !== 'undefined' && jQuery.isFunction(localDeliveryInputVal)?localDeliveryInputVal(fedexSmpkgWhFormID):'';
-         
-        if(validationCheck == true){
-            var parameters = {
-                    'action'         : 'saveWarehouse',
-                    'originId'       : jQuery('#edit_form_id').val(),
-                    'city'           : jQuery('#warehouse_origin_city').val(),
-                    'state'          : jQuery('#warehouse_origin_state').val(),
-                    'zip'            : jQuery('#fedexSmpkg_warehouse_zip').val(),
-                    'country'        : jQuery('#warehouse_origin_country').val(),
-                    'location'       : 'warehouse'
-                };
 
-            var arrObj = [parameters, fedexSmpkgInstorePickupFileds, fedexSmpkgLocalDeliveryFileds];
-            if(fedexSmpkgInstorePickupFileds !== '' && fedexSmpkgLocalDeliveryFileds !== ''){
-                var whData = mergeWarehouseSectionObjects(arrObj);
-            }else{
-                var whData = parameters;
-            }
-            
-            ajaxRequest(whData, ajaxUrl, fedexSmpkgwarehouseSaveResSettings);
+        if(validationCheck == true){
+
+            var parameters = {
+                'action'            : 'saveWarehouse',
+                'originId'          : jQuery('#edit_form_id').val(),
+                'city'              : jQuery('#warehouse_origin_city').val(),
+                'state'             : jQuery('#warehouse_origin_state').val(),
+                'zip'               : jQuery('#fedexSmpkg_warehouse_zip').val(),
+                'country'           : jQuery('#warehouse_origin_country').val(),
+                'location'          : 'warehouse',
+                'instore_enable'    : enable_instore_pickup,
+                'is_within_miles'   : jQuery('#within_miles').val(),
+                'is_postcode_match' : jQuery('#postcode_match').val(),
+                'is_checkout_descp' : jQuery('#checkout_descp').val(),
+                'ld_enable'         : enable_local_delivery,
+                'ld_within_miles'   : jQuery('#ld_within_miles').val(),
+                'ld_postcode_match' : jQuery('#ld_postcode_match').val(),
+                'ld_checkout_descp' : jQuery('#ld_checkout_descp').val(),
+                'ld_fee'            : jQuery('#ld_fee').val(),
+                'ld_sup_rates'      : jQuery('#ld_sup_rates').is(':checked')
+            };
+            ajaxRequest(parameters, ajaxUrl, fedexSmpkgwarehouseSaveResSettings);
         }
         return false;
     }
         
     function fedexSmpkgwarehouseSaveResSettings(data){
-
+        addWarehouseRestriction(data.canAddWh);
         var WarehouseDataId = data.id;
         if (data.insert_qry == 1) {
 
@@ -172,13 +174,22 @@ window.addEventListener("load", function() {
             setTimeout(function(){
                 jQuery('.warehouse_updated').hide('slow');
              }, 5000);
-        }
-        else{
-            jQuery('.already_exist').show('slow');
-//            jQuery('.warehouseSection').height('54%');
-            setTimeout(function () {
-                jQuery('.already_exist').hide('slow');
-            }, 5000);
+        } else if(data.update_qry == 0) {
+
+            if(data.whID > 0){
+                jQuery('.warehouse_updated').css('display' , 'block');
+                window.location.href = jQuery('.close').attr('href');
+                jQuery( '#edit_form_id' ).val('');
+                setTimeout(function(){
+                    jQuery('.warehouse_updated').hide('slow');
+                }, 5000);
+            }else{
+                jQuery('.already_exist').show('slow');
+                jQuery('.FedEx_small_warehouseFormContent').animate({ scrollTop: 0 }, 'slow');
+                setTimeout(function () {
+                    jQuery('.already_exist').hide('slow');
+                }, 5000);
+            }
         }
         return true;
     }
@@ -191,6 +202,7 @@ window.addEventListener("load", function() {
      */
     function fedexSmpkgEditWarehouse(dataId, ajaxUrl)
     {
+        jQuery('.err').text('');
         var parameters = {
             'action'    : 'edit_warehouse',
             'edit_id'   : dataId
@@ -210,8 +222,9 @@ window.addEventListener("load", function() {
             jQuery( '#warehouse_origin_state' ).val( data[0].state );
             jQuery( '#warehouse_origin_country' ).val( data[0].country );
             
-            // Load inside pikup and local delivery data
-            typeof loadInsidePikupAndLocalDeliveryData !== 'undefined' && jQuery.isFunction(loadInsidePikupAndLocalDeliveryData)?loadInsidePikupAndLocalDeliveryData(data, '#fedexSmpkgWarehouseForm'):'';
+            if(data[0].in_store != null || data[0].local_delivery != null){
+                loadInsidePikupAndLocalDeliveryData(data[0], '#');
+            }
             
             jQuery('.fedexSmpkg_warehouse_overlay').show();
             window.location.href = jQuery('.add_warehouse_btn').attr('href');
@@ -245,6 +258,7 @@ window.addEventListener("load", function() {
         
         if (data.qryResp == 1) {
             jQuery('#row_'+data.deleteID).remove();
+            addWarehouseRestriction(data.canAddWh);
             jQuery('.warehouse_deleted').show('slow');
             setTimeout(function () {
                 jQuery('.warehouse_deleted').hide('slow');
@@ -252,4 +266,7 @@ window.addEventListener("load", function() {
         }
         return true;
     }
+    
+    
+    
     

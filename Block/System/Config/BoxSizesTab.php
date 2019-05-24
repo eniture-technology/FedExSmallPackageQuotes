@@ -7,12 +7,14 @@ use Magento\Mtf\Client\BrowserInterface;
 class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
 {
     const BOXSIZESTAB_TEMPLATE = 'system/config/boxsizestab.phtml';
-    
+
     private $moduleManager;
     public $enable = 'no';
-    private $boxSizeData;
+    public $boxSizeData;
     private $objectManager;
-    
+    private $dataHelper;
+    public $licenseKey;
+
     /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Module\Manager $moduleManager
@@ -23,11 +25,13 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Module\Manager $moduleManager,
         \Magento\Framework\ObjectManagerInterface $objectmanager,
+        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
         array $data = []
     ) {
         $this->moduleManager    = $moduleManager;
         $this->objectManager    = $objectmanager;
         $this->context          = $context;
+        $this->dataHelper      = $dataHelper;
         parent::__construct($context, $data);
     }
 
@@ -39,11 +43,11 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
         $this->checkBinPackagingModule();
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
-                $this->setTemplate(static::BOXSIZESTAB_TEMPLATE);
+            $this->setTemplate(static::BOXSIZESTAB_TEMPLATE);
         }
         return $this;
     }
-  
+
     /**
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return html
@@ -52,7 +56,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->_toHtml();
     }
-   
+
     /**
      * checkBinPackagingModule
      */
@@ -60,11 +64,11 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         if ($this->moduleManager->isEnabled('Eniture_BoxSizes')) {
             $scopeConfig            = $this->context->getScopeConfig();
-            $configPath             = "carriers/fedexConnectionSettings/licnsKey";
-            $licenseKey = $scopeConfig->getValue($configPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            $configPath             = "carriers/ENFedExSmpkg/licnsKey";
+            $this->licenseKey = $scopeConfig->getValue($configPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
             $this->enable           = 'yes';
             $dataHelper             = $this->objectManager->get("Eniture\BoxSizes\Helper\Data");
-            $this->boxSizeData      = $dataHelper->boxSizesDataHandling($licenseKey);
+            $this->boxSizeData      = $dataHelper->boxSizesDataHandling($this->licenseKey);
             $this->smallTrialMsg    = $dataHelper->checkSmallModuleTrial();
             $this->boxUseSuspended  = $dataHelper->boxUseSuspended();
             $this->getBoxSizes      = $dataHelper->getBoxSizes();
@@ -72,7 +76,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
             $this->fedexOneRateImg  = $dataHelper->fedexOneRateImg();
         }
     }
-    
+
     /**
      * @return url
      */
@@ -80,7 +84,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->getbaseUrl().'/BoxSizes/Box/SaveBoxsize/';
     }
-    
+
     /**
      * @return url
      */
@@ -88,7 +92,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->getbaseUrl().'/BoxSizes/Box/DeleteBoxsize/';
     }
-    
+
     /**
      * @return url
      */
@@ -96,7 +100,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->getbaseUrl().'/BoxSizes/Box/EditBoxsize/';
     }
-    
+
     /**
      * @return url
      */
@@ -104,7 +108,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->getbaseUrl().'/BoxSizes/Box/BoxAvailability/';
     }
-    
+
     /**
      * @return url
      */
@@ -112,7 +116,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->getbaseUrl().'/BoxSizes/Box/SuspendedBoxSizes/';
     }
-    
+
     /**
      * @return url
      */
@@ -120,7 +124,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->getbaseUrl().'/BoxSizes/Box/AutoRenewPlan/';
     }
-    
+
     /**
      * @return url
      */
@@ -128,7 +132,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     {
         return $this->getbaseUrl().'/BoxSizes/FedExOneRate/OneRateLoadBoxes/';
     }
-    
+
     /**
      * @return url
      */

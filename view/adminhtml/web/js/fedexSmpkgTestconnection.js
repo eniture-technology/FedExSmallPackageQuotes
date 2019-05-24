@@ -6,7 +6,7 @@
      */
     function fedexSmpkgTestConn(ajaxURL) {
         addfedexSmpkgTestConnTitle();
-        var validationCheck = fedexSmpkgFieldsValidation('#carriers_fedexConnectionSettings');
+        var validationCheck = fedexSmpkgFieldsValidation('#carriers_ENFedExSmpkg');
         if(validationCheck == true){
             fedexSmpkgTestConnectionAjaxCall(ajaxURL);
         }
@@ -18,13 +18,13 @@
      */
     function addfedexSmpkgTestConnTitle() 
     {
-        jQuery('#carriers_fedexConnectionSettings_title').attr('title', 'Plugin Title');
-        jQuery('#carriers_fedexConnectionSettings_title').attr('data-optional', '1');
-        jQuery('#carriers_fedexConnectionSettings_AccountNumber').attr('title', 'Account Number');
-        jQuery('#carriers_fedexConnectionSettings_ProdutionPassword').attr('title', 'Production Password');
-        jQuery('#carriers_fedexConnectionSettings_MeterNumber').attr('title', 'Meter Number');
-        jQuery('#carriers_fedexConnectionSettings_AuthenticationKey').attr('title', 'Authentication Key');
-        jQuery('#carriers_fedexConnectionSettings_licnsKey').attr('title', 'Plugin License Key');
+        jQuery('#carriers_ENFedExSmpkg_title').attr('title', 'Plugin Title');
+        jQuery('#carriers_ENFedExSmpkg_title').attr('data-optional', '1');
+        jQuery('#carriers_ENFedExSmpkg_AccountNumber').attr('title', 'Account Number');
+        jQuery('#carriers_ENFedExSmpkg_ProdutionPassword').attr('title', 'Production Password');
+        jQuery('#carriers_ENFedExSmpkg_MeterNumber').attr('title', 'Meter Number');
+        jQuery('#carriers_ENFedExSmpkg_AuthenticationKey').attr('title', 'Authentication Key');
+        jQuery('#carriers_ENFedExSmpkg_licnsKey').attr('title', 'Plugin License Key');
     }
     
     /**
@@ -34,11 +34,11 @@
      */
     function fedexSmpkgTestConnectionAjaxCall(ajaxURL){
         var credentials = {
-            accountNumber       : jQuery('#carriers_fedexConnectionSettings_AccountNumber').val(),
-            productionPass      : jQuery('#carriers_fedexConnectionSettings_ProdutionPassword').val(),
-            meterNumber         : jQuery('#carriers_fedexConnectionSettings_MeterNumber').val(),
-            authenticationKey   : jQuery('#carriers_fedexConnectionSettings_AuthenticationKey').val(),
-            pluginLicenceKey    : jQuery('#carriers_fedexConnectionSettings_licnsKey').val()
+            accountNumber       : jQuery('#carriers_ENFedExSmpkg_AccountNumber').val(),
+            productionPass      : jQuery('#carriers_ENFedExSmpkg_ProdutionPassword').val(),
+            meterNumber         : jQuery('#carriers_ENFedExSmpkg_MeterNumber').val(),
+            authenticationKey   : jQuery('#carriers_ENFedExSmpkg_AuthenticationKey').val(),
+            pluginLicenceKey    : jQuery('#carriers_ENFedExSmpkg_licnsKey').val()
         };
 
         ajaxRequest(credentials, ajaxURL, fedexSmpkgConnectSuccessFunction);

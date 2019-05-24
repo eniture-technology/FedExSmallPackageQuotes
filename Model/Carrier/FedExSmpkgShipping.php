@@ -114,17 +114,21 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
     public function collectRates(RateRequest $request)
     {
         if (!$this->scopeConfig->getValue(
-            'carriers/fedexConnectionSettings/active',
+            'carriers/ENFedExSmpkg/active',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         )
         ) {
             return false;
         }
         
-        if (empty($request->getDestPostcode()) || empty($request->getDestCountryId())) {
+        if (empty($request->getDestPostcode()) || empty($request->getDestCountryId()) ||
+            empty($request->getDestCity()) || empty($request->getDestRegionId())) {
             return false;
         }
-        
+        // set shipment origin globally for instore pickup and local delivery
+        if ($this->registry->registry('baseCurrency') === null) {
+            $this->registry->register('baseCurrency', $this->dataHelper->getBaseCurrencyCode());
+        }
         // Admin Configuration Class call
         $this->fedExAdminConfig->_init($this->scopeConfig, $this->registry);
         
@@ -134,12 +138,17 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         $package            = $this->getFedExSmpkgShipmentPackage($ItemsList, $receiverZipCode, $request);
         
         //Generate Request Data Class Initialization
-        $this->fedExReqData->_init($this->scopeConfig, $this->registry, $this->moduleManager, $this->objectManager);
+        $this->fedExReqData->_init(
+            $this->scopeConfig,
+            $this->registry,
+            $this->moduleManager,
+            $this->objectManager,
+            $this->httpRequest
+        );
         $fedexSmpkgArr = $this->fedExReqData->generateFedExSmpkgArray(
             $request,
             $package['origin'],
-            $this->objectManager,
-            $this->request
+            $this->objectManager
         );
 
         $fedexSmpkgArr['originAddress'] = $package['origin'];
@@ -163,16 +172,17 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             $this->objectManager,
             $this->cart
         );
-
         if (empty($requestArr)) {
             return false;
         }
 
+//        $url = 'https://eniture.com/ws/v2.0/index.php';
+        $url  = $this->dataHelper->wsHittingUrls('getQuotes');
         $quotes = $this->dataHelper->fedexSmpkgSendCurlRequest(
-            'https://eniture.com/ws/v2.0/index.php',
+            $url,
             $requestArr
         );
-        
+
         $this->fedexMangQuotes->_init(
             $quotes,
             $this->dataHelper,
@@ -186,6 +196,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         $this->session->setEnShippingQuotes($quotesResult);
         
         $fedexSmpkgQuotes = (!empty($quotesResult)) ? $this->setCarrierRates($quotesResult) : '';
+
         return $fedexSmpkgQuotes;
     }
     
@@ -263,7 +274,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             $this->productloader,
             $this->httpRequest
         );
-        
+
         $freightClass = '';
         
         $weightConfigExeedOpt = $this->scopeConfig->getValue(
@@ -290,7 +301,15 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                 } else {
                     $freightClass = '';
                 }
-                
+
+
+
+//                Checking if advance plan and setting insurance
+                $insurance = $this->dataHelper->checkAdvancePlan() ? ($_product->getData('en_insurance')) : 0;
+                if ($this->registry->registry('en_insurance') === null) {
+                    $this->registry->register('en_insurance', $insurance);
+                }
+
                 switch ($lineItemClass) {
                     case 77:
                         $lineItemClass = 77.5;
@@ -303,7 +322,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                 }
                 
                 $originAddress  = $this->fedExShipPkg->fedexSmpkgOriginAddress($_product, $receiverZipCode);
-                
+
                 $hazordousData[][$originAddress['senderZip']] = $this->setHazmatArray($_product);
                 
                 $package['origin'][$_product->getId()] = $originAddress;
@@ -321,19 +340,26 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                         'lineItemClass'          => ($lineItemClass == 'No Freight Class'
                         || $lineItemClass == 'No') ?
                         0 : $lineItemClass,
-                        'freightClass'           => $freightClass,
-                        'lineItemId'             => $_product->getId(),
-                        'lineItemName'           => $_product->getName(),
-                        'piecesOfLineItem'       => $productQty,
-                        'lineItemPrice'          => $_product->getPrice(),
-                        'lineItemWeight'         => number_format($_product->getWeight(), 2, '.', ''),
-                        'lineItemLength'         => number_format($length, 2, '.', ''),
-                        'lineItemWidth'          => number_format($width, 2, '.', ''),
-                        'lineItemHeight'         => number_format($height, 2, '.', ''),
-                        'hazardousMaterial'      => ($_product->getData('en_hazmat'))?'Y':'N',
-                        'shipBinAlone'           => $_product->getData('en_own_package'),
-                        'vertical_rotation'      => $_product->getData('en_vertical_rotation'),
+                        'freightClass'              => $freightClass,
+                        'lineItemId'                => $_product->getId(),
+                        'lineItemName'              => $_product->getName(),
+                        'piecesOfLineItem'          => $productQty,
+                        'lineItemPrice'             => $_product->getPrice(),
+                        'lineItemWeight'            => number_format($_product->getWeight(), 2, '.', ''),
+                        'lineItemLength'            => number_format($length, 2, '.', ''),
+                        'lineItemWidth'             => number_format($width, 2, '.', ''),
+                        'lineItemHeight'            => number_format($height, 2, '.', ''),
+                        'isHazmatLineItem'         => ($_product->getData('en_hazmat'))?'Y':'N',
+                        'product_insurance_active'  => $insurance,
+                        'shipBinAlone'              => $_product->getData('en_own_package'),
+                        'vertical_rotation'         => $_product->getData('en_vertical_rotation'),
                       ];
+
+                //Checking if plan is at least Standard
+                $plan = $this->dataHelper->fedexSmallPlanName("ENFedExSmpkg");
+                if ($plan['planNumber'] < 2) {
+                    unset($lineItems['isHazmatLineItem']);
+                }
 
                 $package['items'][$_product->getId()] = array_merge($lineItems);
                 $orderWidget[$originAddress['senderZip']]['item'][] = $package['items'][$_product->getId()];

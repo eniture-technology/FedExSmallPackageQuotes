@@ -9,7 +9,6 @@ class FedExSmallPkgOriginAddress extends Action
      * class property that have google api url
      * @var string
      */
-    public $curlUrl = 'http://eniture.com/ws/addon/google-location.php';
     public $dataHelper;
     public $scopeConfig;
 
@@ -22,12 +21,11 @@ class FedExSmallPkgOriginAddress extends Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\App\RequestInterface $httpRequest
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->dataHelper  = $dataHelper;
         $this->scopeConfig = $scopeConfig;
-        $this->request = $httpRequest;
+        $this->request = $context->getRequest();
         parent::__construct($context);
     }
 
@@ -43,7 +41,7 @@ class FedExSmallPkgOriginAddress extends Action
         $originZip = isset($data['origin_zip']) ? str_replace(' ', '', $data['origin_zip']) : '';
 
         if ($originZip) {
-            $mapResult = $this->googleApiCurl($originZip, $this->curlUrl);
+            $mapResult = $this->googleApiCurl($originZip, $this->dataHelper->wsHittingUrls('getAddress'));
             $error = $this->errorChecking($mapResult);
 
             if (empty($error)) {
@@ -65,7 +63,7 @@ class FedExSmallPkgOriginAddress extends Action
      */
     public function googleApiCurl($originZip, $curlUrl)
     {
-        $licnsKey = $this->scopeConfig->getValue('carriers/fedexConnectionSettings/licnsKey');
+        $licnsKey = $this->scopeConfig->getValue('carriers/ENFedExSmpkg/licnsKey');
         $post = [
             'acessLevel'        => 'address',
             'address'           => $originZip,
@@ -85,15 +83,22 @@ class FedExSmallPkgOriginAddress extends Action
     {
         $error = [];
         if (isset($mapResult['error']) && !empty($mapResult['error'])) {
-            $error = ['error' => $mapResult['error']];
+            $error = ['error' => 'true',
+                'msg' => $mapResult['error']];
+        }
+        
+        if (isset($map_result['results'], $map_result['status']) && (empty($map_result['results'])) && ($map_result['status'] == "ZERO_RESULTS")) {
+            $error = ['error' => 'true'];
+        }
+        
+        if (empty($mapResult)) {
+            $error = ['error' => 'true'];
         }
 
         if (isset($mapResult['results']) && count($mapResult['results']) == 0) {
-            $error = ['result' => 'false'];
+            $error = ['error' => 'false'];
         }
-        
-        $this->getResponse()->setHeader('Content-type', 'application/json');
-        $this->getResponse()->setBody(json_encode($error));
+        return $error;
     }
     
     /**

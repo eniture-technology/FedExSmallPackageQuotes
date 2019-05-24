@@ -5,14 +5,14 @@
     function checkFedexConnectionFields(){
         addfedexSmpkgTestConnTitle();
         var connIDs = [
-            'carriers_fedexConnectionSettings_AccountNumber',
-            'carriers_fedexConnectionSettings_ProdutionPassword',
-            'carriers_fedexConnectionSettings_MeterNumber',
-            'carriers_fedexConnectionSettings_AuthenticationKey',
-            'carriers_fedexConnectionSettings_licnsKey'
+            'carriers_ENFedExSmpkg_AccountNumber',
+            'carriers_ENFedExSmpkg_ProdutionPassword',
+            'carriers_ENFedExSmpkg_MeterNumber',
+            'carriers_ENFedExSmpkg_AuthenticationKey',
+            'carriers_ENFedExSmpkg_licnsKey'
         ];
         
-        var validationCheck = fedexSmpkgFieldsValidation('#carriers_fedexConnectionSettings');
+        var validationCheck = fedexSmpkgFieldsValidation('#carriers_ENFedExSmpkg');
         if(!validationCheck){
             connIDs.each(function(id) {
                 jQuery('#'+id).removeClass('mage-error');
@@ -29,9 +29,20 @@
     
     require([ 'jquery', 'jquery/ui'], function($){ 
         $(document).ready(function($) {
-            $('#carriers_fedexConnectionSettings-head').after('<div class="conn-setting-note">Note! You must have a FedEx account to use this application. If you do not have one, contact FedEx at 800-463-3339 or <a target="_blank" href="https://www.fedex.com/en-us/create-account.html">register online</a>.</div>');
-            
-            $('#fedexQuoteSetting_third span, #carriers_fedexConnectionSettings span').attr('data-config-scope', '');
+
+            $('.numberonly').bind('keyup blur',function(event) {
+                var node = $(this);
+                node.val(node.val().replace(/[^0-9]/,'') );
+            });
+
+            $('.alphanumonly').bind('keyup blur',function(event) {
+                var value = $(this);
+                console.log(value);
+                value.val(value.val().replace(/[^a-z0-9]/g,''));
+            });
+
+            connSettingsNote($);
+            $('#fedexQuoteSetting_third span, #carriers_ENFedExSmpkg span').attr('data-config-scope', '');
             
             $('.close').click(function(){ 
                 $('.fedexSmpkg_warehouse_overlay').hide(); 
@@ -56,24 +67,24 @@
                 fedexSmpkgEmptyFieldsAndErr('#fedexSmpkgDropshipForm');
             });
             
-            jQuery('.close-ds').click(function(){           
-                jQuery('html, body').animate({
-                    'scrollTop' : jQuery('.warehouse_text').offset().top
+            $('.close-ds').click(function(){           
+                $('html, body').animate({
+                    'scrollTop' : $('.warehouse_text').offset().top
                 });
             });
             
             // Set focus on first input field
-            jQuery('.add_warehouse_btn').click(function(){
+            $('.add_warehouse_btn').click(function(){
                 setTimeout(function(){
-                  if(jQuery('.add_warehouse_popup').is(':visible')){
-                    jQuery('.add_warehouse_input > input').eq(0).focus();
+                  if($('.add_warehouse_popup').is(':visible')){
+                    $('.add_warehouse_input > input').eq(0).focus();
                   }
                 },500);
             });
-            jQuery('.add_dropship_btn').click(function(){
+            $('.add_dropship_btn').click(function(){
                 setTimeout(function(){
-                  if(jQuery('.ds-popup').is(':visible')){
-                    jQuery('.fedexSmpkgDropshipForm > input').eq(0).focus();
+                  if($('.ds-popup').is(':visible')){
+                      $('#fedexSmpkg_dropship_nickname').focus();
                   }
                 },500);
             });
@@ -81,6 +92,33 @@
         });
     });
     
+    /**
+     * Display connection setting fedex account note
+     */
+    function connSettingsNote($) {
+        var divafter = '<div class="conn-setting-note">Note! You must have a FedEx account to use this application. If you do not have one, contact FedEx at 800-463-3339 or <a target="_blank" href="https://www.fedex.com/en-us/create-account.html">register online</a>.</div>';
+        var carrierdiv = '#carriers_ENFedExSmpkg-head';
+        notesToggleHandling($, divafter, '.conn-setting-note', carrierdiv);
+    }
+    
+    function currentPlanNote($, planMsg, carrierdiv){
+        var divafter = '<div class="plan-note">'+planMsg+'</div>';
+        notesToggleHandling($, divafter, '.plan-note', carrierdiv);
+    }
+    
+    function notesToggleHandling($, divafter, className, carrierdiv){
+        
+        if($(carrierdiv).attr('class') === 'open'){
+            $(carrierdiv).after(divafter);
+        }
+        $(carrierdiv).click(function(){
+            if($(carrierdiv).attr('class') === 'open'){
+                $(carrierdiv).after(divafter);
+            }else if($(className).length){
+                $(className).remove();
+            }
+        });
+    }
     
     /**
      * Set empty values to warehouse and dropship fields and remove error class
@@ -89,9 +127,10 @@
     function fedexSmpkgEmptyFieldsAndErr(form_id){
         jQuery(form_id + " input[type='text']").each(function () {
             jQuery(this).val('');
-            jQuery( '.err' ).remove();
+            jQuery( '.err' ).text('');
         });
         jQuery('.local-delivery-fee-err').remove();
+        jQuery('.bootstrap-tagsinput').tagsinput('removeAll');
         jQuery(form_id).find("input[type='checkbox']").prop('checked',false);
         jQuery('#instore-pickup-zipmatch .tag-i, #local-delivery-zipmatch .tag-i').trigger('click');
         jQuery( '.city_select' ).hide();
@@ -122,13 +161,19 @@
         var has_err = true;
 
         jQuery(form_id + " input[type='text']").each(function () {
+
+            if(!jQuery(this).parent().find('.err').length) {
+                jQuery(this).parent().append('<span class="err"></span>');
+            }
             var input = jQuery(this).val();
 
-            var response = fedexSmpkgValidateString(input);            
-                jQuery( '.validation-advice' ).remove() ;
-            if( jQuery( this ).parent().find( '.err' ).length < 1 ){
-                jQuery( this ).parent().append( '<span class="err"></span>' );
+            var response = fedexSmpkgValidateString(input, this);
+
+            //Exception for specific inputs within disableddiv which are already validated
+            if(jQuery(this).parents('#disableddiv').length == 1) {
+                response = true;
             }
+                jQuery( '.validation-advice' ).remove() ;
 
             var errorElement = jQuery(this).parent().find('.err');
             jQuery(errorElement).html('');
@@ -139,6 +184,7 @@
             if ((optional == 0) && (response == false || response == 'empty')) {
                 errorText = (response == 'empty') ? errorText + ' is required.' : 'Invalid input.';
                 jQuery(errorElement).html(errorText);
+                jQuery('.FedEx_small_warehouseFormContent').animate({ scrollTop: 0 }, 'slow');
             }
             has_err = (response != true && optional == 0) ? false : has_err;
         });
@@ -152,7 +198,7 @@
      * @returns {String|Boolean}
      */
 
-    function fedexSmpkgValidateString(string)
+    function fedexSmpkgValidateString(string, ref)
     {
         if (string == '') {
             return 'empty';
@@ -211,4 +257,72 @@
 
             }
         });
+    }
+    
+    function addWarehouseRestriction(canAddWh){
+        switch(canAddWh)
+        {
+            case 0:
+                jQuery("#append_warehouse").find("tr").removeClass('inactiveLink');
+                jQuery('.add_warehouse_btn').addClass('inactiveLink');
+                if (jQuery( ".required-plan-msg" ).length == 0) {
+                    jQuery('.add_warehouse_btn').after('<a href="https://eniture.com/magento2-fedex-small-package" target="_blank" class="required-plan-msg">Standard Plan required</a>');   
+                }
+                jQuery("#append_warehouse").find("tr:gt(1)").addClass('inactiveLink');
+                break;
+            case 1:
+                jQuery('.add_warehouse_btn').removeClass('inactiveLink');
+                jQuery('.required-plan-msg').remove();
+                jQuery("#append_warehouse").find("tr").removeClass('inactiveLink');
+                break;
+            default:
+                break;
+        }
+            
+    }
+    
+    /**
+     * Restrict Quote Settings Fields
+     * @param {array} qRestriction
+     */
+    function planQuoteRestriction(qRestriction){
+        var quoteSecRowID = "#row_fedexQuoteSetting_third_";
+        var quoteSecID = "#fedexQuoteSetting_third_";
+        var parsedData = JSON.parse(qRestriction)
+        if(parsedData['advance']){
+            jQuery(''+quoteSecRowID+'transitDaysNumber').before('<a href="https://eniture.com/magento2-fedex-small-package" target="_blank" class="required-plan-msg adv-plan-err">Advance Plan required</a>');
+            disabledFieldsLoop(parsedData['advance'], quoteSecID);
+        }
+        
+        if(parsedData['standard']){
+            jQuery(''+quoteSecRowID+'onlyGndService').before('<a href="https://eniture.com/magento2-fedex-small-package" target="_blank" class="required-plan-msg std-plan-err">Standard Plan required</a>');
+            disabledFieldsLoop(parsedData['standard'], quoteSecID);
+        }
+    }
+    
+    function disabledFieldsLoop(dataArr, quoteSecID){
+        jQuery.each(dataArr, function( index, value ) {
+            jQuery(quoteSecID + value).attr('disabled','disabled');
+        });
+    }
+    
+    function loadInsidePikupAndLocalDeliveryData(data, formid){
+        var instore = JSON.parse(data.in_store);
+        var localdel= JSON.parse(data.local_delivery);
+        //Filling form data
+        if(instore != null){
+            instore.enable_store_pickup == 1 ? jQuery(formid + 'enable_instore_pickup').prop('checked', true) : '';
+            jQuery(formid + 'within_miles').val(instore.miles_store_pickup);
+            jQuery(formid + 'postcode_match').tagsinput('add', instore.match_postal_store_pickup);
+            jQuery(formid + 'checkout_descp').val(instore.checkout_desc_store_pickup);
+        }
+
+        if(localdel != null){
+            localdel.enable_local_delivery == 1 ? jQuery(formid + 'enable_local_delivery').prop('checked', true) : '';
+            jQuery(formid + 'ld_within_miles').val(localdel.miles_local_delivery);
+            jQuery(formid + 'ld_postcode_match').tagsinput('add', localdel.match_postal_local_delivery);
+            jQuery(formid + 'ld_checkout_descp').val(localdel.checkout_desc_local_delivery);
+            jQuery(formid + 'ld_fee').val(localdel.fee_local_delivery);
+            localdel.suppress_local_delivery == 1 ? jQuery(formid + 'ld_sup_rates').prop('checked', true) : '';
+        }
     }

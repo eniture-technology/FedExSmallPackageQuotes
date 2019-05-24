@@ -63,6 +63,10 @@ class SaveDropship extends Action
 
         $dropshipList = $this->dropshipListData($validateData, $insertQry, $updateQry, $lastId);
 
+        if ($dropshipId) {
+            $dropshipList['dsID'] = $dropshipId;
+        }
+
         $this->getResponse()->setHeader('Content-type', 'application/json');
         $this->getResponse()->setBody(json_encode($dropshipList));
     }

@@ -35,6 +35,13 @@ class EditWarehouse extends Action
         $getWarehouseId   = $editWhData['edit_id'];
         $warehousList   = $this->fetchWarehouseList('warehouse', $getWarehouseId);
         
+        //Get plan
+        $plan = $this->dataHelper->fedexSmallPlanName('ENFedExSmpkg');
+        if ($plan['planNumber'] != 3) {
+            $warehousList[0]['in_store'] = null;
+            $warehousList[0]['local_delivery'] = null;
+        }
+        
         $this->getResponse()->setHeader('Content-type', 'application/json');
         $this->getResponse()->setBody(json_encode($warehousList));
     }
@@ -47,8 +54,8 @@ class EditWarehouse extends Action
     public function fetchWarehouseList($location, $warehouseId)
     {
         $whCollection       = $this->_warehouseFactory->create()->getCollection()
-                                    ->addFilter('location', ['eq' => $location])
-                                    ->addFilter('warehouse_id', ['eq' => $warehouseId]);
+                                ->addFilter('location', ['eq' => $location])
+                                ->addFilter('warehouse_id', ['eq' => $warehouseId]);
         
         return $this->dataHelper->purifyCollectionData($whCollection);
     }

@@ -1,7 +1,33 @@
+<?php
+    $plan = $block->getCurrentPlan();
+    $advancedPlan = false;
+    $class = 'disabledDiv';
+if ($plan == 1) {
+    $advancedPlan = true;
+    $class = '';
+}
+?>
+
 <script type="text/javascript">
+    require([ 'jquery', 'jquery/ui'], function($){
+        $(document).ready(function($) {
+            var carrierdiv = '#fedexWarehouse_second-head';
+            currentPlanNote($, '<?php echo $this->fedexSmallPlanNotice(); ?>', carrierdiv);
+            
+            var canAddWh = <?php echo $this->addWhRestriction(); ?>;
+            addWarehouseRestriction(canAddWh);
+
+            //disabling dynamically created DIV
+            //var plan = '<?php //echo $advancedPlan?>//';
+            //if(!plan){
+            //    $(".bootstrap-tagsinput").addClass("disabled-bootstrap-tagsinput");
+            //}
+        });
+    });
     var fedexSmpkgWHEditAjaxUrl = '<?= /* @noEscape */ $block->editWarehouseAjaxCall() ?>';
-    var fedexSmpkgWHDeleteAjaxUrl = '<?= /* @noEscape */ $block->deleteWarehouseAjaxCall() ?>';
+    var fedexSmpkgWHDeleteAjaxUrl = '<?= /* @noEscape */ $block->deleteWarehouseAjaxCall() ?>';    
 </script>
+
 <div class="main_container">
     <h1>
         <?=
@@ -137,10 +163,17 @@
                     <?=
                         /* @noEscape */ __('Error!')
                     ?>
-                </strong> 
+                </strong>
                 <?= /* @noEscape */ __('Please select US or CA address.') ?>
             </div>
-            <div class="api_error"></div>
+            <div class="api_error">
+                <strong>
+                    <?=
+                        /* @noEscape */ __('Error!')
+                    ?>
+                </strong>
+                <?= /* @noEscape */ __('Request is not processed, please enter Warehouse information manually.') ?>
+            </div>
 
             <div id="fedexSmpkgWarehouseForm">
                 <input type="hidden" name="edit_form_id" value="" id="edit_form_id">
@@ -148,7 +181,8 @@
                     <label for="origin_zip">
                         <?= /* @noEscape */ __('Zip') ?>
                     </label>
-                    <input type="text" title="<?= /* @noEscape */ __('Zip') ?>" maxlength="7" value="" name="fedexSmpkg_warehouse_zip" placeholder="30214" id="fedexSmpkg_warehouse_zip" onchange="return fedexSmpkgGetAddressFromZip('<?= /* @noEscape */ $block->getAjaxAddressUrl() ?>', this, /* @noEscape */ fedexSmpkgGetAddressResSettings)" data-action="warehouse_get_address">
+                    <input type="text" title="<?= /* @noEscape */ __('Zip') ?>" maxlength="7" value="" name="fedexSmpkg_warehouse_zip" placeholder="30214" id="fedexSmpkg_warehouse_zip" onchange="return fedexSmpkgGetAddressFromZip('<?= /* @noEscape */ $block->getAjaxAddressUrl() ?>', this,fedexSmpkgGetAddressResSettings)" data-action="warehouse_get_address">
+                    <span class="err"></span>
                 </div>
 
                 <div class="add_warehouse_input city_input">
@@ -156,6 +190,7 @@
                         <?= /* @noEscape */ __('City') ?>
                     </label>
                     <input type="text" title=<?= /* @noEscape */ __('City') ?> class="alphaonly" value="" name="warehouse_origin_city" placeholder="Fayetteville" id="warehouse_origin_city">
+                    <span class="err"></span>
                 </div>
 
                 <div class="add_warehouse_input city_select" style="display:none;">
@@ -163,6 +198,7 @@
                         <?= /* @noEscape */ __('City') ?>
                     </label>
                     <select id="actname" value=""></select>
+                    <span class="err"></span>
                 </div>
 
                 <div class="add_warehouse_input">
@@ -170,6 +206,7 @@
                         <?= /* @noEscape */ __('State') ?>
                     </label>
                     <input type="text" title=<?= /* @noEscape */ __('State') ?> class="alphaonly" maxlength="2" value="" name="warehouse_origin_state" placeholder="GA" id="warehouse_origin_state">
+                    <span class="err"></span>
                 </div>
 
                 <div class="add_warehouse_input">
@@ -178,7 +215,143 @@
                     </label>
                     <input type="text" title=<?= /* @noEscape */ __('Country') ?> class="alphaonly" maxlength="2" name="warehouse_origin_country" value="" placeholder="US" id="warehouse_origin_country">
                     <input type="hidden" name="warehouse_location" value="warehouse" id="warehouse_location">
+                    <span class="err"></span>
                 </div>
+                
+                <!--In store Pickup Section-->
+
+                <div class="row" style="clear: both">
+                    <h2 class="is_heading_left" id="wh_is_heading_left">
+                        <?=
+                        /* @noEscape */ __('In-store Pick Up')
+                        ?>
+                    </h2>
+                    <?php if (!$advancedPlan) : ?>
+                    <a class="is_heading_right" href="https://eniture.com/magento2-fedex-small-package">
+                        <?=
+                        /* @noEscape */ __('Advanced Plan Required')
+                        ?>
+                    </a>
+                    <?php endif; ?>
+                </div>
+                <div class="wh-instore-miles-postal-err">
+                    <strong>
+                        <?=
+                        /* @noEscape */ __('Error!')
+                        ?>
+                    </strong>
+                    <?= /* @noEscape */ __('You must provide Miles or Postal Code.') ?>
+                </div>
+
+                <div id="disableddiv" class="<?= $class ?>">
+                    <div class="add_warehouse_input">
+                        <label for="enable_instore_pickup">
+                            <?= /* @noEscape */ __('Enable In-Store Pick Up') ?>
+                        </label>
+                        <input type="checkbox" title="<?= /* @noEscape */ __('Enable In-Store Pick Up') ?>" class="enable_checkbox" name="enable_instore_pickup" value="" id="enable_instore_pickup">
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="within_miles">
+                            <?= /* @noEscape */ __('Offer if address is within (miles)') ?>
+                        </label>
+                        <input type="text" title="<?= /* @noEscape */ __('Offer if address is within (miles)') ?>" class="numberonly" maxlength="4" name="within_miles" value=""  id="within_miles">
+                        <span class="err"></span>
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="postcode_match">
+                            <?= /* @noEscape */ __('Offer is postal code matches') ?>
+                        </label>
+                        <input type="text" title="<?= /* @noEscape */ __('Offer is postal code matches') ?>" maxlength="7" value=""  name="postcode_match"  id="postcode_match" data-role="<?= $advancedPlan? 'tagsinput': ''; ?>">
+                        <span class="err"></span>
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="checkout_descp">
+                            <?= /* @noEscape */ __('Check Out Description') ?>
+                        </label>
+                        <input type="text" title="<?= /* @noEscape */ __('Check Out Description') ?>" class="alphaonly" maxlength="100" name="checkout_descp" placeholder="In-store pick up" id="checkout_descp">
+                        <span class="err"></span>
+                    </div>
+                </div>
+                <!--In store Pickup Section End-->
+
+                <!--Local Delivery Section-->
+
+                <div class="row" style="clear: both">
+                    <h2 class="ld_heading_left" id="wh_ld_heading_left" >
+                        <?=
+                        /* @noEscape */ __('Local Delivery')
+                        ?>
+                    </h2>
+                    <?php if (!$advancedPlan) : ?>
+                    <a class="ld_heading_right" href="https://eniture.com/magento2-fedex-small-package">
+                        <?=
+                        /* @noEscape */ __('Advanced Plan Required')
+                        ?>
+                    </a>
+                    <?php endif;?>
+                </div>
+                <div class="wh-local-miles-postals-err">
+                    <strong>
+                        <?=
+                        /* @noEscape */ __('Error!')
+                        ?>
+                    </strong>
+                    <?= /* @noEscape */ __('You must provide Miles or Postal Code.') ?>
+                </div>
+                <!--Local Delivery Section Start-->
+                <div id="disableddiv" class="<?= $class ?>">
+
+                    <div class="add_warehouse_input">
+                        <label for="enable_local_delivery">
+                            <?= /* @noEscape */ __('Enable Local Delivery') ?>
+                        </label>
+                        <input type="checkbox" title="<?= /* @noEscape */ __('Enable Local Delivery') ?>" class="enable_checkbox" name="enable_local_delivery" value="" id="enable_local_delivery">
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="ld_within_miles">
+                            <?= /* @noEscape */ __('Offer if address is within (miles)') ?>
+                        </label>
+                        <input type="text" title="<?= /* @noEscape */ __('Offer if address is within (miles)') ?>" class="numberonly" maxlength="4" name="ld_within_miles" value=""  id="ld_within_miles">
+                        <span class="err"></span>
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="ld_postcode_match">
+                            <?= /* @noEscape */ __('Offer is postal code matches') ?>
+                        </label>
+                        <input type="text" title="<?= /* @noEscape */ __('Offer is postal code matches') ?>" maxlength="7" value="" data-role="<?= $advancedPlan? 'tagsinput': ''; ?>" name="ld_postcode_match"  id="ld_postcode_match" >
+                        <span class="err"></span>
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="ld_checkout_descp">
+                            <?= /* @noEscape */ __('Check Out Description') ?>
+                        </label>
+                        <input type="text" title="<?= /* @noEscape */ __('Check Out Description') ?>" class="alphaonly" maxlength="100" name="ld_checkout_descp" placeholder="Local Delivery" id="ld_checkout_descp">
+                        <span class="err"></span>
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="ld_fee">
+                            <?= /* @noEscape */ __('Local Delivery Fee') ?>
+                        </label>
+                        <input type="text" title="<?= /* @noEscape */ __('Fee') ?>" class="numberonly" maxlength="4" name="ld_fee" value=""  id="ld_fee">
+                        <span class="err"></span>
+                    </div>
+
+                    <div class="add_warehouse_input">
+                        <label for="ld_sup_rates">
+                            <?= /* @noEscape */ __('Suppress other rates') ?>
+                        </label>
+                        <input type="checkbox" title="<?= /* @noEscape */ __('Suppress other rates') ?>" class="enable_checkbox" name="ld_sup_rates" id="ld_sup_rates">
+                    </div>
+                    <span class="err"></span>
+                </div>
+                <!--Local Delivery Section End-->
 
                 <div class="form-btns">
                     <input type="submit" name="warehouse_submit_warehouse" value="Save" onclick="return fedexSmpkgSaveWarehouseData('<?= /* @noEscape */ $block->savefedexSmpkgWarehouseAjaxCall() ?>');" class="save_warehouse_form">

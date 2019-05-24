@@ -64,11 +64,15 @@ class FedExSmpkgShipmentPackage
      */
     public function multiWarehouse($warehousList, $receiverZipCode)
     {
+        $packageArray = $this->dataHelper->fedexSmallPlanName('ENFedExSmpkg');
+        $planNumber = $packageArray['planNumber'];
         if (!empty($warehousList)) {
             $distance_array = [];
             if (count($warehousList) == 1) {
                 $warehousList = reset($warehousList);
-                return $this->fedexSmpkgOriginArray($warehousList);
+                return $this->fedexSmpkgOriginArray($warehousList, $receiverZipCode, $planNumber);
+            } elseif (count($warehousList) > 1 && ($planNumber == 0 || $planNumber == 1)) {
+                return $this->fedexSmpkgOriginArray($warehousList[0], $receiverZipCode, $planNumber);
             }
 
             $response  = $this->fedexSmpkgAddress($warehousList);
@@ -76,7 +80,7 @@ class FedExSmpkgShipmentPackage
                 $originWithMinDist = (isset($response->origin_with_min_dist)
                         && !empty($response->origin_with_min_dist)) ?
                         (array)$response->origin_with_min_dist: [];
-                return $this->fedexSmpkgOriginArray($originWithMinDist);
+                return $this->fedexSmpkgOriginArray($originWithMinDist, $receiverZipCode, $planNumber);
             }
         }
     }
@@ -86,7 +90,7 @@ class FedExSmpkgShipmentPackage
      * @param array $shortOrigin
      * @return array
      */
-    public function fedexSmpkgOriginArray($shortOrigin)
+    public function fedexSmpkgOriginArray($shortOrigin, $receiverZipCode, $planNumber)
     {
         if (isset($shortOrigin) && count($shortOrigin) > 1) {
             $origin = isset($shortOrigin['origin']) ? $shortOrigin['origin'] : $shortOrigin;
@@ -97,13 +101,14 @@ class FedExSmpkgShipmentPackage
             $location = isset($origin['location']) ? $origin['location'] : 'warehouse';
             $locationId = isset($shortOrigin['id']) ? $shortOrigin['id'] : $shortOrigin['warehouse_id'];
             return [
-                        'location' => $location,
-                        'locationId' => $locationId,
-                        'senderZip' => $zip,
-                        'senderCity' => $city,
-                        'senderState' => $state,
-                        'senderCountryCode' => $country
-                    ];
+                    'location' => $location,
+                    'locationId' => $locationId,
+                    'senderZip' => $zip,
+                    'senderCity' => $city,
+                    'senderState' => $state,
+                    'senderCountryCode' => $country,
+                    'InstorPickupLocalDelivery' => $planNumber==3 ? $this->instorePickupLdData($shortOrigin, $receiverZipCode) : '',
+                ];
         }
     }
     
@@ -128,12 +133,11 @@ class FedExSmpkgShipmentPackage
             ],
             'ServerName'        => $this->httpRequest->getServer('SERVER_NAME'),
             'eniureLicenceKey'  => $this->scopeConfig->getValue(
-                'carriers/fedexConnectionSettings/licnsKey',
+                'carriers/ENFedExSmpkg/licnsKey',
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             ),
         ];
-        
-        $url = 'http://eniture.com/ws/addon/google-location.php';
+        $url = $this->dataHelper->wsHittingUrls('multiDistance');
         $curlRes = $this->dataHelper->fedexSmpkgSendCurlRequest($url, $post);
         if (!isset($curlRes->error)) {
             $response = $curlRes;
@@ -157,5 +161,38 @@ class FedExSmpkgShipmentPackage
         }
         
         return $result;
+    }
+    
+    /**
+     * @param type $shortOrigin
+     * @param type $receiverZipCode
+     * @return type
+     */
+    public function instorePickupLdData($shortOrigin, $receiverZipCode)
+    {
+        $array = [];
+        if (!empty($shortOrigin['in_store'])) {
+            $instore = json_decode($shortOrigin['in_store']);
+            if ($instore->enable_store_pickup == 1) {
+                $array['inStore'] = $instore;
+                $array['inStorePickup'] = [
+                    'addressWithInMiles' =>$instore->miles_store_pickup ,
+                    'postalCodeMatch'    =>in_array($receiverZipCode, explode(',', $instore->match_postal_store_pickup))?1:0,
+                ];
+            }
+        }
+
+        if (!empty($shortOrigin['local_delivery'])) {
+            $locDel = json_decode($shortOrigin['local_delivery']);
+            if ($locDel->enable_local_delivery == 1) {
+                $array['locDel'] = $locDel;
+                $array['localDelivery'] = [
+                    'addressWithInMiles' => $locDel->miles_local_delivery,
+                    'postalCodeMatch'    =>in_array($receiverZipCode, explode(',', $locDel->match_postal_local_delivery))?1:0,
+                    'suppressOtherRates' =>$locDel->suppress_local_delivery,
+                ];
+            }
+        }
+        return $array;
     }
 }
