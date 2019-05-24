@@ -90,9 +90,7 @@ class InstallData implements InstallDataInterface
      */
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
-        if (!$this->state->validateAreaCode()) {
-            $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
-        }
+        $this->state->validateAreaCode();
         // Check plan info of current module
         $this->palnUpgrade->execute();
         
