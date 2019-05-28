@@ -13,14 +13,12 @@ class PlanUpgrade
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
-        \Psr\Log\LoggerInterface $logger,
-        \Eniture\FedExSmallPackages\Helper\Data $helper
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->storeManager = $storeManager;
         $this->curl = $curl;
         $this->resourceConfig = $resourceConfig;
         $this->logger = $logger;
-        $this->helper = $helper;
     }
 
     /**
@@ -55,7 +53,6 @@ class PlanUpgrade
         $this->saveConfigurations('eniture/ENFedExSmpkg/storetype', "$planType");
         $this->saveConfigurations('eniture/ENFedExSmpkg/pakgprice', "$pakgPrice");
         $this->saveConfigurations('eniture/ENFedExSmpkg/label', "Eniture - FedEx Small Packages");
-        $this->helper->clearCache();
         $this->logger->info($output);
     }
 
