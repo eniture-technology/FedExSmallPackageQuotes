@@ -7,8 +7,6 @@ class PlanUpgrade
 
     private $curlUrl = 'https://eniture.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php';
 
-    private $helper;
-
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
