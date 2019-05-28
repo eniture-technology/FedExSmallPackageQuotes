@@ -5,7 +5,7 @@ class PlanUpgrade
 {
     protected $logger;
 
-    private $curlUrl = 'https://eniture-dev3.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php';
+    private $curlUrl = 'https://eniture.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php';
 
     private $helper;
 
