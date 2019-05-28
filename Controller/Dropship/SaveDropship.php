@@ -44,13 +44,10 @@ class SaveDropship extends Action
         $nickname = $validateData['nickname'];
         $getDropship  = $this->checkDropshipList($city, $state, $zip, $nickname);
         
-        // add instore pickup and local delivery data to array
-        $updateInstrorePickupDelivery = $this->dataHelper->checkUpdatePickupDelivery($getDropship, $validateData);
-
         if ($city != 'Error') {
             $dropshipId = isset($saveDsData['dropshipId']) ? (int)($saveDsData['dropshipId']) : "";
 
-            if ($dropshipId && (empty($getDropship) || $updateInstrorePickupDelivery == 'yes')) {
+            if ($dropshipId && empty($getDropship)) {
                 $updateQry = $this->dataHelper->updateWarehousData($validateData, "warehouse_id='".$dropshipId."'");
             } else {
                 if (empty($getDropship) && ($this->countNickname($nickname) == 0 || $nickname == "")) {
@@ -65,6 +62,9 @@ class SaveDropship extends Action
 
         if ($dropshipId) {
             $dropshipList['dsID'] = $dropshipId;
+            if ($getDropship[0]['warehouse_id'] != $dropshipId) {
+                $dropshipList['dsID'] = 0;
+            }
         }
 
         $this->getResponse()->setHeader('Content-type', 'application/json');

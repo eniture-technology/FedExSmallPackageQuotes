@@ -91,6 +91,7 @@ class InstallData implements InstallDataInterface
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $this->state->validateAreaCode();
+        
         // Check plan info of current module
         $this->palnUpgrade->execute();
         

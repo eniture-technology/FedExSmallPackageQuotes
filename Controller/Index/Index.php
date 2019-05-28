@@ -6,16 +6,19 @@ class Index extends \Magento\Framework\App\Action\Action
 {
     private $request;
     private $resourceConfig;
+    private $helper;
     /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\App\RequestInterface $httpRequest
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig
+        \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
+        \Eniture\FedExSmallPackages\Helper\Data $helper
     ) {
         $this->request = $context->getRequest();
         $this->resourceConfig = $resourceConfig;
+        $this->helper= $helper;
         parent::__construct($context);
     }
     public function execute()
@@ -37,6 +40,7 @@ class Index extends \Magento\Framework\App\Action\Action
             $this->saveConfigurations('expiredate', $expiryDate);
             $this->saveConfigurations('storetype', $planType);
             $this->saveConfigurations('pakgprice', $pakgPrice);
+            $this->helper->clearCache();
         }
     }
     

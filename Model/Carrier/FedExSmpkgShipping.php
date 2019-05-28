@@ -303,13 +303,18 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                 }
 
 
-
-//                Checking if advance plan and setting insurance
-                $insurance = $this->dataHelper->checkAdvancePlan() ? ($_product->getData('en_insurance')) : 0;
-                if ($this->registry->registry('en_insurance') === null) {
-                    $this->registry->register('en_insurance', $insurance);
+                //Checking if plan is at least Standard
+                $plan = $this->dataHelper->fedexSmallPlanName("ENFedExSmpkg");
+                if ($plan['planNumber'] < 2) {
+                    $insurance =  0;
+                    $hazmat = 'N';
+                } else {
+                    $hazmat = ($_product->getData('en_hazmat'))?'Y':'N';
+                    $insurance = $_product->getData('en_insurance');
+                    if ($insurance && $this->registry->registry('en_insurance') === null) {
+                        $this->registry->register('en_insurance', $insurance);
+                    }
                 }
-
                 switch ($lineItemClass) {
                     case 77:
                         $lineItemClass = 77.5;
@@ -323,7 +328,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                 
                 $originAddress  = $this->fedExShipPkg->fedexSmpkgOriginAddress($_product, $receiverZipCode);
 
-                $hazordousData[][$originAddress['senderZip']] = $this->setHazmatArray($_product);
+                $hazordousData[][$originAddress['senderZip']] = $this->setHazmatArray($_product, $hazmat);
                 
                 $package['origin'][$_product->getId()] = $originAddress;
                 
@@ -349,17 +354,11 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                         'lineItemLength'            => number_format($length, 2, '.', ''),
                         'lineItemWidth'             => number_format($width, 2, '.', ''),
                         'lineItemHeight'            => number_format($height, 2, '.', ''),
-                        'isHazmatLineItem'         => ($_product->getData('en_hazmat'))?'Y':'N',
+                        'isHazmatLineItem'          => $hazmat,
                         'product_insurance_active'  => $insurance,
                         'shipBinAlone'              => $_product->getData('en_own_package'),
                         'vertical_rotation'         => $_product->getData('en_vertical_rotation'),
                       ];
-
-                //Checking if plan is at least Standard
-                $plan = $this->dataHelper->fedexSmallPlanName("ENFedExSmpkg");
-                if ($plan['planNumber'] < 2) {
-                    unset($lineItems['isHazmatLineItem']);
-                }
 
                 $package['items'][$_product->getId()] = array_merge($lineItems);
                 $orderWidget[$originAddress['senderZip']]['item'][] = $package['items'][$_product->getId()];
@@ -375,12 +374,11 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
      * @param type $_product
      * @return type
      */
-    public function setHazmatArray($_product)
+    public function setHazmatArray($_product, $hazmat)
     {
-        $hazmat = $_product->getData('en_hazmat') ? 'isHazmat' : '';
         return [
             'lineItemId'    => $_product->getId(),
-            'isHazordous'   => !empty($hazmat) ? '1' : '0' ,
+            'isHazordous'   => $hazmat == 'Y' ? '1' : '0' ,
         ];
     }
     

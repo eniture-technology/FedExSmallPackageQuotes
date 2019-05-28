@@ -24,6 +24,7 @@ class Data extends AbstractHelper
     public $residentialDelivery;
     public $curl;
     public $canAddWh = 1;
+    public $cacheManager;
     
     /**
      * @param \Magento\Framework\App\Helper\Context $context
@@ -52,7 +53,8 @@ class Data extends AbstractHelper
         \Magento\Framework\Session\SessionManagerInterface $coreSession,
         \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory,
         \Eniture\FedExSmallPackages\Model\EnituremodulesFactory $enituremodulesFactory,
-        \Magento\Framework\HTTP\Client\Curl $curl
+        \Magento\Framework\HTTP\Client\Curl $curl,
+        \Magento\Framework\App\Cache\Manager $cacheManager
     ) {
         $this->resource            = $resource;
         $this->shippingConfig      = $shippingConfig;
@@ -67,16 +69,17 @@ class Data extends AbstractHelper
         $this->enituremodulesFactory    = $enituremodulesFactory;
         $this->context       = $context;
         $this->curl = $curl;
+        $this->cacheManager = $cacheManager;
         parent::__construct($context);
     }
-	
+
 	public function wsHittingUrls($index){
 		$allWsUrl = [
 					'testConnection' => 'https://eniture.com/ws/s/fedex/fedex_shipment_rates_test.php',
-					'getAddress' => 'https://eniture.com/ws/addon/google-location.php',
-					'multiDistance' => 'https://eniture.com/ws/addon/google-location.php',
-					'planUpgrade' => 'https://eniture.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php',
-					'getQuotes' => 'https://eniture.com/ws/v2.0/index.php'
+                    'getAddress' => 'https://eniture.com/ws/addon/google-location.php',
+                    'multiDistance' => 'https://eniture.com/ws/addon/google-location.php',
+                    'planUpgrade' => 'https://eniture.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php',
+                    'getQuotes' => 'https://eniture.com/ws/v2.0/index.php'
 				];
 		return $allWsUrl[$index];
 	}
@@ -1217,5 +1220,13 @@ class Data extends AbstractHelper
             }
         }
         return $quotesarray;
+    }
+
+    public function clearCache()
+    {
+        $this->cacheManager->flush($this->cacheManager->getAvailableTypes());
+
+        // or this
+        $this->cacheManager->clean($this->cacheManager->getAvailableTypes());
     }
 }

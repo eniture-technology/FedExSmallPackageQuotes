@@ -74,7 +74,7 @@ class FedExSmpkgGenerateRequestData
         $requestArr = [
             'apiVersion'        => '2.0',
             'platform'          => 'magento2',
-            'binPackagingMultiCarrier' => $this->moduleManager->isEnabled('Eniture_BoxSizes') ? '1' : '0',
+            'binPackagingMultiCarrier' => $this->binPackSuspend(),
             
             'autoResidentials' => $this->autoResidentialDelivery(),
             'liftGateWithAutoResidentials' => '0',
@@ -93,6 +93,15 @@ class FedExSmpkgGenerateRequestData
         }
         
         return  $requestArr;
+    }
+
+    public function binPackSuspend()
+    {
+        $return = "0";
+        if ($this->moduleManager->isEnabled('Eniture_BoxSizes')) {
+            $return = $this->scopeConfig->getValue("binPackaging/suspend/value", \Magento\Store\Model\ScopeInterface::SCOPE_STORE) == "no" ? "1" : "0";
+        }
+        return $return;
     }
     
     /**

@@ -183,6 +183,12 @@ window.addEventListener("load", function() {
                 setTimeout(function(){
                     jQuery('.warehouse_updated').hide('slow');
                 }, 5000);
+            } else if(data.whID == 0){
+                jQuery('.already_exist').show('slow');
+                jQuery('.FedEx_small_warehouseFormContent').animate({ scrollTop: 0 }, 'slow');
+                setTimeout(function () {
+                    jQuery('.already_exist').hide('slow');
+                }, 5000);
             }else{
                 jQuery('.already_exist').show('slow');
                 jQuery('.FedEx_small_warehouseFormContent').animate({ scrollTop: 0 }, 'slow');

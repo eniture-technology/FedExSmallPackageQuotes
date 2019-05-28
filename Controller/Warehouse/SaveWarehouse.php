@@ -43,14 +43,11 @@ class SaveWarehouse extends Action
         $zip = $validateData['zip'];
         $country = $validateData['country'];
         $getWarehouse  = $this->checkWarehouseList($city, $state, $zip);
-        
-        // add instore pickup and local delivery data to array
-        $updateInstrorePickupDelivery = $this->dataHelper->checkUpdatePickupDelivery($getWarehouse, $validateData);
 
         if ($city != 'Error') {
             $warehouseId    = isset($saveWhData['originId']) ? (int)($saveWhData['originId']) : "";
 
-            if ($warehouseId && (empty($getWarehouse) || $updateInstrorePickupDelivery == 'yes')) {
+            if ($warehouseId && empty($getWarehouse)) {
                 $updateQry = $this->dataHelper->updateWarehousData($validateData, "warehouse_id='".$warehouseId."'");
             } else {
                 if (empty($getWarehouse)) {
@@ -65,6 +62,9 @@ class SaveWarehouse extends Action
 
         if ($warehouseId) {
             $warehousList['whID'] = $warehouseId;
+            if ($getWarehouse[0]['warehouse_id'] != $getWarehouse) {
+                $dropshipList['whID'] = 0;
+            }
         }
 
 

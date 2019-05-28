@@ -35,10 +35,13 @@
                 </div>
                 <?php
                 $lineItems = $order['item'];
-                $findHazardous = array_column($lineItems, 'isHazmatLineItem');
-
                 $residential = ($residential)?'Residential Delivery':'';
-                $hazordusFee = ($findHazardous[0] == 'Y')?'Hazardous material':'';
+                $findHazardous = array_column($lineItems, 'isHazmatLineItem');
+                if ($findHazardous) {
+                    $hazordusFee = ($findHazardous[0] == 'Y')?'Hazardous material':'';
+                } else {
+                    $hazordusFee = '';
+                }
 
                 if ($residential || $hazordusFee) {
                 ?>
