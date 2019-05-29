@@ -16,6 +16,16 @@
       "role": "Owner"
     }
   ],
+  "repositories": [
+        {
+        "type": "composer",
+        "url": "https://repo.magento.com/"
+     },
+     {
+        "type": "git",
+        "url": "https://github.com/eniture-technology/FedEx-Small-Packages.git"
+    }
+  ],
   "autoload": {
     "files": [ "registration.php" ],
     "psr-4": {
