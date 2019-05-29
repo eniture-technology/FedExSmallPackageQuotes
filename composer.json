@@ -1,6 +1,6 @@
 {
   "name": "eniture/fedex-small-package-quotes",
-  "description": "Magento 2 Shipping Rates From FedEx Small Packages",
+  "description": "Magento 2 Shipping Rates From FedEx Small Package Quotes",
   "type": "magento2-module",
   "version": "1.0.0",
   "license": [
@@ -21,5 +21,7 @@
     "psr-4": {
       "Eniture\\FedExSmallPackages\\": ""
     }
-  } 
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true 
 }
