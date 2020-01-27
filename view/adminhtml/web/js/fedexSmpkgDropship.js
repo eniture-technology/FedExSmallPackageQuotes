@@ -6,18 +6,23 @@
      */
         function fedexSmpkgGetDsAddressResSettings(data){
             if( data.country === 'US' || data.country === 'CA'){
+                var oldNick = jQuery( '#fedexSmpkg_dropship_nickname' ).val();
+                var newNick = '';
+                var zip     = jQuery( '#fedexSmpkg_dropship_zip' ).val();
                 if (data.postcode_localities === 1) {
                     jQuery( '.city_select' ).show();
                     jQuery( '#dropship_actname' ).replaceWith( data.city_option );
                     jQuery( '.city-multiselect' ).replaceWith( data.city_option );
-                    jQuery( '.city-multiselect' ).change( function(){
+                    jQuery( '.fedexSmpkg_warehouse_overlay').on('change', '.city-multiselect', function(){
                         var city = jQuery(this).val();
                         jQuery('#dropship_city').val(city);
+                        jQuery( '#fedexSmpkg_dropship_nickname' ).val(fedexSmpkgSetDsNickname(oldNick, zip, city));
                     });
                     jQuery( "#dropship_city" ).val( data.first_city );
                     jQuery( '#dropship_state' ).val( data.state );
                     jQuery( '#dropship_country' ).val( data.country );
                     jQuery( '.city_input' ).hide();
+                    newNick = fedexSmpkgSetDsNickname(oldNick, zip, data.first_city);
                 }else{
                     jQuery( '.city_input' ).show();
                     jQuery( '#_city' ).removeAttr('value');
@@ -25,7 +30,9 @@
                     jQuery( '#dropship_city' ).val( data.city );
                     jQuery( '#dropship_state' ).val( data.state );
                     jQuery( '#dropship_country' ).val( data.country );
+                    newNick = fedexSmpkgSetDsNickname(oldNick, zip, data.city);
                 }
+                jQuery( '#fedexSmpkg_dropship_nickname' ).val(newNick);
             }else if( data.result === 'false' ){
                 jQuery( '.not_allowed' ).show('slow');
                 setTimeout(function () {
@@ -59,8 +66,7 @@
             var fedexSmpkgDsFormID = '#fedexSmpkgDropshipForm';
             var enable_instore_pickup = jQuery("#ds_enable_instore_pickup").is(':checked');
             var enable_local_delivery = jQuery("#ds_enable_local_delivery").is(':checked');
-            
-            // jQuery('.local-delivery-fee-err').remove();
+
             switch(true){
                 case (enable_instore_pickup && ( jQuery("#ds_within_miles").val().length == 0 && jQuery("#ds_postcode_match").val().length == 0 )):
                     jQuery('.ds-instore-miles-postal-err').show('slow');
@@ -116,10 +122,10 @@
                 jQuery('.dropship_created').css('display' , 'block');
                 window.location.href = jQuery('.close').attr('href');
                 
-                jQuery('#append_dropship tr:last').after('<tr id="row_'+dropshipDataId+'" data-id="'+dropshipDataId+'"><td>'+data.nickname+'</td><td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditDropship('+ dropshipDataId +',\''+ fedexSmpkgDSEditAjaxUrl +'\');">Edit</a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteDropship('+ dropshipDataId +',\''+ fedexSmpkgDSDeleteAjaxUrl +'\');">Delete</a></td></tr>');
+                jQuery('#append_dropship tr:last').after('<tr id="row_'+dropshipDataId+'" data-id="'+dropshipDataId+'"><td>'+data.nickname+'</td><td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditDropship('+ dropshipDataId +',\''+ fedexSmpkgDSEditAjaxUrl +'\');">Edit</a> | <a href="javascript(0)" onclick="return fedexSmpkgDeleteDropship('+ dropshipDataId +',\''+ fedexSmpkgDSDeleteAjaxUrl +'\');">Delete</a></td></tr>');
                 
                 jQuery('html, body').animate({
-                    'scrollTop' : jQuery('.ds').offset().top
+                    'scrollTop' : jQuery('.ds').offset().top-170
                 });
 
                 setTimeout(function(){
@@ -129,9 +135,9 @@
                 jQuery('.dropship_updated').css('display' , 'block');
                 window.location.href = jQuery('.close').attr('href');
 
-                jQuery('tr[id=row_'+dropshipDataId+']').html('<td>'+data.nickname+'</td><td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditDropship('+ dropshipDataId +',\''+ fedexSmpkgDSEditAjaxUrl +'\');">Edit</a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteDropship('+ dropshipDataId +',\''+ fedexSmpkgDSDeleteAjaxUrl +'\');">Delete</a></td></tr>');
+                jQuery('tr[id=row_'+dropshipDataId+']').html('<td>'+data.nickname+'</td><td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditDropship('+ dropshipDataId +',\''+ fedexSmpkgDSEditAjaxUrl +'\');">Edit</a> | <a href="javascript(0)" onclick="return fedexSmpkgDeleteDropship('+ dropshipDataId +',\''+ fedexSmpkgDSDeleteAjaxUrl +'\');">Delete</a></td></tr>');
                 jQuery('html, body').animate({
-                    'scrollTop' : jQuery('.ds').offset().top
+                    'scrollTop' : jQuery('.ds').offset().top-170
                 });
 
                 setTimeout(function(){
@@ -142,6 +148,9 @@
                 if(data.dsID > 0){
                     jQuery('.dropship_updated').css('display' , 'block');
                     window.location.href = jQuery('.close').attr('href');
+                    jQuery('html, body').animate({
+                        'scrollTop' : jQuery('.ds').offset().top-170
+                    });
                     jQuery( '#edit_form_id' ).val('');
                     setTimeout(function(){
                         jQuery('.dropship_updated').hide('slow');
@@ -183,6 +192,8 @@
         }
         
         function fedexSmpkgDropshipEditResSettings(data){
+
+            fedexSmpkgEmptyFieldsAndErr('#fedexSmpkgDropshipForm');
             if (data[0]) {
                 jQuery( '#edit_dropship_form_id' ).val( data[0].warehouse_id );
                 jQuery( '#fedexSmpkg_dropship_zip' ).val( data[0].zip );
@@ -193,7 +204,8 @@
                 jQuery( '#dropship_state' ).val( data[0].state );
                 jQuery( '#dropship_country' ).val( data[0].country );
                 
-                if(data[0].in_store != null || data[0].local_delivery != null){
+                if((data[0].in_store != null && data[0].in_store != 'null')
+                    || (data[0].local_delivery != null && data[0].local_delivery != 'null')){
                     loadInsidePikupAndLocalDeliveryData(data[0], '#ds_');
                 }
                 
@@ -250,11 +262,23 @@
                  jQuery('#row_'+data.deleteID).remove();
                  jQuery('.dropship_deleted').show('slow');
                  jQuery('html, body').animate({
-                    'scrollTop' : jQuery('.ds').offset().top
+                    'scrollTop' : jQuery('.ds').offset().top-170
                 });
                  setTimeout(function () {
                      jQuery('.dropship_deleted').hide('slow');
                  }, 5000);
              }
             return true;
+        }
+
+        function fedexSmpkgSetDsNickname(oldNick, zip, city) {
+            var nickName = '';
+            var curNick = 'DS_'+zip+'_'+city;
+            var pattern = /DS_[0-9 a-z A-Z]+_[a-z A-Z]*/;
+            var regex = new RegExp(pattern, 'g');
+            if(oldNick !== ''){
+
+                nickName =  regex.test(oldNick) ? curNick : oldNick;
+            }
+            return nickName;
         }

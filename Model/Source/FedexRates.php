@@ -1,7 +1,11 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Model\Source;
+namespace Eniture\FedExSmallPackageQuotes\Model\Source;
 
+/**
+ * Class FedexRates
+ * @package Eniture\FedExSmallPackageQuotes\Model\Source
+ */
 class FedexRates implements \Magento\Framework\Option\ArrayInterface
 {
     /**

@@ -5,7 +5,7 @@
             <referenceBlock name="sales_order_tabs">
                 <action method="addTabAfter">
                     <argument name="name" xsi:type="string">order_fedexsmall</argument>
-                    <argument name="block" xsi:type="string">Eniture\FedExSmallPackages\Block\Adminhtml\Order\View\Tab\OrderDetailWidget</argument>
+                    <argument name="block" xsi:type="string">Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Order\View\Tab\OrderDetailWidget</argument>
                     <argument name="after" xsi:type="string">order_history</argument>
                 </action>
             </referenceBlock>

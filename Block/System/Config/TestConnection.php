@@ -1,17 +1,34 @@
 <?php
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
 use \Magento\Backend\Block\Template\Context;
-use Eniture\FedExSmallPackages\Helper\Data;
-use Magento\Mtf\Client\BrowserInterface;
+use Eniture\FedExSmallPackageQuotes\Helper\Data;
 
+/**
+ * Class TestConnection
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
 class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
 {
+    /**
+     *
+     */
     const BUTTON_TEMPLATE = 'system/config/testconnection.phtml';
-    
+
+    /**
+     * @var Data
+     */
     private $dataHelper;
     /**
-     * @param \Magento\Backend\Block\Template\Context $context
+     * @var Context
+     */
+    public $context;
+
+
+    /**
+     * TestConnection constructor.
+     * @param Context $context
+     * @param Data $dataHelper
      * @param array $data
      */
     public function __construct(Context $context, Data $dataHelper, array $data = [])
@@ -49,7 +66,7 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function getAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Test/TestConnection/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Test/TestConnection/';
     }
     
     /**

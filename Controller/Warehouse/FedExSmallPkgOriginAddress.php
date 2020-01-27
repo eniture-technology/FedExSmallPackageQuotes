@@ -1,26 +1,37 @@
 <?php
-namespace Eniture\FedExSmallPackages\Controller\Warehouse;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Warehouse;
 
 use \Magento\Framework\App\Action\Action;
 
+/**
+ * Class FedExSmallPkgOriginAddress
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Warehouse
+ */
 class FedExSmallPkgOriginAddress extends Action
 {
+
     /**
-     * class property that have google api url
-     * @var string
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
      */
     public $dataHelper;
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
     public $scopeConfig;
+    /**
+     * @var
+     */
+    public $request;
 
     /**
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      */
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->dataHelper  = $dataHelper;
@@ -63,7 +74,7 @@ class FedExSmallPkgOriginAddress extends Action
      */
     public function googleApiCurl($originZip, $curlUrl)
     {
-        $licnsKey = $this->scopeConfig->getValue('carriers/ENFedExSmpkg/licnsKey');
+        $licnsKey = $this->scopeConfig->getValue('fedexconnsettings/first/licnsKey');
         $post = [
             'acessLevel'        => 'address',
             'address'           => $originZip,
@@ -187,23 +198,22 @@ class FedExSmallPkgOriginAddress extends Action
      */
     public function getCountryCode($country)
     {
+        $country = strtoupper($country);
         $countryCode = $country;
-        $country = strtolower($country);
         switch ($country) {
-            case 'usa':
+            case 'USA':
                 $countryCode = 'US';
                 break;
-            case 'can':
+            case 'CAN':
                 $countryCode = 'CA';
                 break;
-            case 'ca':
+            case 'CA':
                 $countryCode = 'CA';
                 break;
-            case 'cn':
+            case 'CN':
                 $countryCode = 'CA';
                 break;
             default:
-                $countryCode = strtoupper($country);
                 break;
         }
         return $countryCode;

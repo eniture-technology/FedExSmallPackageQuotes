@@ -17,7 +17,7 @@
             });
             
             if(showNotification){
-                $('#fedexQuoteSetting_third-head').after('<div class="fedex-onerate-note">Standard Box size feature is required for One Rate services.</div>');
+                $('#fedexQuoteSetting_third-head').after('<div class="fedex-onerate-note">Standard Box Sizes feature is required for One Rate services.</div>');
             }
         });
     });

@@ -1,8 +1,32 @@
 <?php
-namespace Eniture\FedExSmallPackages\Model\Carrier;
+namespace Eniture\FedExSmallPackageQuotes\Model\Carrier;
 
+/**
+ * Class FedExSmpkgShipmentPackage
+ * @package Eniture\FedExSmallPackageQuotes\Model\Carrier
+ */
 class FedExSmpkgShipmentPackage
 {
+    /**
+     * @var type $scopeConfig
+     */
+    public $scopeConfig;
+    /**
+     * @var type $request
+     */
+    public $request;
+    /**
+     * @var type $productloader
+     */
+    public $productloader;
+    /**
+     * @var type $dataHelper
+     */
+    public $dataHelper;
+    /**
+     * @var type $httpRequest
+     */
+    public $httpRequest;
 
     /**
      * @param type $request
@@ -133,7 +157,7 @@ class FedExSmpkgShipmentPackage
             ],
             'ServerName'        => $this->httpRequest->getServer('SERVER_NAME'),
             'eniureLicenceKey'  => $this->scopeConfig->getValue(
-                'carriers/ENFedExSmpkg/licnsKey',
+                'fedexconnsettings/first/licnsKey',
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             ),
         ];
@@ -171,28 +195,39 @@ class FedExSmpkgShipmentPackage
     public function instorePickupLdData($shortOrigin, $receiverZipCode)
     {
         $array = [];
-        if (!empty($shortOrigin['in_store'])) {
+        if (!empty($shortOrigin['in_store']) && $shortOrigin['in_store'] != 'null') {
             $instore = json_decode($shortOrigin['in_store']);
             if ($instore->enable_store_pickup == 1) {
-                $array['inStore'] = $instore;
                 $array['inStorePickup'] = [
                     'addressWithInMiles' =>$instore->miles_store_pickup ,
-                    'postalCodeMatch'    =>in_array($receiverZipCode, explode(',', $instore->match_postal_store_pickup))?1:0,
+                    'postalCodeMatch'    =>$this->checkPostalCodeMatch($receiverZipCode, $instore->match_postal_store_pickup),
                 ];
             }
         }
 
-        if (!empty($shortOrigin['local_delivery'])) {
+        if (!empty($shortOrigin['local_delivery']) && $shortOrigin['local_delivery'] != 'null') {
             $locDel = json_decode($shortOrigin['local_delivery']);
             if ($locDel->enable_local_delivery == 1) {
-                $array['locDel'] = $locDel;
                 $array['localDelivery'] = [
                     'addressWithInMiles' => $locDel->miles_local_delivery,
-                    'postalCodeMatch'    =>in_array($receiverZipCode, explode(',', $locDel->match_postal_local_delivery))?1:0,
-                    'suppressOtherRates' =>$locDel->suppress_local_delivery,
+                    'postalCodeMatch'    =>$this->checkPostalCodeMatch($receiverZipCode, $locDel->match_postal_local_delivery),
+                    'suppressOtherRates' =>$locDel->suppress_other,
                 ];
             }
         }
         return $array;
+    }
+
+
+    /**
+     * @param $receiverZipCode
+     * @param $originZipCodes
+     * @return int
+     */
+    public function checkPostalCodeMatch($receiverZipCode, $originZipCodes)
+    {
+        $receiverZipCode = preg_replace('/\s+/', '', $receiverZipCode);
+        $originZipCodes = preg_replace('/\s+/', '', $originZipCodes);
+        return in_array($receiverZipCode, explode(',', $originZipCodes))?1:0;
     }
 }

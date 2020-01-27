@@ -12,9 +12,8 @@
 }
 </script>
 
-<script type="text/javascript">
-    require([ 'jquery', 'jquery/ui'], function($){
-        $(document).ready(function($) {
+<script>
+    require([ 'jquery', 'jquery/ui', '!domReady'], function($){
 
             var interval = null;
             interval = setInterval(doMagic,1000);
@@ -30,6 +29,5 @@
                     $('#getrate').prop('disabled', true);
                 }
             }
-        });
     });
 </script>

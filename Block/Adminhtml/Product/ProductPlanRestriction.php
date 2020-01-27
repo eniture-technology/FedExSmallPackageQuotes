@@ -1,27 +1,49 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Block\Adminhtml\Product;
+namespace Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Product;
 
 use \Magento\Backend\Block\Template\Context;
-use \Magento\Framework\Module\Manager;
 
+/**
+ * Class ProductPlanRestriction
+ * @package Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Product
+ */
 class ProductPlanRestriction extends \Magento\Config\Block\System\Config\Form\Field
 {
+    /**
+     *
+     */
     const PRODUCT_TEMPLATE = 'product/productplanrestriction.phtml';
-    
-    public $enable = 'no';
-    private $shipconfig;
-    public $dataHelper;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context $context
-     * @param \Magento\Framework\Module\Manager $moduleManager
+     * @var string
+     */
+    public $enable = 'no';
+    /**
+     * @var \Magento\Shipping\Model\Config
+     */
+    private $shipconfig;
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
+    public $dataHelper;
+    /**
+     * @var Context
+     */
+    private $context;
+
+
+    /**
+     * ProductPlanRestriction constructor.
+     * @param Context $context
+     * @param \Magento\Shipping\Model\Config $shipconfig
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      * @param array $data
      */
     public function __construct(
         Context $context,
         \Magento\Shipping\Model\Config $shipconfig,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
         array $data = []
     ) {
         $this->shipconfig = $shipconfig;
@@ -50,65 +72,96 @@ class ProductPlanRestriction extends \Magento\Config\Block\System\Config\Form\Fi
     {
         return $this->_toHtml();
     }
-    
-    /**
-     * @return array
-     */
+
+    public function planMsg($planInfo)
+    {
+        $data = ['hazmat' => ['count' => 'hazCount',
+            'enabled' => 'hazEnCount',
+            'return' => 'hazmatMsg'],
+            'insurance' => ['count' => 'insCount',
+                'enabled' => 'insEnCount',
+                'return' => 'insuranceMsg']
+        ];
+        $return = [];
+        foreach ($data as $key => $value) {
+            if ($planInfo[$value['count']] == $planInfo[$value['enabled']]) {
+                $return[$value['return']] = null;
+            } elseif ($planInfo[$value['enabled']] == 0) {
+                $return[$value['return']] = '';
+            } else {
+                $return[$value['return']] = $this->setPlanMsg($planInfo['data'], $key);
+            }
+        }
+        return $return;
+    }
+
+    public function setPlanMsg($msgInfo, $index)
+    {
+        $msg = "";
+        foreach ($msgInfo as $res) {
+            if (isset($res[$index])) {
+                if ($res[$index] == 'Enabled') {
+                    $planMsg = ' '. $res['label'] . ' : <b>' . $res[$index] . '</b>.<br>';
+                }
+                if ($res[$index] == 'Disabled') {
+                    $planMsg = ' '. $res['label'] . ' : Upgrade to <b>Standard Plan</b> to enable.<br>';
+                }
+
+                $msg .=  $planMsg ;
+            }
+        }
+
+        return $msg;
+    }
+
     public function getPlanInfo()
     {
+        $numLTL = $numSmpkg = $hazEn = $insEn = 0;
         $activeCarriers = array_keys($this->shipconfig->getActiveCarriers());
-        
         foreach ($activeCarriers as $carrierCode) {
+            $hazmat = $insurance = 'Disabled';
             $enCarrier = substr($carrierCode, 0, 2);
             if ($enCarrier == 'EN') {
-                $enitureCarriers[] = $carrierCode;
+                $carrierLabel = $this->getConfiguration($carrierCode, 'label');
+                $carrierPlan = $this->getConfiguration($carrierCode, 'plan');
 
-                $planArr = $this->dataHelper->fedexSmallPlanName($carrierCode);
-                $planNumber = isset($planArr['planNumber']) ? $planArr['planNumber'] : '';
-                
-                if (count($enitureCarriers) > 1) {
-                    $carrierLabel = $this->context->getScopeConfig()->getValue(
-                        'eniture/'.$carrierCode.'/label'
-                    );
-
-                    $restriction[$carrierCode] = $this->enableAttForPlans($planNumber, $carrierLabel);
-                } else {
-                    $restriction[$carrierCode] = $this->enableAttForPlans($planNumber, '');
+                $restriction['data'][$carrierCode] = [
+                    'label' => $carrierLabel,
+                    'plan' => $carrierPlan
+                ];
+                if (strpos($carrierCode, 'LTL') !== false) {
+                    $numLTL++;
+                }
+                if (strpos($carrierCode, 'Smpkg') !== false) {
+                    $numSmpkg++;
+                }
+                if ($carrierPlan > 1) {
+                    $hazmat = $insurance = 'Enabled';
+                    $hazEn++;
+                }
+                if ($numLTL) {
+                    $restriction['data'][$carrierCode]['hazmat'] = $hazmat;
+                }
+                if ($numSmpkg) {
+                    if ($carrierPlan > 1) {
+                        $insEn++;
+                    }
+                    $restriction['data'][$carrierCode]['hazmat'] = $hazmat;
+                    $restriction['data'][$carrierCode]['insurance'] = $insurance;
                 }
             }
         }
-        
+        $restriction['hazCount'] = $numSmpkg+$numLTL;
+        $restriction['insCount'] = $numSmpkg;
+        $restriction['hazEnCount'] = $hazEn;
+        $restriction['insEnCount'] = $insEn;
         return $restriction;
     }
-    
-    /**
-     * @param type $planNumber
-     * @param type $carrierLabel
-     * @return type
-     */
-    public function enableAttForPlans($planNumber, $carrierLabel)
+
+    public function getConfiguration($carrierCode, $reqFor)
     {
-        if ($planNumber == 0 || $planNumber == 1) {
-            $restriction = $this->createDataArray('', '', $carrierLabel);
-        } else {
-            $restriction = $this->createDataArray('Enabled', 'Enabled', $carrierLabel);
-        }
-        
-        return $restriction;
-    }
-    
-    /**
-     * @param type $hazmat
-     * @param type $insurance
-     * @param type $label
-     * @return array
-     */
-    public function createDataArray($hazmat, $insurance, $label)
-    {
-        return [
-            'hazmat' => $hazmat,
-            'insurance' => $insurance,
-            'label' => $label
-        ];
+        return $this->context->getScopeConfig()->getValue(
+            'eniture/'.$carrierCode.'/'.$reqFor.''
+        );
     }
 }

@@ -1,25 +1,37 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Controller\Dropship;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Dropship;
 
 use \Magento\Framework\App\Action\Action;
 
+/**
+ * Class SaveDropship
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Dropship
+ */
 class SaveDropship extends Action
 {
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     public $dataHelper;
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory
+     */
+    private $warehouseFactory;
 
     /**
+     * SaveDropship constructor.
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
-     * @param \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory $warehouseFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
-        \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory $warehouseFactory
     ) {
         $this->dataHelper = $dataHelper;
-        $this->_warehouseFactory    = $warehouseFactory;
+        $this->warehouseFactory    = $warehouseFactory;
         parent::__construct($context);
     }
 
@@ -30,6 +42,7 @@ class SaveDropship extends Action
     {
         $insertQry = 0;
         $updateQry = 0;
+        $updateInspLd = 'no';
 
         foreach ($this->getRequest()->getPostValue() as $key => $post) {
             $saveDsData[$key] = filter_var($post, FILTER_SANITIZE_STRING);
@@ -40,14 +53,21 @@ class SaveDropship extends Action
         $city = $validateData['city'];
         $state = $validateData['state'];
         $zip = $validateData['zip'];
-        $country = $validateData['country'];
-        $nickname = $validateData['nickname'];
-        $getDropship  = $this->checkDropshipList($city, $state, $zip, $nickname);
-        
-        if ($city != 'Error') {
-            $dropshipId = isset($saveDsData['dropshipId']) ? (int)($saveDsData['dropshipId']) : "";
+        $nickname = $validateData['nickname'] = $this->nicknameValid(trim($validateData['nickname']), $zip, $city);
 
-            if ($dropshipId && empty($getDropship)) {
+        if ($city != 'Error') {
+            $dropshipId   = isset($saveDsData['dropshipId']) ? intval($saveDsData['dropshipId']) : "";
+            $getDropship  = $this->checkDropshipList($city, $state, $zip, $nickname);
+
+            if (!empty($getDropship)) {
+                $dsId = reset($getDropship)['warehouse_id'];
+                if ($dropshipId == $dsId) {
+                    // check any change in InspLd data
+                    $updateInspLd = $this->dataHelper->checkUpdateInstrorePickupDelivery($getDropship, $validateData);
+                }
+            }
+
+            if ($dropshipId && (empty($getDropship) || $updateInspLd == 'yes')) {
                 $updateQry = $this->dataHelper->updateWarehousData($validateData, "warehouse_id='".$dropshipId."'");
             } else {
                 if (empty($getDropship) && ($this->countNickname($nickname) == 0 || $nickname == "")) {
@@ -60,7 +80,7 @@ class SaveDropship extends Action
 
         $dropshipList = $this->dropshipListData($validateData, $insertQry, $updateQry, $lastId);
 
-        if ($dropshipId) {
+        if ($updateQry == 0 && $dropshipId) {
             $dropshipList['dsID'] = $dropshipId;
             if ($getDropship[0]['warehouse_id'] != $dropshipId) {
                 $dropshipList['dsID'] = 0;
@@ -101,7 +121,7 @@ class SaveDropship extends Action
      */
     public function checkDropshipList($city, $state, $zip, $nickname)
     {
-        $dsCollection       = $this->_warehouseFactory->create()->getCollection()
+        $dsCollection       = $this->warehouseFactory->create()->getCollection()
                                     ->addFilter('location', ['eq' => 'dropship'])
                                     ->addFilter('city', ['eq' => $city])
                                     ->addFilter('state', ['eq' => $state])
@@ -118,10 +138,19 @@ class SaveDropship extends Action
     public function countNickname($nickname)
     {
         if (!empty($nickname)) {
-            $dsCollection       = $this->_warehouseFactory->create()->getCollection()
+            $dsCollection       = $this->warehouseFactory->create()->getCollection()
                                         ->addFilter('location', ['eq' => 'dropship'])
                                         ->addFilter('nickname', ['eq' => $nickname]);
             return count($this->dataHelper->purifyCollectionData($dsCollection));
         }
+    }
+
+    public function nicknameValid($nickname, $zip, $city)
+    {
+        $dafaultRegex = "/DS_[0-9 a-z A-Z]+_[a-z A-Z]*/";
+        if (preg_match($dafaultRegex, $nickname) || empty($nickname)) {
+            $nickname = 'DS_'.$zip.'_'.$city;
+        }
+        return $nickname;
     }
 }

@@ -1,15 +1,25 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
-class FedexBoxSizes extends \Magento\Config\Block\System\Config\Form\Field
+/**
+ * Class FedexBoxSizes
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
+class FedexBoxSizes extends Field
 {
+    /**
+     *
+     */
     const BOXSIZE_TEMPLATE = 'system/config/boxsizes.phtml';
-    
+
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     public $dataHelper;
     /**
      * @param Context $context
@@ -17,7 +27,7 @@ class FedexBoxSizes extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function __construct(
         Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
         array $data = []
     ) {
         $this->dataHelper = $dataHelper;

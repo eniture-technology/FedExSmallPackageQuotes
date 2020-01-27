@@ -1,12 +1,41 @@
 <?php
-namespace Eniture\FedExSmallPackages\Cron;
+namespace Eniture\FedExSmallPackageQuotes\Cron;
 
+/**
+ * Class PlanUpgrade
+ * @package Eniture\FedExSmallPackageQuotes\Cron
+ */
 class PlanUpgrade
 {
-    protected $logger;
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    public $storeManager;
+    /**
+     * @var \Magento\Framework\HTTP\Client\Curl
+     */
+    public $curl;
+    /**
+     * @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface
+     */
+    public $resourceConfig;
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    public $logger;
 
+    /**
+     * @var string
+     */
     private $curlUrl = 'https://eniture.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php';
 
+    /**
+     * PlanUpgrade constructor.
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Framework\HTTP\Client\Curl $curl
+     * @param \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig
+     * @param \Psr\Log\LoggerInterface $logger
+     */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
@@ -25,10 +54,10 @@ class PlanUpgrade
     public function execute()
     {
         $domain = $this->storeManager->getStore()->getUrl();
-        $webhookUrl = $domain.'/fedexsmallpackages';
+        $webhookUrl = $domain.'fedexsmallpackagequotes';
         $postData = http_build_query([
             'platform' => 'magento2',
-            'carrier' => '64',
+            'carrier' => '66',
             'store_url' => $domain,
             'webhook_url' => $webhookUrl,
         ]);
@@ -45,19 +74,24 @@ class PlanUpgrade
         if ($pakgPrice == 0) {
             $plan = 0;
         }
+
+        $today =  date('F d, Y');
+        if (strtotime($today) > strtotime($expiryDate)) {
+            $plan ='-1';
+        }
         $this->saveConfigurations('eniture/ENFedExSmpkg/plan', "$plan");
         $this->saveConfigurations('eniture/ENFedExSmpkg/expireday', "$expireDay");
         $this->saveConfigurations('eniture/ENFedExSmpkg/expiredate', "$expiryDate");
         $this->saveConfigurations('eniture/ENFedExSmpkg/storetype', "$planType");
         $this->saveConfigurations('eniture/ENFedExSmpkg/pakgprice', "$pakgPrice");
-        $this->saveConfigurations('eniture/ENFedExSmpkg/label', "Eniture - FedEx Small Packages");
+        $this->saveConfigurations('eniture/ENFedExSmpkg/label', "Eniture - FedEx Small Package Quotes");
         $this->logger->info($output);
     }
 
 
     /**
-     * @param type $path
-     * @param type $value
+     * @param $path
+     * @param $value
      */
     function saveConfigurations($path, $value)
     {

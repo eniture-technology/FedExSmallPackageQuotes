@@ -1,6 +1,10 @@
 <?php
-namespace Eniture\FedExSmallPackages\Model;
+namespace Eniture\FedExSmallPackageQuotes\Model;
 
+/**
+ * Class Warehouse
+ * @package Eniture\FedExSmallPackageQuotes\Model
+ */
 class Warehouse extends \Magento\Framework\Model\AbstractModel
 {
     /**
@@ -10,6 +14,6 @@ class Warehouse extends \Magento\Framework\Model\AbstractModel
      */
     protected function _construct()
     {
-        $this->_init('Eniture\FedExSmallPackages\Model\ResourceModel\Warehouse');
+        $this->_init('Eniture\FedExSmallPackageQuotes\Model\ResourceModel\Warehouse');
     }
 }

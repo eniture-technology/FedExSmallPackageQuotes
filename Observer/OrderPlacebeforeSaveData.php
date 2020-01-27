@@ -1,11 +1,18 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Observer;
+namespace Eniture\FedExSmallPackageQuotes\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 
+/**
+ * Class OrderPlacebeforeSaveData
+ * @package Eniture\FedExSmallPackageQuotes\Observer
+ */
 class OrderPlacebeforeSaveData implements ObserverInterface
 {
+    /**
+     * @var \Magento\Framework\Session\SessionManagerInterface
+     */
     private $coreSession;
 
     /**
@@ -23,20 +30,31 @@ class OrderPlacebeforeSaveData implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         try {
-            $orderDetailData = $this->coreSession->getOrderDetailSession();
             $order = $observer->getEvent()->getOrder();
-            
-            if (count($orderDetailData['shipmentData']) == 1) {
-                $orderDetailData['shipmentData'] = $this->setQuotesIfSingleShipment($orderDetailData, $order);
+            $method =  $order->getShippingMethod();
+
+            if (strpos($method, 'ENFedExSmpkg') !== false) {
+                $orderDetailData = $this->coreSession->getFdxOrderDetailSession();
+                $semiOrderDetailData = $this->coreSession->getSemiOrderDetailSession();
+
+                if ($orderDetailData && $semiOrderDetailData == null) {
+                    if (count($orderDetailData['shipmentData']) == 1) {
+                        $orderDetailData['shipmentData'] = $this->setQuotesIfSingleShipment($orderDetailData, $order);
+                    }
+                } elseif ($semiOrderDetailData) {
+                    $orderDetailData = $semiOrderDetailData;
+                    $this->coreSession->unsSemiOrderDetailSession();
+                }
+                $order->setData('order_detail_data', json_encode($orderDetailData));
+                $order->save();
+
+                $this->coreSession->unsFdxOrderDetailSession([]);
             }
-            
-            $order->setData('order_detail_data', json_encode($orderDetailData));
-            $order->save();
         } catch (\Exception $e) {
             $e->getMessage();
         }
     }
-    
+
     /**
      * @param type $orderDetailData
      * @param type $order
@@ -45,16 +63,16 @@ class OrderPlacebeforeSaveData implements ObserverInterface
     private function setQuotesIfSingleShipment($orderDetailData, $order)
     {
         $shippingMethod = explode('_', $order->getShippingMethod());
-        $titlePart = "FedEx Small Packages Quotes - ";
+        $titlePart = "FedEx Small Package Quotes - ";
         $newData = [];
         foreach ($orderDetailData['shipmentData'] as $key => $data) {
             $newData[$key]['quotes'] = [
-                                        'code'  => $shippingMethod[1],
-                                        'title' => str_replace($titlePart, "", $order->getShippingDescription()),
-                                        'rate'  => number_format((float)$order->getShippingAmount(), 2, '.', '')
-                                    ];
+                'code'  => $shippingMethod[1],
+                'title' => str_replace($titlePart, "", $order->getShippingDescription()),
+                'rate'  => number_format((float)$order->getShippingAmount(), 2, '.', '')
+            ];
         }
-        
+
         $mergedNewData = array_replace_recursive($orderDetailData['shipmentData'], $newData);
         return $mergedNewData;
     }

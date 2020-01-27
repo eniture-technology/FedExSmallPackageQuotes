@@ -3,15 +3,13 @@
 $formData = [
     'divElement'       =>  '#success',
 ];
-$serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonEncode($formData);
-$planMsg = $this->fedexSmallPlanNotice();
+$serializedFormData = $block->helper('Magento\Framework\Json\Helper\Data')->jsonEncode($formData);
+$planMsg = $block->fedexSmallPlanNotice();
 ?>
 <script type="text/javascript">
-    require([ 'jquery', 'jquery/ui'], function($){ 
-        $(document).ready(function($) {
-            var carrierdiv = '#carriers_ENFedExSmpkg-head';
-            currentPlanNote($, '<?php echo $planMsg; ?>', carrierdiv);
-        });
+    require([ 'jquery', 'domReady!'], function($){ 
+        var carrierdiv = '#fedexconnsettings_first-head';
+        currentPlanNote($, '<?php echo $planMsg; ?>', carrierdiv);
     });
 </script>
 <div class="pp-buttons-container">
@@ -27,29 +25,34 @@ $planMsg = $this->fedexSmallPlanNotice();
 </div>
 
 <!-- Display Success Message -->
-<div id="successCon" style="display: none;" class="test_connection_sccs">
-    <strong>
-        <?=
-            /* @noEscape */ __('Success!')
-        ?>
-    </strong>
-    <span id="succesText">
-        <?=
+<div id="fedexsuccessCon"  style="display: none; margin-top: 20px;"class="message message-success success">
+    <div data-ui-id="messages-message-success">
+        <strong>
+            <?=
+                /* @noEscape */ __('Success!')
+            ?>
+        </strong>
+        <span id="succesText">
+            <?=
             /* @noEscape */ __('The test resulted in a successful connection.')
-        ?>
-    </span>
+            ?>
+        </span>
+    </div>
 </div>
 
 <!-- Display Error Message -->
-<div id="failCon" style="display: none;" class="test_connection_err">
-    <strong>
-        <?=
-            /* @noEscape */ __('Error!')
-        ?> 
-    </strong>
-    <span id="errorText">
-        <?=
+<div id="fedexfailCon"  style="display: none; margin-top: 20px;"class="message message-error error">
+    <div data-ui-id="messages-message-error">
+        <strong>
+            <?=
+                /* @noEscape */ __('Error!')
+            ?> 
+        </strong>
+        <span id="errorText">
+            <?=
             /* @noEscape */ __('The credentials entered did not result in a successful test. Confirm your credentials and try again.')
-        ?>
-    </span>
+            ?>
+        </span>
+    </div>
 </div>
+

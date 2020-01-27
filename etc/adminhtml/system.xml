@@ -2,7 +2,7 @@
 <!--
 /**
  * @category   Shipping
- * @package    Eniture_FedExSmallPackages
+ * @package    Eniture_FedExSmallPackageQuotes
  * @author     Eniture Technology : <sales@eniture.com>
  * @website    http://eniture.com
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
@@ -10,16 +10,26 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <tab id="FedExSmallPackages" translate="label" sortOrder="10">
-            <label>Eniture - FedEx Small Packages</label>
+        <tab id="FedExSmallPackageQuotes" translate="label" sortOrder="10">
+            <label>Eniture - FedEx Small Package Quotes</label>
         </tab>
         <section id="carriers" translate="label" type="text" sortOrder="320" showInDefault="1" showInWebsite="1" showInStore="1">
             <group id="ENFedExSmpkg" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Eniture - FedEx Small Packages</label>
+                <label>Eniture - FedEx Small Package Quotes</label>
                 <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled For Checkout</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+            </group>
+        </section>
+
+
+        <section id="fedexconnsettings" translate="label" type="text" sortOrder="28" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Connection Settings</label>
+            <tab>FedExSmallPackageQuotes</tab>
+            <resource>Eniture_FedExSmallPackageQuotes::config</resource>
+            <group id="first" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Connection Settings</label>
                 <field id="AccountNumber" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Account Number</label>
                     <validate>required-entry</validate>
@@ -42,49 +52,51 @@
                 </field>
                 <field id="hubId" translate="label" type="select" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Hub Id</label>
-                    <source_model>Eniture\FedExSmallPackages\Model\Source\HubId</source_model>
+                    <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\HubId</source_model>
                 </field>
                 <field id="fedexSmpkgTestConnection" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <frontend_model>Eniture\FedExSmallPackages\Block\System\Config\TestConnection</frontend_model>
+                    <frontend_model>Eniture\FedExSmallPackageQuotes\Block\System\Config\TestConnection</frontend_model>
                 </field>
             </group>
         </section>
 
-        <section id="fedexWarehouse" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1"> 
+        <section id="fedexWarehouse" translate="label" type="text" sortOrder="29" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Warehouses</label>
-            <tab>FedExSmallPackages</tab>
-            <resource>Eniture_FedExSmallPackages::config</resource>
+            <tab>FedExSmallPackageQuotes</tab>
+            <resource>Eniture_FedExSmallPackageQuotes::config</resource>
             <group id="second" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Warehouses</label>
                 <field id="fedexSmpkgWarehouse" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <frontend_model>Eniture\FedExSmallPackages\Block\System\Config\WarehouseTable</frontend_model>
+                    <frontend_model>Eniture\FedExSmallPackageQuotes\Block\System\Config\WarehouseTable</frontend_model>
                 </field>
                 <field id="fedexSmpkgDropship" translate="label" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <frontend_model>Eniture\FedExSmallPackages\Block\System\Config\DropshipTable</frontend_model>
+                    <frontend_model>Eniture\FedExSmallPackageQuotes\Block\System\Config\DropshipTable</frontend_model>
                 </field>
             </group>
         </section>
-        
-        <section id="fedexQuoteSetting" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1"> 
+
+        <section id="fedexQuoteSetting" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Quote Settings</label>
-            <tab>FedExSmallPackages</tab>
-            <resource>Eniture_FedExSmallPackages::config</resource>
+            <tab>FedExSmallPackageQuotes</tab>
+            <resource>Eniture_FedExSmallPackageQuotes::config</resource>
             <group id="third" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Quote Settings</label>
                 <field id="FedExDomesticServices" translate="label" type="multiselect" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>US Domestic Service</label>
                     <can_be_empty>1</can_be_empty>
-                    <source_model>Eniture\FedExSmallPackages\Model\Source\DomesticServices</source_model>
+                    <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\DomesticServices</source_model>
                 </field>
 
                 <field id="FedExOneRateServices" translate="label" type="multiselect" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>One Rate</label>
                     <can_be_empty>1</can_be_empty>
-                    <source_model>Eniture\FedExSmallPackages\Model\Source\OneRateServices</source_model>
+                    <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\OneRateServices</source_model>
                 </field>
 
                 <field id="FedExInternationalServices" translate="label" type="multiselect" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>International Services</label>
                     <can_be_empty>1</can_be_empty>
-                    <source_model>Eniture\FedExSmallPackages\Model\Source\InternationalServices</source_model>
+                    <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\InternationalServices</source_model>
                 </field>
                 <field id="FedExSmartPost" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>FedEx SmartPost</label>
@@ -95,11 +107,12 @@
                     <validate>validate-number validate-length maximum-length-7 validate-not-negative-number</validate>
                 </field>
                 <field id="transitDaysRestrictionBy" translate="label" type="radios" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <source_model>Eniture\FedExSmallPackages\Model\Source\TransitDaysRestrictionBy</source_model>
+                    <label>Restrict By</label>
+                    <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\TransitDaysRestrictionBy</source_model>
                 </field>
                 <field id="fedexRates" translate="label" type="radios" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Fedex Rates</label>
-                    <source_model>Eniture\FedExSmallPackages\Model\Source\FedexRates</source_model>
+                    <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\FedexRates</source_model>
                 </field>
                 <field id="residentialDlvry" translate="label" type="select" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Always Quote Residential Delivery</label>
@@ -107,12 +120,12 @@
                     <comment><![CDATA[Residential Delivery.]]></comment>
                 </field>
                 <field id="residentialAddressDetect" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Auto detect residential addresses</label>
-                    <frontend_model>Eniture\FedExSmallPackages\Block\System\Config\ResidentialAddressDetection</frontend_model>
+                    <label>Residential address detection</label>
+                    <frontend_model>Eniture\FedExSmallPackageQuotes\Block\System\Config\ResidentialAddressDetection</frontend_model>
                 </field>
                 <field id="boxSizesQuoteStng" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Use My Standard Box Sizes</label>
-                    <frontend_model>Eniture\FedExSmallPackages\Block\System\Config\BoxSizes</frontend_model>
+                    <frontend_model>Eniture\FedExSmallPackageQuotes\Block\System\Config\BoxSizes</frontend_model>
                 </field>
                 <field id="onlyGndService" translate="label" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Only quote ground service for hazardous materials shipments</label>
@@ -133,29 +146,32 @@
                     <validate>validate-number validate-length maximum-length-7</validate>
                 </field>
                 <field id="symbolicHndlngFee" translate="label" type="select" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <source_model>Eniture\FedExSmallPackages\Model\Source\HandlingFee</source_model>
-                </field>                
-            </group>
-        </section>
-        
-        <section id="boxSizesTab" translate="label" type="text" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1"> 
-            <label>Bin Packaging</label>
-            <tab>FedExSmallPackages</tab>
-            <resource>Eniture_FedExSmallPackages::config</resource>
-            <group id="fourth" translate="label" type="text" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
-                <field id="fedexSmpkgBoxSizes" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <frontend_model>Eniture\FedExSmallPackages\Block\System\Config\BoxSizesTab</frontend_model>
+                    <label>Fee Type</label>
+                    <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\HandlingFee</source_model>
                 </field>
             </group>
         </section>
-        
-        <section id="fedexUserGuide" translate="label" type="text" sortOrder="32" showInDefault="1" showInWebsite="1" showInStore="1"> 
+
+        <section id="fedexBoxSizesTab" translate="label" type="text" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Standard Box Sizes</label>
+            <tab>FedExSmallPackageQuotes</tab>
+            <resource>Eniture_FedExSmallPackageQuotes::config</resource>
+            <group id="fourth" translate="label" type="text" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Standard Box Sizes</label>
+                <field id="fedexSmpkgBoxSizes" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>Eniture\FedExSmallPackageQuotes\Block\System\Config\BoxSizesTab</frontend_model>
+                </field>
+            </group>
+        </section>
+
+        <section id="fedexUserGuide" translate="label" type="text" sortOrder="32" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>User Guide</label>
-            <tab>FedExSmallPackages</tab>
-            <resource>Eniture_FedExSmallPackages::config</resource>
+            <tab>FedExSmallPackageQuotes</tab>
+            <resource>Eniture_FedExSmallPackageQuotes::config</resource>
             <group id="fifth" translate="label" type="text" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>User Guide</label>
                 <field id="fedexSmpkgUserGuide" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <frontend_model>Eniture\FedExSmallPackages\Block\System\Config\UserGuide</frontend_model>
+                    <frontend_model>Eniture\FedExSmallPackageQuotes\Block\System\Config\UserGuide</frontend_model>
                 </field>
             </group>
         </section>

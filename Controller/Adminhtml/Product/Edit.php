@@ -1,26 +1,59 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Controller\Adminhtml\Product;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Adminhtml\Product;
 
-use Magento\Framework\Event\ObserverInterface;
-
+/**
+ * Class Edit
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Adminhtml\Product
+ */
 class Edit extends \Magento\Catalog\Controller\Adminhtml\Product\Edit
 {
+    /**
+     * @var array
+     */
     private $publicActions = ['edit'];
+    /**
+     * @var
+     */
     private $conn;
+    /**
+     * @var \Magento\Shipping\Model\Config
+     */
     private $shipconfig;
+    /**
+     * @var \Magento\Framework\App\ResourceConnection
+     */
     private $resource;
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Model\EnituremodulesFactory
+     */
     private $enModuleFactory;
+    /**
+     * @var \Magento\Catalog\Model\ResourceModel\Eav\Attribute
+     */
     private $attributeFactory;
+    /**
+     * @var null
+     */
     private $dsSourceModel = null;
+    /**
+     * @var
+     */
     private $enDsSource;
     /**
+     * @var \Magento\Directory\Model\Country
+     */
+    private $enModuleFactoryCreate;
+
+
+    /**
+     * Edit constructor.
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Magento\Catalog\Controller\Adminhtml\Product\Builder $productBuilder
      * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
      * @param \Magento\Framework\App\ResourceConnection $resource
      * @param \Magento\Shipping\Model\Config $shipconfig
-     * @param \Eniture\FedExSmallPackages\Model\EnituremodulesFactory $enModuleFactory
+     * @param \Eniture\FedExSmallPackageQuotes\Model\EnituremodulesFactory $enModuleFactory
      * @param \Magento\Catalog\Model\ResourceModel\Eav\Attribute $attributeFactory
      */
     public function __construct(
@@ -29,7 +62,7 @@ class Edit extends \Magento\Catalog\Controller\Adminhtml\Product\Edit
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Magento\Framework\App\ResourceConnection $resource,
         \Magento\Shipping\Model\Config $shipconfig,
-        \Eniture\FedExSmallPackages\Model\EnituremodulesFactory $enModuleFactory,
+        \Eniture\FedExSmallPackageQuotes\Model\EnituremodulesFactory $enModuleFactory,
         \Magento\Catalog\Model\ResourceModel\Eav\Attribute $attributeFactory
     ) {
         parent::__construct($context, $productBuilder, $resultPageFactory);
@@ -66,7 +99,7 @@ class Edit extends \Magento\Catalog\Controller\Adminhtml\Product\Edit
         if (count($enitureModules) == 0) {
             return parent::execute();
         }
-//        $activeModuleList = implode("','", $enitureModules);
+
         $activeModuleList = $enitureModules;
         
         $enitureTableName = $this->resource->getTableName('enituremodules');
@@ -86,9 +119,9 @@ class Edit extends \Magento\Catalog\Controller\Adminhtml\Product\Edit
         if (empty($haveEntry)) {
             $data = [
                 'module_name'           => 'ENFedExSmpkg',
-                'module_script'         => 'Eniture_FedExSmallPackages',
+                'module_script'         => 'Eniture_FedExSmallPackageQuotes',
                 'dropship_field_name'   => 'en_dropship_location',
-                'dropship_source'       => 'Eniture\FedExSmallPackages\Model\Source\DropshipOptions',
+                'dropship_source'       => 'Eniture\FedExSmallPackageQuotes\Model\Source\DropshipOptions',
             ];
             
             $this->enModuleFactoryCreate->setData($data)->save();

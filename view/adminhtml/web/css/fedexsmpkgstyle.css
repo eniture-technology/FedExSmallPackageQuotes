@@ -7,14 +7,15 @@
     min-height: 23px !important;
     padding: 8px 8px 8px 15px !important;
     font-size: .85em !important;
-    font-weight: bold !important;
+    font-weight: 600 !important;
     border: 1px solid #ffd967 !important;
     background: #fffbf0;
-    color: #3d6611 !important;
+    color: #333 !important;
     margin-bottom: 10px !important;
     line-height: 2;
     margin-top: 10px;
 }
+
 .warehouse {
     background: #f5f5f5 none repeat scroll 0 0;
     border-collapse: separate;
@@ -78,8 +79,7 @@
     transition: all 5s ease-in-out;
 }
 .FedEx_small_warehouseFormContent {
-    width: 100%;
-    margin: 0px -10px 0px;
+    width: 98.5%;
 }
 .add_warehouse_popup warehouse_heading {
     margin: 0 -12px 20px;
@@ -124,10 +124,10 @@
     padding: 5px;
     width: 40% !important;
 }
-.delete_ds_popup{
-    height: 25% !important;
-    overflow: hidden !important;
-}
+/*.delete_ds_popup{*/
+/*    height: 25% !important;*/
+/*    overflow: hidden !important;*/
+/*}*/
 .save_warehouse_form{
     background-color: #eb5202 !important;
     border-color: #eb5202 !important;
@@ -144,14 +144,7 @@
 .save_warehouse_form:focus + div#add_warehouse_btn {
       display: none;
 }
-.already_exist , .wh-instore-miles-postal-err, .wh-local-miles-postals-err, .ds-instore-miles-postal-err, .ds-local-miles-postals-err{
-    display: none;
-    font-size: 12px;
-    background: #faebe7;
-    border: 1px solid #f16048 !important;
-    color: #df280a !important;
-    padding: 5px;
-}
+
 .zip_invalid{
     color: #ed6502;
     font-size: 11px;
@@ -160,14 +153,8 @@
     margin-top: 40px;
     position: absolute;
 }
-.not_allowed, .api_error{
+.already_exist, .not_allowed, .api_error, .wh-instore-miles-postal-err, .ds-local-miles-postals-err, .wh-local-miles-postals-err, .ds-instore-miles-postal-err {
     display: none;
-    font-size: 12px;
-    background: #faebe7;
-    border: 1px solid #f16048 !important;
-    color: #df280a !important;
-    padding: 5px;
-    margin-bottom: 10px;
 }
 
 /*add warehouse popup style End*/
@@ -222,21 +209,11 @@
     margin-top: 40px;
     position: absolute;
 }
-.warehouse_created{
-    display: none;
-}
-.warehouse_updated{
-    display: none;
-}
-.warehouse_deleted{
-    display: none;
-}
-.dropship_created{
-    display: none;
-}
-.dropship_updated{
-    display: none;
-}
+.warehouse_created,
+.warehouse_updated,
+.warehouse_deleted,
+.dropship_created,
+.dropship_updated,
 .dropship_deleted{
     display: none;
 }
@@ -252,7 +229,7 @@
     margin: 0px -10px 0px;
 }
 .del_btns{
-    margin-right: 40px;
+    /*margin-right: 40px;*/
     text-align: right;
     margin-top: 20px;
 }
@@ -262,6 +239,7 @@
     border-radius: 3px;
     padding: 5px 10px;
     text-decoration: none;
+    margin: 0px 5px 0px;
 }
 .cancel_delete:hover{
     text-decoration: none;
@@ -303,9 +281,9 @@
     border-radius: 5px;
 }
 .err{
-    color: #D40707;
+    color: red;
     font-size: 11px;
-    font-weight: bold !important;
+    font-weight: 400 !important;
 }
 .add_warehouse_input .err {
     position: relative;
@@ -321,11 +299,11 @@
     width: 100%;
 }
 
-#row_fedexUserGuide_fifth_fedexSmpkgUserGuide .label, #row_boxSizesTab_fourth_fedexSmpkgBoxSizes .label {
+#row_fedexUserGuide_fifth_fedexSmpkgUserGuide .label, #row_fedexBoxSizesTab_fourth_fedexSmpkgBoxSizes .label {
     display: none;
 }
 
-#row_fedexUserGuide_fifth_fedexSmpkgUserGuide .value, #row_boxSizesTab_fourth_fedexSmpkgBoxSizes .value {
+#row_fedexUserGuide_fifth_fedexSmpkgUserGuide .value, #row_fedexBoxSizesTab_fourth_fedexSmpkgBoxSizes .value {
     width: 100%;
 }
 
@@ -346,7 +324,7 @@ label[for="origin_zip"]:after, label[for="origin_city"]:after, label[for="origin
     content: " *";
     color: red;
 }
-label[for="carriers_ENFedExSmpkg_AccountNumber"]:after, label[for="carriers_ENFedExSmpkg_ProdutionPassword"]:after, label[for="carriers_ENFedExSmpkg_MeterNumber"]:after, label[for="carriers_ENFedExSmpkg_AuthenticationKey"]:after, label[for="carriers_ENFedExSmpkg_licnsKey"]:after{
+label[for="fedexconnsettings_first_AccountNumber"]:after, label[for="fedexconnsettings_first_ProdutionPassword"]:after, label[for="fedexconnsettings_first_MeterNumber"]:after, label[for="fedexconnsettings_first_AuthenticationKey"]:after, label[for="fedexconnsettings_first_licnsKey"]:after{
     content: '*';
     color: red;
     padding: 5px;
@@ -447,12 +425,13 @@ label[for='Eniture-Menu-Option-section-three-AutoDetectResidentialAddress'] {
 
 .adv-plan-err{
     position: absolute;
-    margin-left: 295px !important;
-    margin-top: 10px;
+    margin-left: 0% !important;
+    margin-top: 0%;
 }
 .std-plan-err{
-    position: absolute;
-    margin-left: 295px !important;
+    /*position: absolute;*/
+    margin-left: 0% !important;
+    margin-top: 0%;
 }
 
 .tag.label.label-info span{
@@ -463,7 +442,7 @@ label[for='Eniture-Menu-Option-section-three-AutoDetectResidentialAddress'] {
     text-align: left;
     margin-right: 1.8%;
     border-radius: 0 !important;
-    width: 228px  !important;
+    width: 37.7%  !important;
     box-shadow: none !important;
     border-color: #adadad !important;
     padding-bottom: 0 !important;
@@ -473,10 +452,11 @@ label[for='Eniture-Menu-Option-section-three-AutoDetectResidentialAddress'] {
 }
 
 .bootstrap-tagsinput input{
-    width: 20% !important;
+    width: auto !important;
     margin: 0 !important;
     border: none !important;
     padding: 0 !important;
+    background: transparent;
 }
 .bootstrap-tagsinput .tag.label.label-info{
     display: inline-block;
@@ -501,6 +481,55 @@ label[for='Eniture-Menu-Option-section-three-AutoDetectResidentialAddress'] {
 
 }
 
-/*#ld_sup_rates, #ds_ld_sup_rates{*/
-/*    margin-top: 0 !important;*/
+.row{
+    margin-top: 30px;
+}
+
+/*Fields that are previously with no label*/
+label[for="fedexQuoteSetting_third_transitDaysRestrictionBy"],
+label[for="fedexQuoteSetting_third_symbolicHndlngFee"]{
+    display: none;
+}
+
+ /* Tooltip container */
+.suppressTooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.suppressTooltip .suppressTooltiptext {
+    visibility: hidden;
+    width: 500px;
+    background-color: #ddd;
+    color: #000;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    /*bottom: 125%;*/
+    left: 50%;
+    /*margin-left: -60px;*/
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: 400;
+}
+
+/* Tooltip arrow */
+/*.suppressTooltip .suppressTooltiptext::after {*/
+/*  content: "";*/
+/*  position: absolute;*/
+/*  top: 100%;*/
+/*  left: 50%;*/
+/*  margin-left: -5px;*/
+/*  border-width: 5px;*/
+/*  border-style: solid;*/
+/*  border-color: #555 transparent transparent transparent;*/
 /*}*/
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.suppressTooltip:hover .suppressTooltiptext {
+  visibility: visible;
+  opacity: 1;
+}

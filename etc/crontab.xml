@@ -4,7 +4,7 @@
 
 <group id="default">
 
-    <job name="custom_cronjob" instance="Eniture\FedExSmallPackages\Cron\PlanUpgrade" method="execute">
+    <job name="custom_cronjob" instance="Eniture\FedExSmallPackageQuotes\Cron\PlanUpgrade" method="execute">
 
         <schedule>* */12 * * *</schedule>
 

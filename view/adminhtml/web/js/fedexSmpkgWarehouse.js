@@ -12,11 +12,6 @@ window.addEventListener("load", function() {
     
 });
 
-    /**
-    * Mangage script conflict
-    * @type Object
-    */
-//    var $j = jQuery.noConflict();
     
     /**
      * Get address against zipcode from smart street api
@@ -152,10 +147,10 @@ window.addEventListener("load", function() {
 
             jQuery('.warehouse_created').css('display' , 'block');
             window.location.href = jQuery('.close').attr('href');
-            jQuery('#append_warehouse tr:last').after('<tr id="row_'+WarehouseDataId+'" data-id="'+WarehouseDataId+'"><td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHEditAjaxUrl +'\');">Edit</a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHDeleteAjaxUrl +'\');">Delete</a></td></tr>');
+            jQuery('#append_warehouse tr:last').after('<tr id="row_'+WarehouseDataId+'" data-id="'+WarehouseDataId+'"><td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHEditAjaxUrl +'\');">Edit</a> | <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHDeleteAjaxUrl +'\');">Delete</a></td></tr>');
 
             jQuery('html, body').animate({
-                'scrollTop' : jQuery('.warehouse_text').position().top
+                'scrollTop' : jQuery(".wh").offset().top-170
             });
 
             setTimeout(function(){
@@ -165,10 +160,10 @@ window.addEventListener("load", function() {
             jQuery('.warehouse_updated').css('display' , 'block');
             window.location.href = jQuery('.close').attr('href');
 
-            jQuery('tr[id=row_'+WarehouseDataId+']').html('<td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHEditAjaxUrl +'\');">Edit</a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHDeleteAjaxUrl +'\');">Delete</a></td>');
+            jQuery('tr[id=row_'+WarehouseDataId+']').html('<td>'+data.origin_city+'</td><td>'+data.origin_state+'</td><td>'+data.origin_zip+'</td><td>'+data.origin_country+'</td><td><a href="javascript(0)" onclick="return fedexSmpkgEditWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHEditAjaxUrl +'\');">Edit</a> | <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse('+ WarehouseDataId +',\''+ fedexSmpkgWHDeleteAjaxUrl +'\');">Delete</a></td>');
 
             jQuery('html, body').animate({
-                'scrollTop' : jQuery('.warehouse_text').offset().top
+                'scrollTop' : jQuery(".wh").offset().top-170
             });
             jQuery( '#edit_form_id' ).val('');
             setTimeout(function(){
@@ -179,6 +174,9 @@ window.addEventListener("load", function() {
             if(data.whID > 0){
                 jQuery('.warehouse_updated').css('display' , 'block');
                 window.location.href = jQuery('.close').attr('href');
+                jQuery('html,body').animate({
+                    scrollTop: jQuery(".wh").offset().top-170
+                });
                 jQuery( '#edit_form_id' ).val('');
                 setTimeout(function(){
                     jQuery('.warehouse_updated').hide('slow');
@@ -219,6 +217,8 @@ window.addEventListener("load", function() {
     }
         
     function fedexSmpkgWarehouseEditResSettings(data){
+
+        fedexSmpkgEmptyFieldsAndErr('#fedexSmpkgWarehouseForm');
         if (data[0]) {
             jQuery( '#edit_form_id' ).val( data[0].warehouse_id );
             jQuery( '#fedexSmpkg_warehouse_zip' ).val( data[0].zip );
@@ -228,7 +228,8 @@ window.addEventListener("load", function() {
             jQuery( '#warehouse_origin_state' ).val( data[0].state );
             jQuery( '#warehouse_origin_country' ).val( data[0].country );
             
-            if(data[0].in_store != null || data[0].local_delivery != null){
+            if((data[0].in_store != null && data[0].in_store != 'null')
+                || (data[0].local_delivery != null && data[0].local_delivery != 'null')){
                 loadInsidePikupAndLocalDeliveryData(data[0], '#');
             }
             
@@ -266,6 +267,9 @@ window.addEventListener("load", function() {
             jQuery('#row_'+data.deleteID).remove();
             addWarehouseRestriction(data.canAddWh);
             jQuery('.warehouse_deleted').show('slow');
+            jQuery('html,body').animate({
+                scrollTop: jQuery(".wh").offset().top-170
+            });
             setTimeout(function () {
                 jQuery('.warehouse_deleted').hide('slow');
             }, 5000);

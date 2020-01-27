@@ -19,7 +19,7 @@
   "autoload": {
     "files": [ "registration.php" ],
     "psr-4": {
-      "Eniture\\FedExSmallPackages\\": ""
+      "Eniture\\FedExSmallPackageQuotes\\": ""
     }
   },
   "minimum-stability": "dev",

@@ -1,20 +1,28 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Controller\Dropship;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Dropship;
 
 use \Magento\Framework\App\Action\Action;
 
+/**
+ * Class DeleteDropship
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Dropship
+ */
 class DeleteDropship extends Action
 {
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     public $dataHelper;
 
     /**
+     * DeleteDropship constructor.
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
     ) {
         $this->dataHelper = $dataHelper;
         parent::__construct($context);

@@ -1,16 +1,20 @@
 <?php
-namespace Eniture\FedExSmallPackages\Model\Carrier;
+namespace Eniture\FedExSmallPackageQuotes\Model\Carrier;
 
 /**
  * class for admin configuration that runs first
  */
 class FedExSmpkgAdminConfiguration
 {
-    /**
-     * @var \Magento\Framework\Registry
-     */
 
+
+    /**
+     * @var $registry
+     */
     public $registry;
+    /**
+     * @var $scopeConfig
+     */
     public $scopeConfig;
 
     /**
@@ -42,10 +46,10 @@ class FedExSmpkgAdminConfiguration
     public function setCarriersAndHelpersCodesGlobaly()
     {
         $this->setCodesGlobaly('enitureCarrierCodes', 'ENFedExSmpkg');
-        $this->setCodesGlobaly('enitureCarrierTitle', 'FedEx Small Packages Quotes');
-        $this->setCodesGlobaly('enitureHelpersCodes', '\Eniture\FedExSmallPackages');
+        $this->setCodesGlobaly('enitureCarrierTitle', 'FedEx Small Package Quotes');
+        $this->setCodesGlobaly('enitureHelpersCodes', '\Eniture\FedExSmallPackageQuotes');
         $this->setCodesGlobaly('enitureActiveModules', $this->checkModuleIsEnabled());
-        $this->setCodesGlobaly('enatureModuleTypes', 'small');
+        $this->setCodesGlobaly('enitureModuleTypes', 'small');
     }
     
     /**

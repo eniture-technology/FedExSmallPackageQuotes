@@ -1,20 +1,30 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Controller\Warehouse;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Warehouse;
 
 use \Magento\Framework\App\Action\Action;
 
+/**
+ * Class DeleteWarehouse
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Warehouse
+ */
 class DeleteWarehouse extends Action
 {
     /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
+    public $dataHelper;
+
+    /**
+     * DeleteWarehouse constructor.
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
     ) {
-        $this->_dataHelper = $dataHelper;
+        $this->dataHelper = $dataHelper;
         parent::__construct($context);
     }
     
@@ -29,10 +39,10 @@ class DeleteWarehouse extends Action
         
         $deleteID = $deleteWhData['delete_id'];
         if ($deleteWhData['action'] == 'delete_warehouse') {
-            $qry    = $this->_dataHelper->deleteWarehouseSecData("warehouse_id='".$deleteID."'");
+            $qry    = $this->dataHelper->deleteWarehouseSecData("warehouse_id='".$deleteID."'");
         }
         
-        $canAddWh = $this->_dataHelper->whPlanRestriction();
+        $canAddWh = $this->dataHelper->whPlanRestriction();
         $response = ['deleteID' => $deleteID, 'qryResp' => $qry, 'canAddWh' => $canAddWh];
         $this->getResponse()->setHeader('Content-type', 'application/json');
         $this->getResponse()->setBody(json_encode($response));

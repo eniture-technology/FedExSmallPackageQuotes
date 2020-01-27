@@ -1,6 +1,10 @@
 <?php
-namespace Eniture\FedExSmallPackages\Model\Source;
+namespace Eniture\FedExSmallPackageQuotes\Model\Source;
 
+/**
+ * Class OneRateServices
+ * @package Eniture\FedExSmallPackageQuotes\Model\Source
+ */
 class OneRateServices
 {
     /**

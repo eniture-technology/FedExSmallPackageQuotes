@@ -1,53 +1,130 @@
 <?php
 /**
  * @category   Shipping
- * @package    Eniture_FedExSmallPackages
+ * @package    Eniture_FedExSmallPackageQuotes
  * @author     Iqbal: <iqbal@alignpx.com>
  * @website    http://ess.eniture.com
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Eniture\FedExSmallPackages\Model\Carrier;
- 
+namespace Eniture\FedExSmallPackageQuotes\Model\Carrier;
+
 use Magento\Quote\Model\Quote\Address\RateRequest;
- 
+
+/**
+ * Class FedExSmpkgShipping
+ * @package Eniture\FedExSmallPackageQuotes\Model\Carrier
+ */
 class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
     \Magento\Shipping\Model\Carrier\CarrierInterface
 {
-    public $code = 'ENFedExSmpkg';
- 
-    public $isFixed = true;
- 
-    public $rateResultFactory;
- 
-    public $rateMethodFactory;
-    
-    public $scopeConfig;
-    
-    public $dataHelper;
-    
-    public $registry;
-    
-    public $moduleManager;
-    
-    public $qty;
-    
-    public $session;
-    
-    public $productloader;
-    
-    public $mageVersion;
-    
-    public $objectManager;
- 
     /**
+     * @var string
+     */
+    public $code = 'ENFedExSmpkg';
+
+    /**
+     * @var bool
+     */
+    public $isFixed = true;
+
+    /**
+     * @var \Magento\Shipping\Model\Rate\ResultFactory
+     */
+    public $rateResultFactory;
+
+    /**
+     * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory
+     */
+    public $rateMethodFactory;
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    public $scopeConfig;
+
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
+    public $dataHelper;
+
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    public $registry;
+
+    /**
+     * @var \Magento\Framework\Module\Manager
+     */
+    public $moduleManager;
+
+    /**
+     * @var
+     */
+    public $qty;
+
+    /**
+     * @var \Magento\Framework\Session\SessionManagerInterface
+     */
+    public $session;
+
+    /**
+     * @var \Magento\Catalog\Model\ProductFactory
+     */
+    public $productloader;
+
+    /**
+     * @var
+     */
+    public $mageVersion;
+
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    public $objectManager;
+    /**
+     * @var \Magento\Checkout\Model\Cart
+     */
+    public $cart;
+    /**
+     * @var \Magento\Framework\UrlInterface
+     */
+    public $urlInterface;
+    /**
+     * @var FedExSmpkgAdminConfiguration
+     */
+    public $fedExAdminConfig;
+    /**
+     * @var FedExSmpkgShipmentPackage
+     */
+    public $fedExShipPkg;
+    /**
+     * @var FedExSmpkgGenerateRequestData
+     */
+    public $fedExReqData;
+    /**
+     * @var FedExSmallSetCarriersGlobaly
+     */
+    public $fedExSetGlobalCarrier;
+    /**
+     * @var FedExSmpkgManageAllQuotes
+     */
+    public $fedexMangQuotes;
+    /**
+     * @var \Magento\Framework\App\RequestInterface
+     */
+    public $httpRequest;
+
+
+    /**
+     * FedExSmpkgShipping constructor.
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param \Magento\Checkout\Model\Cart $cart
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Module\Manager $moduleManager
      * @param \Magento\Framework\UrlInterface $urlInterface
@@ -55,11 +132,11 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
      * @param \Magento\Catalog\Model\ProductFactory $productloader
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Framework\ObjectManagerInterface $objectmanager
-     * @param \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgAdminConfiguration $fedExAdminConfig
-     * @param \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgShipmentPackage $fedExShipPkg
-     * @param \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgGenerateRequestData $fedExReqData
-     * @param \Eniture\FedExSmallPackages\Model\Carrier\FedExSmallSetCarriersGlobaly $fedExSetGlobalCarrier
-     * @param \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgManageAllQuotes $fedexMangQuotes
+     * @param FedExSmpkgAdminConfiguration $fedExAdminConfig
+     * @param FedExSmpkgShipmentPackage $fedExShipPkg
+     * @param FedExSmpkgGenerateRequestData $fedExReqData
+     * @param FedExSmallSetCarriersGlobaly $fedExSetGlobalCarrier
+     * @param FedExSmpkgManageAllQuotes $fedexMangQuotes
      * @param \Magento\Framework\App\RequestInterface $httpRequest
      * @param array $data
      */
@@ -70,7 +147,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
         \Magento\Checkout\Model\Cart $cart,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Module\Manager $moduleManager,
         \Magento\Framework\UrlInterface $urlInterface,
@@ -78,11 +155,11 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         \Magento\Catalog\Model\ProductFactory $productloader,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         \Magento\Framework\ObjectManagerInterface $objectmanager,
-        \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgAdminConfiguration $fedExAdminConfig,
-        \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgShipmentPackage $fedExShipPkg,
-        \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgGenerateRequestData $fedExReqData,
-        \Eniture\FedExSmallPackages\Model\Carrier\FedExSmallSetCarriersGlobaly $fedExSetGlobalCarrier,
-        \Eniture\FedExSmallPackages\Model\Carrier\FedExSmpkgManageAllQuotes $fedexMangQuotes,
+        \Eniture\FedExSmallPackageQuotes\Model\Carrier\FedExSmpkgAdminConfiguration $fedExAdminConfig,
+        \Eniture\FedExSmallPackageQuotes\Model\Carrier\FedExSmpkgShipmentPackage $fedExShipPkg,
+        \Eniture\FedExSmallPackageQuotes\Model\Carrier\FedExSmpkgGenerateRequestData $fedExReqData,
+        \Eniture\FedExSmallPackageQuotes\Model\Carrier\FedExSmallSetCarriersGlobaly $fedExSetGlobalCarrier,
+        \Eniture\FedExSmallPackageQuotes\Model\Carrier\FedExSmpkgManageAllQuotes $fedexMangQuotes,
         \Magento\Framework\App\RequestInterface $httpRequest,
         array $data = []
     ) {
@@ -106,7 +183,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         $this->httpRequest = $httpRequest;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
- 
+
     /**
      * @param RateRequest $request
      * @return boolean
@@ -120,35 +197,34 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         ) {
             return false;
         }
-        
+
         if (empty($request->getDestPostcode()) || empty($request->getDestCountryId()) ||
             empty($request->getDestCity()) || empty($request->getDestRegionId())) {
             return false;
         }
-        // set shipment origin globally for instore pickup and local delivery
+        // set base currency
         if ($this->registry->registry('baseCurrency') === null) {
             $this->registry->register('baseCurrency', $this->dataHelper->getBaseCurrencyCode());
         }
         // Admin Configuration Class call
         $this->fedExAdminConfig->_init($this->scopeConfig, $this->registry);
-        
+
         $ItemsList          = $request->getAllItems();
         $receiverZipCode    = $request->getDestPostcode();
 
         $package            = $this->getFedExSmpkgShipmentPackage($ItemsList, $receiverZipCode, $request);
-        
+
         //Generate Request Data Class Initialization
         $this->fedExReqData->_init(
             $this->scopeConfig,
             $this->registry,
             $this->moduleManager,
-            $this->objectManager,
+            $this->dataHelper,
             $this->httpRequest
         );
         $fedexSmpkgArr = $this->fedExReqData->generateFedExSmpkgArray(
             $request,
-            $package['origin'],
-            $this->objectManager
+            $package['origin']
         );
 
         $fedexSmpkgArr['originAddress'] = $package['origin'];
@@ -160,46 +236,54 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         if (null !== $getQuotesFromSession) {
             return $getQuotesFromSession;
         }
-        
+
         if (!$resp) {
             return false;
         }
-        
+
         $requestArr = $this->fedExReqData->generateRequestArray(
             $request,
             $fedexSmpkgArr,
             $package['items'],
-            $this->objectManager,
             $this->cart
         );
         if (empty($requestArr)) {
             return false;
         }
 
-//        $url = 'https://eniture.com/ws/v2.0/index.php';
         $url  = $this->dataHelper->wsHittingUrls('getQuotes');
-        $quotes = $this->dataHelper->fedexSmpkgSendCurlRequest(
-            $url,
-            $requestArr
-        );
+        $quotes = $this->dataHelper->fedexSmpkgSendCurlRequest($url, $requestArr);
+
+        // Debug point will print data if en_print_query=1
+        if ($this->printQuery()) {
+            $printData = ['url' => $url,
+                'buildQuery' => http_build_query($requestArr),
+                'request' => $requestArr,
+                'quotes' => $quotes];
+            echo '<pre>';
+            print_r($printData);
+            echo '</pre>';
+            exit;
+        }
 
         $this->fedexMangQuotes->_init(
             $quotes,
             $this->dataHelper,
             $this->scopeConfig,
             $this->registry,
+            $this->session,
             $this->moduleManager,
             $this->objectManager
         );
         $quotesResult = $this->fedexMangQuotes->getQuotesResultArr($request);
-        
+
         $this->session->setEnShippingQuotes($quotesResult);
-        
+
         $fedexSmpkgQuotes = (!empty($quotesResult)) ? $this->setCarrierRates($quotesResult) : '';
 
         return $fedexSmpkgQuotes;
     }
-    
+
     /**
      * @return type
      */
@@ -211,13 +295,13 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             || strpos($currentAction, 'payment-information') !== false) {
             $availableSessionQuotes = $this->session->getEnShippingQuotes();
             $availableQuotes = (!empty($availableSessionQuotes)) ?
-                    $this->setCarrierRates($availableSessionQuotes) : null;
+                $this->setCarrierRates($availableSessionQuotes) : null;
         } else {
             $availableQuotes = null;
         }
         return $availableQuotes;
     }
-    
+
     /**
      * @return type
      */
@@ -231,7 +315,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
 
         return $arr;
     }
-    
+
     /**
      * Get configuration data of carrier
      * @param string $type
@@ -244,7 +328,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         $codes = [
             'method' => $this->dataHelper->fedexCarriersWithTitle(),
         ];
-        
+
         if (!isset($codes[$type])) {
             return false;
         } elseif ('' === $code) {
@@ -257,7 +341,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             return $codes[$type][$code];
         }
     }
-    
+
     /**
      * This function returns package array
      * @param $items
@@ -276,12 +360,13 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         );
 
         $freightClass = '';
-        
+        $orderWidget = $uniqueOrigins = [];
+
         $weightConfigExeedOpt = $this->scopeConfig->getValue(
             'fedexQuoteSetting/third/weightExeeds',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        
+
         foreach ($items as $key => $item) {
             $locationId = 0;
             if ($item->getRealProductType() == 'configurable') {
@@ -289,13 +374,13 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             }
             if ($item->getRealProductType() == 'simple') {
                 $productQty = ($this->qty > 0) ? $this->qty : $item->getQty();
-                
+
                 $_product       = $this->productloader->create()->load($item->getProductId());
-               
+
                 $isEnableLtl    = $_product->getData('en_ltl_check');
 
                 $lineItemClass  = $_product->getData('en_freight_class');
-                
+
                 if (($isEnableLtl) || ($_product->getWeight() > 150 && $weightConfigExeedOpt)) {
                     $freightClass = 'ltl';
                 } else {
@@ -325,51 +410,53 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                     default:
                         break;
                 }
-                
+
                 $originAddress  = $this->fedExShipPkg->fedexSmpkgOriginAddress($_product, $receiverZipCode);
 
                 $hazordousData[][$originAddress['senderZip']] = $this->setHazmatArray($_product, $hazmat);
-                
+
                 $package['origin'][$_product->getId()] = $originAddress;
-                
+
                 $orderWidget[$originAddress['senderZip']]['origin'] = $originAddress;
-                
-                $length = ( $this->mageVersion < '2.2.5' ) ?
+
+                $length = ( $this->mageVersion < '2.2.5' || $this->mageVersion > '2.3.2' ) ?
                     $_product->getData('en_length') : $_product->getData('ts_dimensions_length');
-                $width = ( $this->mageVersion < '2.2.5' ) ?
+                $width = ( $this->mageVersion < '2.2.5' || $this->mageVersion > '2.3.2' ) ?
                     $_product->getData('en_width') : $_product->getData('ts_dimensions_width');
-                $height = ( $this->mageVersion < '2.2.5' ) ?
+                $height = ( $this->mageVersion < '2.2.5' || $this->mageVersion > '2.3.2' ) ?
                     $_product->getData('en_height') : $_product->getData('ts_dimensions_height');
 
                 $lineItems = [
-                        'lineItemClass'          => ($lineItemClass == 'No Freight Class'
+                    'lineItemClass'          => ($lineItemClass == 'No Freight Class'
                         || $lineItemClass == 'No') ?
                         0 : $lineItemClass,
-                        'freightClass'              => $freightClass,
-                        'lineItemId'                => $_product->getId(),
-                        'lineItemName'              => $_product->getName(),
-                        'piecesOfLineItem'          => $productQty,
-                        'lineItemPrice'             => $_product->getPrice(),
-                        'lineItemWeight'            => number_format($_product->getWeight(), 2, '.', ''),
-                        'lineItemLength'            => number_format($length, 2, '.', ''),
-                        'lineItemWidth'             => number_format($width, 2, '.', ''),
-                        'lineItemHeight'            => number_format($height, 2, '.', ''),
-                        'isHazmatLineItem'          => $hazmat,
-                        'product_insurance_active'  => $insurance,
-                        'shipBinAlone'              => $_product->getData('en_own_package'),
-                        'vertical_rotation'         => $_product->getData('en_vertical_rotation'),
-                      ];
+                    'freightClass'              => $freightClass,
+                    'lineItemId'                => $_product->getId(),
+                    'lineItemName'              => $_product->getName(),
+                    'piecesOfLineItem'          => $productQty,
+                    'lineItemPrice'             => $_product->getPrice(),
+                    'lineItemWeight'            => number_format($_product->getWeight(), 2, '.', ''),
+                    'lineItemLength'            => number_format($length, 2, '.', ''),
+                    'lineItemWidth'             => number_format($width, 2, '.', ''),
+                    'lineItemHeight'            => number_format($height, 2, '.', ''),
+                    'isHazmatLineItem'          => $hazmat,
+                    'product_insurance_active'  => $insurance,
+                    'shipBinAlone'              => $_product->getData('en_own_package'),
+                    'vertical_rotation'         => $_product->getData('en_vertical_rotation'),
+                ];
 
                 $package['items'][$_product->getId()] = array_merge($lineItems);
                 $orderWidget[$originAddress['senderZip']]['item'][] = $package['items'][$_product->getId()];
             }
         }
-        
-        $this->setDataInRegistry($package['origin'], $hazordousData, $orderWidget);
-        
+        foreach ($orderWidget as $data) {
+            $uniqueOrigins []= $data['origin'];
+        }
+        $this->setDataInRegistry($uniqueOrigins, $hazordousData, $orderWidget);
+
         return $package;
     }
-    
+
     /**
      * @param type $_product
      * @return type
@@ -381,7 +468,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             'isHazordous'   => $hazmat == 'Y' ? '1' : '0' ,
         ];
     }
-    
+
     /**
      * @param type $origin
      * @param type $hazordousData
@@ -393,7 +480,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         if ($this->registry->registry('setPackageDataForOrderDetail') === null) {
             $this->registry->register('setPackageDataForOrderDetail', $orderWidget);
         }
-        
+
         // set hazardous data globally
         if ($this->registry->registry('hazardousShipment') === null) {
             $this->registry->register('hazardousShipment', $hazordousData);
@@ -403,7 +490,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             $this->registry->register('shipmentOrigin', $origin);
         }
     }
-        
+
     /**
      * @param type $quotes
      * @return type
@@ -412,7 +499,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
     {
         $carrersArray   = $this->registry->registry('enitureCarrierCodes');
         $carrersTitle   = $this->registry->registry('enitureCarrierTitle');
-        
+
         $result = $this->rateResultFactory->create();
 
         foreach ($quotes as $carrierkey => $quote) {
@@ -430,7 +517,18 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                 $result->append($method);
             }
         }
-        
+
         return $result;
+    }
+
+    public function printQuery()
+    {
+        $printQuery = 0;
+        parse_str(parse_url($this->httpRequest->getServer('HTTP_REFERER'), PHP_URL_QUERY), $query);
+
+        if (!empty($query)) {
+            $printQuery = ($query['en_print_query']) ?? 0;
+        }
+        return $printQuery;
     }
 }

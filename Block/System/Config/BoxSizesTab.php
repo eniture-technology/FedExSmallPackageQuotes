@@ -1,31 +1,85 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
-use Magento\Mtf\Client\BrowserInterface;
-
+/**
+ * Class BoxSizesTab
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
 class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
 {
+    /**
+     *
+     */
     const BOXSIZESTAB_TEMPLATE = 'system/config/boxsizestab.phtml';
 
+    /**
+     * @var \Magento\Framework\Module\Manager
+     */
     private $moduleManager;
+    /**
+     * @var string
+     */
     public $enable = 'no';
+    /**
+     * @var
+     */
     public $boxSizeData;
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
     private $objectManager;
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     private $dataHelper;
+    /**
+     * @var
+     */
     public $licenseKey;
+    /**
+     * @var bool
+     */
+    public $isFedExModule = true;
+    /**
+     * @var \Magento\Backend\Block\Template\Context
+     */
+    public $context;
+    /**
+     * @var
+     */
+    public $smallTrialMsg;
+    /**
+     * @var
+     */
+    public $boxUseSuspended;
+    /**
+     * @var
+     */
+    public $getBoxSizes;
+    /**
+     * @var
+     */
+    public $loadOneRateBoxes;
+    /**
+     * @var
+     */
+    public $fedexOneRateImg;
+
 
     /**
+     * BoxSizesTab constructor.
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Module\Manager $moduleManager
      * @param \Magento\Framework\ObjectManagerInterface $objectmanager
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      * @param array $data
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Module\Manager $moduleManager,
         \Magento\Framework\ObjectManagerInterface $objectmanager,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
         array $data = []
     ) {
         $this->moduleManager    = $moduleManager;
@@ -62,18 +116,17 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function checkBinPackagingModule()
     {
-        if ($this->moduleManager->isEnabled('Eniture_BoxSizes')) {
+        if ($this->moduleManager->isEnabled('Eniture_StandardBoxSizes')) {
             $scopeConfig            = $this->context->getScopeConfig();
-            $configPath             = "carriers/ENFedExSmpkg/licnsKey";
+            $configPath             = "fedexconnsettings/first/licnsKey";
             $this->licenseKey = $scopeConfig->getValue($configPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
             $this->enable           = 'yes';
-            $dataHelper             = $this->objectManager->get("Eniture\BoxSizes\Helper\Data");
+            $dataHelper             = $this->objectManager->get("Eniture\StandardBoxSizes\Helper\Data");
             $this->boxSizeData      = $dataHelper->boxSizesDataHandling($this->licenseKey);
             $this->smallTrialMsg    = $dataHelper->checkSmallModuleTrial();
             $this->boxUseSuspended  = $dataHelper->boxUseSuspended();
             $this->getBoxSizes      = $dataHelper->getBoxSizes();
             $this->loadOneRateBoxes = $dataHelper->oneRateData();
-            $this->fedexOneRateImg  = $dataHelper->fedexOneRateImg();
         }
     }
 
@@ -82,7 +135,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function saveBoxUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/Box/SaveBoxsize/';
+        return $this->getbaseUrl().'/StandardBoxSizes/Box/SaveBoxsize/';
     }
 
     /**
@@ -90,7 +143,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function deleteBoxUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/Box/DeleteBoxsize/';
+        return $this->getbaseUrl().'/StandardBoxSizes/Box/DeleteBoxsize/';
     }
 
     /**
@@ -98,7 +151,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function editBoxUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/Box/EditBoxsize/';
+        return $this->getbaseUrl().'/StandardBoxSizes/Box/EditBoxsize/';
     }
 
     /**
@@ -106,7 +159,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function boxAvailableUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/Box/BoxAvailability/';
+        return $this->getbaseUrl().'/StandardBoxSizes/Box/BoxAvailability/';
     }
 
     /**
@@ -114,7 +167,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function suspendBoxUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/Box/SuspendedBoxSizes/';
+        return $this->getbaseUrl().'/StandardBoxSizes/Box/SuspendedBoxSizes/';
     }
 
     /**
@@ -122,7 +175,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function autoRenewBoxPlanUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/Box/AutoRenewPlan/';
+        return $this->getbaseUrl().'/StandardBoxSizes/Box/AutoRenewPlan/';
     }
 
     /**
@@ -130,7 +183,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function loadOneRateBoxesUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/FedExOneRate/OneRateLoadBoxes/';
+        return $this->getbaseUrl().'/StandardBoxSizes/FedExOneRate/OneRateLoadBoxes/';
     }
 
     /**
@@ -138,6 +191,6 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function saveFedExOneRateUrl()
     {
-        return $this->getbaseUrl().'/BoxSizes/FedExOneRate/OneRateSaveBoxes/';
+        return $this->getbaseUrl().'/StandardBoxSizes/FedExOneRate/OneRateSaveBoxes/';
     }
 }

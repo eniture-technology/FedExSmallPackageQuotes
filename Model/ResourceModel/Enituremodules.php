@@ -1,6 +1,10 @@
 <?php
-namespace Eniture\FedExSmallPackages\Model\ResourceModel;
+namespace Eniture\FedExSmallPackageQuotes\Model\ResourceModel;
 
+/**
+ * Class Enituremodules
+ * @package Eniture\FedExSmallPackageQuotes\Model\ResourceModel
+ */
 class Enituremodules extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

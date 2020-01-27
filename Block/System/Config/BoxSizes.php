@@ -1,15 +1,28 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
 use \Magento\Backend\Block\Template\Context;
 use \Magento\Framework\Module\Manager;
 
+/**
+ * Class BoxSizes
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
 class BoxSizes extends \Magento\Config\Block\System\Config\Form\Field
 {
+    /**
+     *
+     */
     const BOXSIZES_TEMPLATE = 'system/config/boxsizes.phtml';
-    
+
+    /**
+     * @var Manager
+     */
     private $moduleManager;
+    /**
+     * @var string
+     */
     public $enable = 'no';
     
     /**
@@ -50,7 +63,7 @@ class BoxSizes extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function checkBinPackagingModule()
     {
-        if ($this->moduleManager->isEnabled('Eniture_BoxSizes')) {
+        if ($this->moduleManager->isEnabled('Eniture_StandardBoxSizes')) {
             $this->enable = 'yes';
         }
     }

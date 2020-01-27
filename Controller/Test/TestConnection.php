@@ -1,27 +1,40 @@
 <?php
-namespace Eniture\FedExSmallPackages\Controller\Test;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Test;
 
 use \Magento\Framework\App\Action\Action;
 
+/**
+ * Class TestConnection
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Test
+ */
 class TestConnection extends Action
 {
-    public $dataHelper;
-    
     /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
+    public $dataHelper;
+    /**
+     * @var
+     */
+    public $request;
+
+    /**
+     * TestConnection constructor.
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
     ) {
         $this->dataHelper = $dataHelper;
         $this->request = $context->getRequest();
         parent::__construct($context);
     }
-    
+
+
     /**
-     * @return string
+     *
      */
     public function execute()
     {
@@ -45,8 +58,10 @@ class TestConnection extends Action
         $this->getResponse()->setBody($result);
     }
 
+
     /**
-     * @param type $responce
+     * @param $responce
+     * @return false|string
      */
     public function fedexSmpkgLtlTestConnResponse($responce)
     {

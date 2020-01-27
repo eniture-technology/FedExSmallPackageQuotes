@@ -1,13 +1,13 @@
 <?php
 /**
  * @category   Shipping
- * @package    Eniture_FedExSmallPackages
+ * @package    Eniture_FedExSmallPackageQuotes
  * @author     Eniture Technology : <sales@eniture.com>
  * @website    http://eniture.com
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
  
-namespace Eniture\FedExSmallPackages\Setup;
+namespace Eniture\FedExSmallPackageQuotes\Setup;
  
 use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Setup\EavSetupFactory;
@@ -17,7 +17,8 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\DB\Ddl\Table;
 
 /**
- * @codeCoverageIgnore
+ * Class InstallData
+ * @package Eniture\FedExSmallPackageQuotes\Setup
  */
 class InstallData implements InstallDataInterface
 {
@@ -42,28 +43,64 @@ class InstallData implements InstallDataInterface
      * @var Magento Version
      */
     private $mageVersion;
- 
+
+    /**
+     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
+     */
     private $collectionFactory;
-    
+
+    /**
+     * @var \Magento\Catalog\Model\ProductFactory
+     */
     private $productloader;
-    
+
+    /**
+     * @var \Magento\Framework\App\ResourceConnection
+     */
     private $resource;
 
-
-    private $palnUpgrade;
-    
     /**
+     * @var \Eniture\FedExSmallPackageQuotes\Cron\PlanUpgrade
+     */
+    private $palnUpgrade;
+    /**
+     * @var \Magento\Framework\App\ProductMetadataInterface
+     */
+    private $productMetadata;
+    /**
+     * @var \Magento\Eav\Model\Config
+     */
+    private $eavConfig;
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\App\State
+     */
+    private $state;
+    /**
+     * @var \Magento\Framework\HTTP\Client\Curl
+     */
+    private $curl;
+    /**
+     * @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface
+     */
+    private $resourceConfig;
+
+
+    /**
+     * InstallData constructor.
      * @param EavSetupFactory $eavSetupFactory
-     * @param \Eniture\FedExSmallPackages\App\State $state
+     * @param \Eniture\FedExSmallPackageQuotes\App\State $state
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
      * @param \Magento\Catalog\Model\ProductFactory $productloader
      * @param \Magento\Framework\App\ResourceConnection $resource
      * @param \Magento\Eav\Model\Config $eavConfig
+     * @param \Magento\Framework\HTTP\Client\Curl $curl
+     * @param \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig
+     * @param \Eniture\FedExSmallPackageQuotes\Cron\PlanUpgrade $planUpgrade
      */
     public function __construct(
         EavSetupFactory $eavSetupFactory,
-        \Eniture\FedExSmallPackages\App\State $state,
+        \Eniture\FedExSmallPackageQuotes\App\State $state,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory,
         \Magento\Catalog\Model\ProductFactory $productloader,
@@ -71,7 +108,7 @@ class InstallData implements InstallDataInterface
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
-        \Eniture\FedExSmallPackages\Cron\PlanUpgrade $planUpgrade
+        \Eniture\FedExSmallPackageQuotes\Cron\PlanUpgrade $planUpgrade
     ) {
         $this->eavSetupFactory      = $eavSetupFactory;
         $this->productMetadata      = $productMetadata;
@@ -192,7 +229,7 @@ class InstallData implements InstallDataInterface
         $attributes = $this->attrNames;
         if ($this->mageVersion < '2.2.5') {
             unset($attributes['dropship'], $attributes['dropship_location']);
-            $count = 71;
+            $count = 65;
             foreach ($attributes as $key => $attr) {
                 $isExist = $this->eavConfig
                         ->getAttribute('catalog_product', 'en_'.$attr.'')->getAttributeId();
@@ -218,10 +255,10 @@ class InstallData implements InstallDataInterface
                 $eavSetup,
                 'en_dropship',
                 'int',
-                'Enable Dropship',
+                'Enable Drop Ship',
                 'select',
                 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
-                76
+                71
             );
         }
 
@@ -234,12 +271,12 @@ class InstallData implements InstallDataInterface
                 'int',
                 'Drop Ship Location',
                 'select',
-                'Eniture\FedExSmallPackages\Model\Source\DropshipOptions',
-                77
+                'Eniture\FedExSmallPackageQuotes\Model\Source\DropshipOptions',
+                72
             );
         } else {
             $dataArr = [
-                'source_model' => 'Eniture\FedExSmallPackages\Model\Source\DropshipOptions',
+                'source_model' => 'Eniture\FedExSmallPackageQuotes\Model\Source\DropshipOptions',
             ];
             $this->connection
                 ->update($this->tableNames['eav_attribute'], $dataArr, "attribute_code = 'en_dropship_location'");
@@ -255,7 +292,7 @@ class InstallData implements InstallDataInterface
                 'Hazardous Material',
                 'select',
                 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
-                78
+                73
             );
         }
         
@@ -269,7 +306,7 @@ class InstallData implements InstallDataInterface
                 'Insure this item',
                 'select',
                 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
-                79
+                74
             );
         }
         $installer->endSetup();
@@ -304,7 +341,8 @@ class InstallData implements InstallDataInterface
                 'visible_on_front' => false,
                 'is_configurable'  => true,
                 'sort_order'       => $order,
-                'user_defined'     => true
+                'user_defined'     => true,
+                'default'          => '0'
             ]
         );
         
@@ -328,22 +366,22 @@ class InstallData implements InstallDataInterface
                     'nullable'  => false,
                     'primary'   => true,
                     ], 'Id')
-                ->addColumn('city', Table::TYPE_TEXT, 200, [
+                ->addColumn('city', Table::TYPE_TEXT, 30, [
                     'nullable'  => false,
                     ], 'city')
-                ->addColumn('state', Table::TYPE_TEXT, 200, [
+                ->addColumn('state', Table::TYPE_TEXT, 10, [
                     'nullable'  => false,
                     ], 'state')
-                ->addColumn('zip', Table::TYPE_TEXT, 200, [
+                ->addColumn('zip', Table::TYPE_TEXT, 10, [
                         'nullable'  => false,
                         ], 'zip')
-                ->addColumn('country', Table::TYPE_TEXT, 200, [
+                ->addColumn('country', Table::TYPE_TEXT, 10, [
                         'nullable'  => false,
                         ], 'country')
-                ->addColumn('location', Table::TYPE_TEXT, 200, [
+                ->addColumn('location', Table::TYPE_TEXT, 10, [
                         'nullable'  => false,
                         ], 'location')
-                ->addColumn('nickname', Table::TYPE_TEXT, 30, [
+                ->addColumn('nickname', Table::TYPE_TEXT, 40, [
                         'nullable'  => false,
                         ], 'nickname')
                 ->addColumn(
@@ -398,7 +436,7 @@ class InstallData implements InstallDataInterface
         }
         
         $newModuleName  = 'ENFedExSmpkg';
-        $scriptName     = 'Eniture_FedExSmallPackages';
+        $scriptName     = 'Eniture_FedExSmallPackageQuotes';
         $isNewModuleExist  = $this->connection->fetchOne(
             "SELECT count(*) AS count FROM ".$moduleTableName." WHERE module_name = '".$newModuleName."'"
         );
@@ -407,7 +445,7 @@ class InstallData implements InstallDataInterface
                 'module_name' => $newModuleName,
                 'module_script' => $scriptName,
                 'dropship_field_name' => 'en_dropship_location',
-                'dropship_source' => 'Eniture\FedExSmallPackages\Model\Source\DropshipOptions'
+                'dropship_source' => 'Eniture\FedExSmallPackageQuotes\Model\Source\DropshipOptions'
             ];
             $this->connection->insert($moduleTableName, $insertDataArr);
         }

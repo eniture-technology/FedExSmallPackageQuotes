@@ -1,28 +1,39 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Controller\Warehouse;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Warehouse;
 
 use \Magento\Framework\App\Action\Action;
 
+/**
+ * Class EditWarehouse
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Warehouse
+ */
 class EditWarehouse extends Action
 {
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     public $dataHelper;
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory
+     */
+    public $warehouseFactory;
 
     /**
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
-     * @param \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory $warehouseFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
-        \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory $warehouseFactory
     ) {
         $this->dataHelper = $dataHelper;
-        $this->_warehouseFactory    = $warehouseFactory;
+        $this->warehouseFactory    = $warehouseFactory;
         parent::__construct($context);
     }
-    
+
     /**
      * @return string
      */
@@ -53,7 +64,7 @@ class EditWarehouse extends Action
      */
     public function fetchWarehouseList($location, $warehouseId)
     {
-        $whCollection       = $this->_warehouseFactory->create()->getCollection()
+        $whCollection       = $this->warehouseFactory->create()->getCollection()
                                 ->addFilter('location', ['eq' => $location])
                                 ->addFilter('warehouse_id', ['eq' => $warehouseId]);
         

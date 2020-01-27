@@ -1,11 +1,18 @@
 <?php
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
 use Magento\Backend\Block\Template\Context;
 
+/**
+ * Class StandrdBoxSize
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
 class StandrdBoxSize extends \Magento\Config\Block\System\Config\Form\Field
 {
-    
+
+    /**
+     *
+     */
     const STNDRDBOX_TEMPLATE = 'system/config/standrdboxsize.phtml';
     
     /**
@@ -27,7 +34,7 @@ class StandrdBoxSize extends \Magento\Config\Block\System\Config\Form\Field
     public function _prepareLayout()
     {
         parent::_prepareLayout();
-        if ($this->moduleManager->isOutputEnabled('Eniture_BoxSizes')) {
+        if ($this->moduleManager->isOutputEnabled('Eniture_StandardBoxSizes')) {
             if (!$this->getTemplate()) {
                 $this->setTemplate(static::STNDRDBOX_TEMPLATE);
             }

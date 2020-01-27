@@ -1,14 +1,24 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
+/**
+ * Class DropshipTable
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
 class DropshipTable extends Field
 {
+    /**
+     *
+     */
     const DROPSHIP_TEMPLATE = 'system/config/dropship.phtml';
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     public $dataHelper;
     /**
      * @param Context $context
@@ -16,7 +26,7 @@ class DropshipTable extends Field
      */
     public function __construct(
         Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
         array $data = []
     ) {
         $this->dataHelper = $dataHelper;
@@ -45,7 +55,10 @@ class DropshipTable extends Field
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
         return parent::render($element);
     }
-    
+
+    /**
+     * @return int
+     */
     public function checkInstorePkpDlvry()
     {
         return $this->dataHelper->checkAdvancePlan();
@@ -56,7 +69,7 @@ class DropshipTable extends Field
      */
     public function getAjaxDsAddressUrl()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/FedExSmallPkgOriginAddress/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Warehouse/FedExSmallPkgOriginAddress/';
     }
     
     /**
@@ -64,7 +77,7 @@ class DropshipTable extends Field
      */
     public function saveDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Dropship/SaveDropship/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Dropship/SaveDropship/';
     }
     
     /**
@@ -72,7 +85,7 @@ class DropshipTable extends Field
      */
     public function editDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Dropship/EditDropship/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Dropship/EditDropship/';
     }
     
     /**
@@ -80,7 +93,7 @@ class DropshipTable extends Field
      */
     public function deleteDropshipAjaxCheckUrl()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Dropship/DeleteDropship/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Dropship/DeleteDropship/';
     }
 
     /**

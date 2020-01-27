@@ -1,11 +1,15 @@
 <?php
-namespace Eniture\FedExSmallPackages\Controller\Adminhtml\Order;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Adminhtml\Order;
 
 use Magento\Backend\App\Action;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Class OrderDetailWidget
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Adminhtml\Order
+ */
 class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
 {
     /**
@@ -13,7 +17,9 @@ class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
      */
     private $layoutFactory;
 
+
     /**
+     * OrderDetailWidget constructor.
      * @param Action\Context $context
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Framework\App\Response\Http\FileFactory $fileFactory
@@ -26,9 +32,6 @@ class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
      * @param OrderRepositoryInterface $orderRepository
      * @param LoggerInterface $logger
      * @param \Magento\Framework\View\LayoutFactory $layoutFactory
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
-     * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
      */
     public function __construct(
         Action\Context $context,
@@ -70,7 +73,7 @@ class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
         $this->_initOrder();
         $layout = $this->layoutFactory->create();
         // Block class assosiated with sales_order_view.xml
-        $html = $layout->createBlock('Eniture\FedExSmallPackages\Block\Adminhtml\Order\View\Tab\OrderDetailWidget')
+        $html = $layout->createBlock('Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Order\View\Tab\OrderDetailWidget')
             ->toHtml();
         $this->_translateInline->processResponseBody($html);
         /** @var \Magento\Framework\Controller\Result\Raw $resultRaw */

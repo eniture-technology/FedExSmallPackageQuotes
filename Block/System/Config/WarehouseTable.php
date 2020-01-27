@@ -1,16 +1,27 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
+use Eniture\FedExSmallPackageQuotes\Helper\Data;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
-class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
+/**
+ * Class WarehouseTable
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
+class WarehouseTable extends Field
 {
-    
+
+    /**
+     *
+     */
     const WAREHOUSE_TEMPLATE = 'system/config/warehouse.phtml';
-    
+
+    /**
+     * @var Data
+     */
     public $dataHelper;
     /**
      * @param Context $context
@@ -18,7 +29,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function __construct(
         Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        Data $dataHelper,
         array $data = []
     ) {
         $this->dataHelper = $dataHelper;
@@ -46,12 +57,18 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
         $planMsg = $this->dataHelper->fedexSmallSetPlanNotice();
         return $planMsg;
     }
-    
+
+    /**
+     * @return int
+     */
     public function addWhRestriction()
     {
         return $this->dataHelper->whPlanRestriction();
     }
 
+    /**
+     * @return int
+     */
     public function checkInstorePkpDlvry()
     {
         return $this->dataHelper->checkAdvancePlan();
@@ -73,7 +90,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function getAjaxAddressUrl()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/FedExSmallPkgOriginAddress/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Warehouse/FedExSmallPkgOriginAddress/';
     }
     
     /**
@@ -81,7 +98,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function saveFedExSmpkgWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/SaveWarehouse/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Warehouse/SaveWarehouse/';
     }
     
     /**
@@ -89,7 +106,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function editWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/EditWarehouse/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Warehouse/EditWarehouse/';
     }
     
     /**
@@ -97,7 +114,7 @@ class WarehouseTable extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function deleteWarehouseAjaxCall()
     {
-        return $this->getbaseUrl().'/fedexsmallpackages/Warehouse/DeleteWarehouse/';
+        return $this->getbaseUrl().'/fedexsmallpackagequotes/Warehouse/DeleteWarehouse/';
     }
 
     /**

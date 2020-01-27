@@ -2,28 +2,22 @@
     $plan = $block->getCurrentPlan();
     $advancedPlan = false;
     $class = 'disabledDiv';
+    $disableInput = 'disabled="disabled"';
 if ($plan == 1) {
     $advancedPlan = true;
     $class = '';
+    $disableInput = '';
 }
 ?>
 
-<script type="text/javascript">
-    require([ 'jquery', 'jquery/ui'], function($){
-        $(document).ready(function($) {
+<script>
+    require([ 'jquery', 'domReady!'], function($){
             var carrierdiv = '#fedexWarehouse_second-head';
-            currentPlanNote($, '<?php echo $this->fedexSmallPlanNotice(); ?>', carrierdiv);
+            currentPlanNote($, '<?php echo $block->fedexSmallPlanNotice(); ?>', carrierdiv);
             
-            var canAddWh = <?php echo $this->addWhRestriction(); ?>;
+            var canAddWh = <?php echo $block->addWhRestriction(); ?>;
             addWarehouseRestriction(canAddWh);
-
-            //disabling dynamically created DIV
-            //var plan = '<?php //echo $advancedPlan?>//';
-            //if(!plan){
-            //    $(".bootstrap-tagsinput").addClass("disabled-bootstrap-tagsinput");
-            //}
         });
-    });
     var fedexSmpkgWHEditAjaxUrl = '<?= /* @noEscape */ $block->editWarehouseAjaxCall() ?>';
     var fedexSmpkgWHDeleteAjaxUrl = '<?= /* @noEscape */ $block->deleteWarehouseAjaxCall() ?>';    
 </script>
@@ -39,40 +33,49 @@ if ($plan == 1) {
             /* @noEscape */ __('Add')
         ?>
     </a>
-    <div class="warehouse_text">
+    <div class="warehouse_text wh">
         <p>
             <?=
                 /* @noEscape */ __('Warehouses that inventory all products not otherwise identified as drop shipped items. The warehouse with the lowest shipping cost to the destination is used for quoting purposes.')
             ?>
         </p>
     </div>
-        <div class="message message-success success warehouse_created">
-            <p>
-                <strong>
-                    <?=
-                        /* @noEscape */ __('Success! New warehouse added successfully.')
-                    ?>
-                </strong>
-            </p>
-        </div>
-        <div class="message message-success success warehouse_updated">
-            <p>
-                <strong>
-                    <?=
-                        /* @noEscape */ __('Success! Warehouse updated successfully.')
-                    ?>
-                </strong>
-            </p>
-        </div>
-        <div class="message message-success success warehouse_deleted">
-            <p>
-                <strong>
-                    <?=
-                        /* @noEscape */ __('Success! Warehouse deleted successfully.')
-                    ?>
-                </strong>
-            </p>
-        </div>
+    <div class="message message-success success warehouse_created">
+        <p>
+            <strong>
+                <?=
+                /* @noEscape */ __('Success! ')
+                ?>
+            </strong>
+            <?=
+            /* @noEscape */ __('New warehouse added successfully.')
+            ?>
+        </p>
+    </div>
+    <div class="message message-success success warehouse_updated">
+        <p>
+            <strong>
+                <?=
+                /* @noEscape */ __('Success! ')
+                ?>
+            </strong>
+            <?=
+            /* @noEscape */ __('Warehouse updated successfully.')
+            ?>
+        </p>
+    </div>
+    <div class="message message-success success warehouse_deleted">
+        <p>
+            <strong>
+                <?=
+                /* @noEscape */ __('Success! ')
+                ?>
+            </strong>
+            <?=
+            /* @noEscape */ __('Warehouse deleted successfully.')
+            ?>
+        </p>
+    </div>
 
     <table class="warehouse" id="append_warehouse">
         <thead>
@@ -126,7 +129,7 @@ if ($plan == 1) {
                             <td>
                             <a href="javascript(0)" class="edit_warehouse" data-id="<?= /* @noEscape */ $r['warehouse_id']; ?>;" title="<?= /* @noEscape */ __('Edit') ?>" onclick="return fedexSmpkgEditWarehouse(<?= /* @noEscape */ $r['warehouse_id']; ?>, fedexSmpkgWHEditAjaxUrl);">
                                 <?= /* @noEscape */ __('Edit') ?>
-                            </a> / <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse(<?= /* @noEscape */ $r['warehouse_id']; ?>, fedexSmpkgWHDeleteAjaxUrl);" data-id="<?= /* @noEscape */ $r['warehouse_id']; ?>" title="<?= /* @noEscape */ __('Delete') ?>">
+                            </a> | <a href="javascript(0)" onclick="return fedexSmpkgDeleteWarehouse(<?= /* @noEscape */ $r['warehouse_id']; ?>, fedexSmpkgWHDeleteAjaxUrl);" data-id="<?= /* @noEscape */ $r['warehouse_id']; ?>" title="<?= /* @noEscape */ __('Delete') ?>">
                                 <?= /* @noEscape */ __('Delete') ?>
                                 </a>
                             </td>
@@ -150,29 +153,43 @@ if ($plan == 1) {
         <a class="close" href="#">&times;</a>
 
         <div class="content FedEx_small_warehouseFormContent">
-            <div class="already_exist">
-                <strong>
-                    <?=
-                        /* @noEscape */ __('Error!')
-                    ?>
-                </strong> 
-                <?= /* @noEscape */ __('Warehouse already exists.') ?>
+            <div class="message message-error error already_exist">
+                <div data-ui-id="messages-message-error">
+                    <strong>
+                        <?=
+                            /* @noEscape */ __('Error!')
+                        ?> 
+                    </strong>
+                        <?=
+                            /* @noEscape */ __('Warehouse already exists.')
+                        ?>
+                </div>
             </div>
-            <div class="not_allowed">
-                <strong>
-                    <?=
-                        /* @noEscape */ __('Error!')
-                    ?>
-                </strong>
-                <?= /* @noEscape */ __('Please select US or CA address.') ?>
+            
+            <div class="message message-error error not_allowed">
+                <div data-ui-id="messages-message-error">
+                    <strong>
+                        <?=
+                            /* @noEscape */ __('Error!')
+                        ?> 
+                    </strong>
+                        <?=
+                            /* @noEscape */ __('Please select US or CA address.')
+                        ?>
+                </div>
             </div>
-            <div class="api_error">
-                <strong>
-                    <?=
-                        /* @noEscape */ __('Error!')
-                    ?>
-                </strong>
-                <?= /* @noEscape */ __('Request is not processed, please enter Warehouse information manually.') ?>
+            
+            <div class="message message-error error api_error">
+                <div data-ui-id="messages-message-error">
+                    <strong>
+                        <?=
+                            /* @noEscape */ __('Error!')
+                        ?> 
+                    </strong>
+                        <?=
+                            /* @noEscape */ __('Request is not processed, please enter Warehouse information manually.')
+                        ?>
+                </div>
             </div>
 
             <div id="fedexSmpkgWarehouseForm">
@@ -227,51 +244,55 @@ if ($plan == 1) {
                         ?>
                     </h2>
                     <?php if (!$advancedPlan) : ?>
-                    <a class="is_heading_right" href="https://eniture.com/magento2-fedex-small-package">
+                    <a class="is_heading_right">
                         <?=
                         /* @noEscape */ __('Advanced Plan Required')
                         ?>
                     </a>
                     <?php endif; ?>
                 </div>
-                <div class="wh-instore-miles-postal-err">
-                    <strong>
-                        <?=
-                        /* @noEscape */ __('Error!')
-                        ?>
-                    </strong>
-                    <?= /* @noEscape */ __('You must provide Miles or Postal Code.') ?>
+                <div class="message message-error error wh-instore-miles-postal-err">
+                    <div data-ui-id="messages-message-error">
+                        <strong>
+                            <?=
+                                /* @noEscape */ __('Error!')
+                            ?> 
+                        </strong>
+                            <?=
+                                /* @noEscape */ __('You must provide Miles or Postal Code.')
+                            ?>
+                    </div>
                 </div>
-
+                
                 <div id="disableddiv" class="<?= $class ?>">
                     <div class="add_warehouse_input">
                         <label for="enable_instore_pickup">
                             <?= /* @noEscape */ __('Enable In-Store Pick Up') ?>
                         </label>
-                        <input type="checkbox" title="<?= /* @noEscape */ __('Enable In-Store Pick Up') ?>" class="enable_checkbox" name="enable_instore_pickup" value="" id="enable_instore_pickup">
+                        <input type="checkbox" title="<?= /* @noEscape */ __('Enable In-Store Pick Up') ?>" class="enable_checkbox" name="enable_instore_pickup" value="" id="enable_instore_pickup" <?= $disableInput ?>>
                     </div>
 
                     <div class="add_warehouse_input">
                         <label for="within_miles">
-                            <?= /* @noEscape */ __('Offer if address is within (miles)') ?>
+                            <?= /* @noEscape */ __('Offer if address is within (miles)') ?> :
                         </label>
-                        <input type="text" title="<?= /* @noEscape */ __('Offer if address is within (miles)') ?>" class="numberonly" maxlength="4" name="within_miles" value=""  id="within_miles">
+                        <input type="text" title="<?= /* @noEscape */ __('Offer if address is within (miles)') ?>" class="numberonly" maxlength="4" name="within_miles" value=""  id="within_miles" <?= $disableInput ?> onpaste="return false">
                         <span class="err"></span>
                     </div>
 
                     <div class="add_warehouse_input">
                         <label for="postcode_match">
-                            <?= /* @noEscape */ __('Offer is postal code matches') ?>
+                            <?= /* @noEscape */ __('Offer if postal code matches') ?> :
                         </label>
-                        <input type="text" title="<?= /* @noEscape */ __('Offer is postal code matches') ?>" maxlength="7" value=""  name="postcode_match"  id="postcode_match" data-role="<?= $advancedPlan? 'tagsinput': ''; ?>">
+                        <input type="text" title="<?= /* @noEscape */ __('Offer if postal code matches') ?>" maxlength="7" value=""  name="postcode_match"  id="postcode_match" data-role="<?= $advancedPlan? 'tagsinput': ''; ?>" <?= $disableInput ?>>
                         <span class="err"></span>
                     </div>
 
                     <div class="add_warehouse_input">
                         <label for="checkout_descp">
-                            <?= /* @noEscape */ __('Check Out Description') ?>
+                            <?= /* @noEscape */ __('Check Out Description') ?> :
                         </label>
-                        <input type="text" title="<?= /* @noEscape */ __('Check Out Description') ?>" class="alphaonly" maxlength="100" name="checkout_descp" placeholder="In-store pick up" id="checkout_descp">
+                        <input type="text" title="<?= /* @noEscape */ __('Check Out Description') ?>" class="alphaonly" maxlength="100" name="checkout_descp" placeholder="In-store pick up" id="checkout_descp" <?= $disableInput ?>>
                         <span class="err"></span>
                     </div>
                 </div>
@@ -286,20 +307,24 @@ if ($plan == 1) {
                         ?>
                     </h2>
                     <?php if (!$advancedPlan) : ?>
-                    <a class="ld_heading_right" href="https://eniture.com/magento2-fedex-small-package">
+                    <a class="ld_heading_right">
                         <?=
                         /* @noEscape */ __('Advanced Plan Required')
                         ?>
                     </a>
                     <?php endif;?>
                 </div>
-                <div class="wh-local-miles-postals-err">
-                    <strong>
-                        <?=
-                        /* @noEscape */ __('Error!')
-                        ?>
-                    </strong>
-                    <?= /* @noEscape */ __('You must provide Miles or Postal Code.') ?>
+                <div class="message message-error error wh-local-miles-postals-err">
+                    <div data-ui-id="messages-message-error">
+                        <strong>
+                            <?=
+                                /* @noEscape */ __('Error!')
+                            ?> 
+                        </strong>
+                            <?=
+                                /* @noEscape */ __('You must provide Miles or Postal Code.')
+                            ?>
+                    </div>
                 </div>
                 <!--Local Delivery Section Start-->
                 <div id="disableddiv" class="<?= $class ?>">
@@ -308,30 +333,30 @@ if ($plan == 1) {
                         <label for="enable_local_delivery">
                             <?= /* @noEscape */ __('Enable Local Delivery') ?>
                         </label>
-                        <input type="checkbox" title="<?= /* @noEscape */ __('Enable Local Delivery') ?>" class="enable_checkbox" name="enable_local_delivery" value="" id="enable_local_delivery">
+                        <input type="checkbox" title="<?= /* @noEscape */ __('Enable Local Delivery') ?>" class="enable_checkbox" name="enable_local_delivery" value="" id="enable_local_delivery" <?= $disableInput ?>>
                     </div>
 
                     <div class="add_warehouse_input">
                         <label for="ld_within_miles">
-                            <?= /* @noEscape */ __('Offer if address is within (miles)') ?>
+                            <?= /* @noEscape */ __('Offer if address is within (miles)') ?> :
                         </label>
-                        <input type="text" title="<?= /* @noEscape */ __('Offer if address is within (miles)') ?>" class="numberonly" maxlength="4" name="ld_within_miles" value=""  id="ld_within_miles">
+                        <input type="text" title="<?= /* @noEscape */ __('Offer if address is within (miles)') ?>" class="numberonly" maxlength="4" name="ld_within_miles" value=""  id="ld_within_miles" <?= $disableInput ?> onpaste="return false">
                         <span class="err"></span>
                     </div>
 
                     <div class="add_warehouse_input">
                         <label for="ld_postcode_match">
-                            <?= /* @noEscape */ __('Offer is postal code matches') ?>
+                            <?= /* @noEscape */ __('Offer if postal code matches') ?> :
                         </label>
-                        <input type="text" title="<?= /* @noEscape */ __('Offer is postal code matches') ?>" maxlength="7" value="" data-role="<?= $advancedPlan? 'tagsinput': ''; ?>" name="ld_postcode_match"  id="ld_postcode_match" >
+                        <input type="text" title="<?= /* @noEscape */ __('Offer if postal code matches') ?>" maxlength="7" value="" data-role="<?= $advancedPlan? 'tagsinput': ''; ?>" name="ld_postcode_match"  id="ld_postcode_match" <?= $disableInput ?>>
                         <span class="err"></span>
                     </div>
 
                     <div class="add_warehouse_input">
                         <label for="ld_checkout_descp">
-                            <?= /* @noEscape */ __('Check Out Description') ?>
+                            <?= /* @noEscape */ __('Check Out Description') ?> :
                         </label>
-                        <input type="text" title="<?= /* @noEscape */ __('Check Out Description') ?>" class="alphaonly" maxlength="100" name="ld_checkout_descp" placeholder="Local Delivery" id="ld_checkout_descp">
+                        <input type="text" title="<?= /* @noEscape */ __('Check Out Description') ?>" class="alphaonly" maxlength="100" name="ld_checkout_descp" placeholder="Local delivery" id="ld_checkout_descp" <?= $disableInput ?>>
                         <span class="err"></span>
                     </div>
 
@@ -339,17 +364,19 @@ if ($plan == 1) {
                         <label for="ld_fee">
                             <?= /* @noEscape */ __('Local Delivery Fee') ?>
                         </label>
-                        <input type="text" title="<?= /* @noEscape */ __('Fee') ?>" class="numberonly" maxlength="4" name="ld_fee" value=""  id="ld_fee">
+                        <input type="text" title="<?= /* @noEscape */ __('Fee') ?>" class="decimalonly" maxlength="7" name="ld_fee" value=""  id="ld_fee" <?= $disableInput ?> onpaste="return false">
                         <span class="err"></span>
                     </div>
 
                     <div class="add_warehouse_input">
                         <label for="ld_sup_rates">
                             <?= /* @noEscape */ __('Suppress other rates') ?>
+                        <div class="suppressTooltip">[ ? ]
+                            <span class="suppressTooltiptext"><?= /* @noEscape */ __("This setting only suppresses rates that would otherwise be returned by the Eniture Technology products.") ?></span>
+                        </div> 
                         </label>
-                        <input type="checkbox" title="<?= /* @noEscape */ __('Suppress other rates') ?>" class="enable_checkbox" name="ld_sup_rates" id="ld_sup_rates">
+                        <input type="checkbox" title="<?= /* @noEscape */ __('Suppress other rates') ?>" class="enable_checkbox" name="ld_sup_rates" id="ld_sup_rates" <?= $disableInput ?>>
                     </div>
-                    <span class="err"></span>
                 </div>
                 <!--Local Delivery Section End-->
 

@@ -1,5 +1,5 @@
 /**
- * FedEx Small Packages
+ * FedEx Small Package Quotes
  *
  * @package EnableCity
  * @author Eniture
@@ -9,7 +9,7 @@
 var config = {
     map: {
         '*': {
-            estimateRate : 'Eniture_FedExSmallPackages/js/estimaterate',
+            estimateRate : 'Eniture_FedExSmallPackageQuotes/js/estimaterate',
         }
     }
 };

@@ -1,20 +1,24 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Model;
+namespace Eniture\FedExSmallPackageQuotes\Model;
 
+/**
+ * Class WarehouseFactory
+ * @package Eniture\FedExSmallPackageQuotes\Model
+ */
 class WarehouseFactory
 {
     /**
      * @var \Magento\Framework\ObjectManagerInterface
      */
-    protected $_objectManager;
+    public $objectManager;
 
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      */
     public function __construct(\Magento\Framework\ObjectManagerInterface $objectManager)
     {
-        $this->_objectManager = $objectManager;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -25,6 +29,6 @@ class WarehouseFactory
      */
     public function create(array $arguments = [])
     {
-        return $this->_objectManager->create('Eniture\FedExSmallPackages\Model\Warehouse', $arguments, false);
+        return $this->objectManager->create('Eniture\FedExSmallPackageQuotes\Model\Warehouse', $arguments, false);
     }
 }

@@ -1,18 +1,33 @@
 <?php
-namespace Eniture\FedExSmallPackages\Block\System\Config;
+namespace Eniture\FedExSmallPackageQuotes\Block\System\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Mtf\Client\BrowserInterface;
 
+/**
+ * Class UserGuide
+ * @package Eniture\FedExSmallPackageQuotes\Block\System\Config
+ */
 class UserGuide extends \Magento\Config\Block\System\Config\Form\Field
 {
+    /**
+     *
+     */
     const GUIDE_TEMPLATE = 'system/config/userguide.phtml';
-    
+
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     private $dataHelper;
-    
+
+    /**
+     * UserGuide constructor.
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
+     * @param array $data
+     */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
         array $data = []
     ) {
         $this->dataHelper      = $dataHelper;

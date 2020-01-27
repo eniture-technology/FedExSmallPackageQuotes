@@ -1,25 +1,37 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Controller\Warehouse;
+namespace Eniture\FedExSmallPackageQuotes\Controller\Warehouse;
 
 use \Magento\Framework\App\Action\Action;
 
+/**
+ * Class SaveWarehouse
+ * @package Eniture\FedExSmallPackageQuotes\Controller\Warehouse
+ */
 class SaveWarehouse extends Action
 {
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     public $dataHelper;
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory
+     */
+    public $warehouseFactory;
 
     /**
+     * SaveWarehouse constructor.
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
-     * @param \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory $warehouseFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper,
-        \Eniture\FedExSmallPackages\Model\WarehouseFactory $warehouseFactory
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper,
+        \Eniture\FedExSmallPackageQuotes\Model\WarehouseFactory $warehouseFactory
     ) {
         $this->dataHelper = $dataHelper;
-        $this->_warehouseFactory    = $warehouseFactory;
+        $this->warehouseFactory    = $warehouseFactory;
         parent::__construct($context);
     }
     
@@ -30,6 +42,7 @@ class SaveWarehouse extends Action
     {
         $insertQry = 0;
         $updateQry = 0;
+        $updateInspld = 'no';
 
         foreach ($this->getRequest()->getPostValue() as $key => $post) {
             $saveWhData[$key] = filter_var($post, FILTER_SANITIZE_STRING);
@@ -41,13 +54,20 @@ class SaveWarehouse extends Action
         $city = $validateData['city'];
         $state = $validateData['state'];
         $zip = $validateData['zip'];
-        $country = $validateData['country'];
-        $getWarehouse  = $this->checkWarehouseList($city, $state, $zip);
 
         if ($city != 'Error') {
-            $warehouseId    = isset($saveWhData['originId']) ? (int)($saveWhData['originId']) : "";
+            $warehouseId  = isset($saveWhData['originId']) ? intval($saveWhData['originId']) : "";
+            $getWarehouse = $this->checkWarehouseList($city, $state, $zip);
 
-            if ($warehouseId && empty($getWarehouse)) {
+            if (!empty($getWarehouse)) {
+                $whId = reset($getWarehouse)['warehouse_id'];
+                if ($warehouseId == $whId) {
+                    // check any change in InspLd data
+                    $updateInspld = $this->dataHelper->checkUpdateInstrorePickupDelivery($getWarehouse, $validateData);
+                }
+            }
+
+            if ($warehouseId && (empty($getWarehouse) || $updateInspld == 'yes')) {
                 $updateQry = $this->dataHelper->updateWarehousData($validateData, "warehouse_id='".$warehouseId."'");
             } else {
                 if (empty($getWarehouse)) {
@@ -60,10 +80,10 @@ class SaveWarehouse extends Action
         $canAddWh = $this->dataHelper->whPlanRestriction();
         $warehousList = $this->warehousListData($validateData, $insertQry, $updateQry, $lastId, $canAddWh);
 
-        if ($warehouseId) {
+        if ($updateQry == 0 && $warehouseId) {
             $warehousList['whID'] = $warehouseId;
-            if ($getWarehouse[0]['warehouse_id'] != $getWarehouse) {
-                $dropshipList['whID'] = 0;
+            if ($getWarehouse[0]['warehouse_id'] != $warehouseId) {
+                $warehousList['whID'] = 0;
             }
         }
 
@@ -102,12 +122,12 @@ class SaveWarehouse extends Action
      */
     public function checkWarehouseList($city, $state, $zip)
     {
-        $whCollection       = $this->_warehouseFactory->create()->getCollection()
+        $whCollection       = $this->warehouseFactory->create()->getCollection()
                                     ->addFilter('location', ['eq' => 'warehouse'])
                                     ->addFilter('city', ['eq' => $city])
                                     ->addFilter('state', ['eq' => $state])
                                     ->addFilter('zip', ['eq' => $zip]);
-        
+
         return $this->dataHelper->purifyCollectionData($whCollection);
     }
 }

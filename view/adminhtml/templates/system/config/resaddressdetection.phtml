@@ -10,15 +10,14 @@
 <?php
 
 if ($block->enable == 'yes') {
-    include($block->getTemplateFile('Eniture_AutoDetectResidential::/system/config/residentialaddressdetection.phtml'));
+    include($block->getTemplateFile('Eniture_ResidentialAddressDetection::/system/config/residentialaddressdetection.phtml'));
 } else {
     ?>      
     <div class="rad">
         <p>
             <?=
             /* @noEscape */ __(
-                'Click <a href="%1" target="_blank">here</a> to add the Auto detect residential addresses module.(<a href="%2" target="_blank">Learn more</a>)',
-                "https://eniture.com/magento2-residential-address-detection/",
+                'Please visit our store to add the Auto detect residential addresses module.(<a href="%1" target="_blank">Learn more</a>)',
                 "https://eniture.com/magento2-residential-address-detection/#documentation"
             )
             ?>

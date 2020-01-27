@@ -1,7 +1,11 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Model\Source;
+namespace Eniture\FedExSmallPackageQuotes\Model\Source;
 
+/**
+ * Class RateSource
+ * @package Eniture\FedExSmallPackageQuotes\Model\Source
+ */
 class RateSource implements \Magento\Framework\Option\ArrayInterface
 {
     /**

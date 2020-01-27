@@ -2,7 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Eniture\FedExSmallPackages\Block\Adminhtml\Product\ProductPlanRestriction" name="product_plan_restriction" template="Eniture_FedExSmallPackages::product/productplanrestriction.phtml"/>
+            <block class="Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Product\ProductPlanRestriction" name="product_plan_restriction" template="Eniture_FedExSmallPackageQuotes::product/productplanrestriction.phtml"/>
         </referenceContainer>
     </body>
 </page>

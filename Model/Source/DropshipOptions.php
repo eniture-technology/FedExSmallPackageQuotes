@@ -1,20 +1,27 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Model\Source;
+namespace Eniture\FedExSmallPackageQuotes\Model\Source;
 
 /**
- * Source class for Warehouse and Dropship
+ * Class DropshipOptions
+ * @package Eniture\FedExSmallPackageQuotes\Model\Source
  */
 class DropshipOptions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
+    /**
+     * @var \Eniture\FedExSmallPackageQuotes\Helper\Data
+     */
     public $dataHelper;
+    /**
+     * @var array
+     */
     public $options = [];
     
     /**
-     * @param \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+     * @param \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
      */
     public function __construct(
-        \Eniture\FedExSmallPackages\Helper\Data $dataHelper
+        \Eniture\FedExSmallPackageQuotes\Helper\Data $dataHelper
     ) {
         $this->dataHelper = $dataHelper;
     }

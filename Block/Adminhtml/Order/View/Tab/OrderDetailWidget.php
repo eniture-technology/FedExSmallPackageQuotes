@@ -1,8 +1,12 @@
 <?php
-namespace Eniture\FedExSmallPackages\Block\Adminhtml\Order\View\Tab;
+namespace Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Order\View\Tab;
 
 use Magento\Backend\Block\Widget\Tab\TabInterface;
 
+/**
+ * Class OrderDetailWidget
+ * @package Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Order\View\Tab
+ */
 class OrderDetailWidget extends \Magento\Backend\Block\Template implements TabInterface
 {
     /**

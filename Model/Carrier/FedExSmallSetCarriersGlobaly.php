@@ -4,14 +4,22 @@
  * @package     FedEx Small Package
  * @author      Eniture Technology
  */
-namespace Eniture\FedExSmallPackages\Model\Carrier;
+namespace Eniture\FedExSmallPackageQuotes\Model\Carrier;
 
 /**
  * Class for set carriers globally
  */
 class FedExSmallSetCarriersGlobaly
 {
+    /**
+     * @var
+     */
     public $dataHelper;
+    /**
+     * @var
+     */
+    public $registry;
+
     /**
      * constructor of class
      */
@@ -27,21 +35,21 @@ class FedExSmallSetCarriersGlobaly
      */
     public function manageCarriersGlobaly($FedExArr, $registry)
     {
-        $this->_registry = $registry;
-        if ($this->_registry->registry('enitureCarriers') === null) {
+        $this->registry = $registry;
+        if ($this->registry->registry('enitureCarriers') === null) {
             $enitureCarriersArray = [];
             $enitureCarriersArray['fedexSmall'] = $FedExArr;
-            $this->_registry->register('enitureCarriers', $enitureCarriersArray);
+            $this->registry->register('enitureCarriers', $enitureCarriersArray);
         } else {
-            $carriersArr = $this->_registry->registry('enitureCarriers');
+            $carriersArr = $this->registry->registry('enitureCarriers');
             $carriersArr['fedexSmall'] = $FedExArr;
-            $this->_registry->unregister('enitureCarriers');
-            $this->_registry->register('enitureCarriers', $carriersArr);
+            $this->registry->unregister('enitureCarriers');
+            $this->registry->register('enitureCarriers', $carriersArr);
         }
         
         $activeEnitureModulesCount = $this->getActiveEnitureModulesCount();
 
-        if (count($this->_registry->registry('enitureCarriers')) < $activeEnitureModulesCount) {
+        if (count($this->registry->registry('enitureCarriers')) < $activeEnitureModulesCount) {
             return false;
         } else {
             return true;
@@ -72,11 +80,11 @@ class FedExSmallSetCarriersGlobaly
      */
     public function manageQuotes($quotes)
     {
-        $helpersArr = $this->_registry->registry('enitureHelpersCodes');
+        $helpersArr = $this->registry->registry('enitureHelpersCodes');
         $resultArr = [];
         foreach ($quotes as $key => $quote) {
             $helperId = $helpersArr[$key];
-            $FedExResultData = $this->_registry->helper($helperId)->getQuotesResults($quote);
+            $FedExResultData = $this->registry->helper($helperId)->getQuotesResults($quote);
             if ($FedExResultData != false) {
                 $resultArr[$key] = $FedExResultData;
             }

@@ -1,7 +1,11 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Model\ResourceModel\Warehouse;
+namespace Eniture\FedExSmallPackageQuotes\Model\ResourceModel\Warehouse;
 
+/**
+ * Class Collection
+ * @package Eniture\FedExSmallPackageQuotes\Model\ResourceModel\Warehouse
+ */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
 
@@ -12,7 +16,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
      */
     protected function _construct()
     {
-        $this->_init('Eniture\FedExSmallPackages\Model\Warehouse', 'Eniture\FedExSmallPackages\Model\ResourceModel\Warehouse');
+        $this->_init('Eniture\FedExSmallPackageQuotes\Model\Warehouse', 'Eniture\FedExSmallPackageQuotes\Model\ResourceModel\Warehouse');
         $this->_map['fields']['page_id'] = 'main_table.page_id';
     }
 }

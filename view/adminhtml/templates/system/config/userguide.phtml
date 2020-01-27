@@ -1,9 +1,7 @@
-<script type="text/javascript">
-    require([ 'jquery', 'jquery/ui'], function($){ 
-        $(document).ready(function($) {
-            var carrierdiv = '#fedexUserGuide_fifth-head';
-            currentPlanNote($, '<?php echo $this->fedexSmallPlanNotice(); ?>', carrierdiv);
-        });
+<script>
+    require([ 'jquery', 'domReady!'], function($){ 
+        var carrierdiv = '#fedexUserGuide_fifth-head';
+        currentPlanNote($, '<?php echo $block->fedexSmallPlanNotice(); ?>', carrierdiv);
     });
 </script>
 <div class="user_guide">

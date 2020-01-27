@@ -1,5 +1,5 @@
 <?php
-namespace Eniture\FedExSmallPackages\Model\Carrier;
+namespace Eniture\FedExSmallPackageQuotes\Model\Carrier;
 
 /**
  * This class manages all quotes values
@@ -11,13 +11,44 @@ class FedExSmpkgManageAllQuotes
      * stores array of quotes
      * @var array
      */
-    public $quotes;
-    public $dataHelper;
-    public $scopeConfig;
-    public $registry;
-    public $moduleManager;
-    public $objectManager;
-    
+    private $quotes;
+    /**
+     * @var
+     */
+    private $dataHelper;
+    /**
+     * @var
+     */
+    private $scopeConfig;
+    /**
+     * @var
+     */
+    private $registry;
+
+    /**
+     * @var
+     */
+    public $session;
+    /**
+     * @var
+     */
+    private $moduleManager;
+    /**
+     * @var
+     */
+    private $objectManager;
+    /**
+     * @var array
+     */
+    private $smallPackagesQuotes;
+    /**
+     * @var array
+     */
+    private $ltlPackagesQuotes;
+
+    private $odwData;
+    private $resiLabel = '';
+
     /**
      * @param type $quotes
      * @param type $helper
@@ -31,6 +62,7 @@ class FedExSmpkgManageAllQuotes
         $helper,
         $scopeConfig,
         $registry,
+        $session,
         $moduleManager,
         $objectManager
     ) {
@@ -38,6 +70,7 @@ class FedExSmpkgManageAllQuotes
         $this->dataHelper      = $helper;
         $this->scopeConfig     = $scopeConfig;
         $this->registry        = $registry;
+        $this->session         = $session;
         $this->moduleManager   = $moduleManager;
         $this->objectManager   = $objectManager;
     }
@@ -50,7 +83,7 @@ class FedExSmpkgManageAllQuotes
      */
     public function getQuotesResultArr($request)
     {
-        $moduleTypesArr = $this->registry->registry('enatureModuleTypes');
+        $moduleTypesArr = $this->registry->registry('enitureModuleTypes');
         $quotesArr      = (array)$this->quotes;
         $quotesArr      = $this->removeErrorFromQuotes($quotesArr);
 
@@ -60,8 +93,6 @@ class FedExSmpkgManageAllQuotes
 
         if ($quotesCount == 1) {
             $servicesArr = $this->fedExGetAllQuotes();
-
-            
             return $servicesArr;
         } elseif ($quotesCount > 1) {
             $smallModulesArr = array_filter($moduleTypesArr, function ($value) {
@@ -74,7 +105,7 @@ class FedExSmpkgManageAllQuotes
             
             $this->smallPackagesQuotes    = array_intersect_key($quotesArr, $smallModulesArr);
             $this->ltlPackagesQuotes      = array_intersect_key($quotesArr, $ltlModulesArr);
-            
+
             if (count($this->smallPackagesQuotes) == 0 || count($this->ltlPackagesQuotes) == 0) {
                 return $this->fedExGetAllQuotes();
             } else {
@@ -85,9 +116,10 @@ class FedExSmpkgManageAllQuotes
                     $resultQuotes =  $this->fedExGetAllQuotes(false, true);
                     return $this->getQuotesForMultiShipment($resultQuotes, $smallModulesArr, $ltlModulesArr);
                 } else {
-                    $resultQuotesArr =  $this->fedExGetAllQuotes(true, false);
+                    $resultQuotesArr =  $this->fedExGetAllQuotes(true, true);
                     $smallQuotesArr = array_intersect_key($resultQuotesArr, $smallModulesArr);
                     $ltlQuotesArr = array_intersect_key($resultQuotesArr, $ltlModulesArr);
+                    $this->setOdwData($smallQuotesArr, $ltlQuotesArr, []);
                     $minsmallRate = $this->findMininumSmall($smallQuotesArr);
                     return $this->updateLtlQuotes($ltlQuotesArr, $minsmallRate);
                 }
@@ -106,15 +138,15 @@ class FedExSmpkgManageAllQuotes
      */
     public function getQuotesForMultiShipment($resultQuotes, $smallModulesArr, $ltlModulesArr)
     {
-        $smallQuotesArr = array_intersect_key($resultQuotes, $smallModulesArr);
-        $ltlQuotesArr = array_intersect_key($resultQuotes, $ltlModulesArr);
+        $smallQuotesArr     = array_intersect_key($resultQuotes, $smallModulesArr);
+        $ltlQuotesArr       = array_intersect_key($resultQuotes, $ltlModulesArr);
         $allLtlQuotesArr    = $this->getAllQuotes($ltlQuotesArr);
         $allSmallQuotesArr  = $this->getAllQuotes($smallQuotesArr);
         $commonQuotesArr    = array_intersect_key($allLtlQuotesArr, $allSmallQuotesArr);
         $minimumCommonArr   = $this->getMinimumCommonQuotes($commonQuotesArr, $resultQuotes);
+        $this->setOdwData($smallQuotesArr, $ltlQuotesArr, $minimumCommonArr);
         $minimumSmallRate   = $this->getMinimumSmallQuotesRate($minimumCommonArr, $smallQuotesArr);
-        $ltlQuotesArray     = $this->getLtlQuoteForMultishipping($minimumCommonArr, $ltlQuotesArr, $minimumSmallRate);
-    
+        $ltlQuotesArray     = $this->getLtlQuoteForMultishipping($minimumCommonArr, $ltlModulesArr, $ltlQuotesArr, $minimumSmallRate);
         return $ltlQuotesArray;
     }
     
@@ -125,7 +157,7 @@ class FedExSmpkgManageAllQuotes
      * @param float $minimumSmallRate
      * @return array
      */
-    public function getLtlQuoteForMultishipping($minimumCommonArr, $ltlQuotesArr, $minimumSmallRate)
+    public function getLtlQuoteForMultishipping($minimumCommonArr, $ltlModulesArr, $ltlQuotesArr, $minimumSmallRate)
     {
         $ltlQuotesFinalArr = [];
 
@@ -136,21 +168,21 @@ class FedExSmpkgManageAllQuotes
                 
                 foreach ($originArr as $key => $value) {
                     if (!array_key_exists($key, $minimumCommonArr)) {
-                        $ltlRate = $ltlRate + $value;
+                        $ltlRate = $ltlRate + $value['rate'];
                     }
                 }
                 $ltlQuotesFinalArr[$mainkey][] = [
                     'code'  => 'Freight',
-                    'title' => 'Freight',
+                    'title' => 'Freight '.$this->resiLabel,
                     'rate'  => $ltlRate
                     ];
             }
         } else {
             if ($minimumSmallRate > 0) {
-                foreach ($ltlQuotesArr as $key => $value) {
+                foreach ($ltlModulesArr as $key => $value) {
                     $ltlQuotesFinalArr[$key][] = [
                         'code'  => 'Freight',
-                        'title' => 'Freight',
+                        'title' => 'Freight '.$this->resiLabel,
                         'rate'  => $minimumSmallRate
                         ];
                 }
@@ -176,13 +208,13 @@ class FedExSmpkgManageAllQuotes
                         $minimumCommonQuotesArr[$key] = $value;
                     }
                     if (array_key_exists($key, $minimumCommonQuotesArr)) {
-                        if ($value == '0') {
+                        if ($value['rate'] == '0') {
                             if (isset($this->quotes[$mainkey][$key]->severity)
                                 && $this->quotes[$mainkey][$key]->severity == 'ERROR') {
                                 continue;
                             }
                         }
-                        if ($value < $minimumCommonQuotesArr[$key]) {
+                        if ($value['rate'] < $minimumCommonQuotesArr[$key]['rate']) {
                             $minimumCommonQuotesArr[$key] = $value;
                         }
                     }
@@ -191,7 +223,6 @@ class FedExSmpkgManageAllQuotes
         } else {
             $minimumCommonQuotesArr = [];
         }
-        
         return $minimumCommonQuotesArr;
     }
     
@@ -209,7 +240,7 @@ class FedExSmpkgManageAllQuotes
                 foreach ($originArr as $key => $value) {
                     if (!array_key_exists($key, $minimumCommonArr)) {
                         if (array_key_exists($key, $minimumSmallQuotes)) {
-                            if ($value < $minimumSmallQuotes[$key]) {
+                            if ($value['rate'] < $minimumSmallQuotes[$key]['rate']) {
                                 $minimumSmallQuotes[$key] = $value;
                             }
                         } else {
@@ -220,7 +251,7 @@ class FedExSmpkgManageAllQuotes
             }
         }
         $minSmallQuotesArray = array_merge($minimumSmallQuotes, $minimumCommonArr);
-        $sumMinSmall = array_sum($minSmallQuotesArray);
+        $sumMinSmall = array_sum(array_column($minSmallQuotesArray, 'rate'));
         return $sumMinSmall;
     }
     
@@ -273,7 +304,7 @@ class FedExSmpkgManageAllQuotes
     }
 
     /**
-     * This funtion removes errors from quotes array
+     * This function removes errors from quotes array
      * @param $QuotesArr
      * @return array
      */
@@ -319,17 +350,18 @@ class FedExSmpkgManageAllQuotes
      */
     public function updateLtlQuotes($ltlQuotesArr, $minsmallRate)
     {
+        $appName = key($ltlQuotesArr);
+        $ltlQuotesArr = reset($ltlQuotesArr);
         $updatedltlQuotesArr = [];
         if (!empty($ltlQuotesArr)) {
             foreach ($ltlQuotesArr as $key => $value) {
-                if ($value[0]) {
-                    $updatedltlQuotesArr[$key][] = [
-                        'code'  => $value[0]['code'],
-                        'title' => 'Freight',
-                        'rate'  => ($value[0]['rate'] + $minsmallRate)
-                        ];
-                }
+                $minsmallRate += $value['rate'];
             }
+            $updatedltlQuotesArr[$appName][] = [
+                'code'  => 'Freight',
+                'title' => 'Freight '.$this->resiLabel,
+                'rate'  => $minsmallRate
+            ];
         } else {
             foreach ($this->ltlPackagesQuotes as $key => $value) {
                 $updatedltlQuotesArr[$key][] = [
@@ -350,17 +382,17 @@ class FedExSmpkgManageAllQuotes
      */
     public function findMininumSmall($smallArr)
     {
+
+        $smallArr = reset($smallArr);
         $counter = 1;
         $minimum = '0';
-        foreach ($smallArr as $key => $fedexSmall) {
-            foreach ($fedexSmall as $key => $value) {
-                if ($counter == 1) {
-                    $minimum =  $value['rate'];
-                    $counter = 0;
-                } else {
-                    if ($value['rate'] < $minimum) {
-                        $minimum =  $value['rate'];
-                    }
+        foreach ($smallArr as $origin => $data) {
+            if ($counter == 1) {
+                $minimum =  $data['rate'];
+                $counter = 0;
+            } else {
+                if ($data['rate'] < $minimum) {
+                    $minimum =  $data['rate'];
                 }
             }
         }
@@ -375,15 +407,54 @@ class FedExSmpkgManageAllQuotes
     public function fedExGetAllQuotes($getMinimum = false, $isMultishipment = false)
     {
         $helpersArr = $this->registry->registry('enitureHelpersCodes');
+
         $resultArr = [];
         foreach ($this->quotes as $key => $quote) {
             $helperId = $helpersArr[$key];
             $dataHelper = $this->objectManager->get("$helperId\Helper\Data");
-            $fedexSmpkgResultData = $dataHelper->getQuotesResults($quote, $isMultishipment, $this->scopeConfig);
+            $fedexSmpkgResultData = $dataHelper->getQuotesResults($quote, $getMinimum, $isMultishipment, $this->scopeConfig);
             if ($fedexSmpkgResultData != false && $fedexSmpkgResultData !== null) {
                 $resultArr[$key] = $fedexSmpkgResultData;
             }
         }
         return $resultArr;
+    }
+
+    public function setOdwData($smallQuotesArr, $ltlQuotesArr, $minimumCommonArr)
+    {
+        $smallQuotesArr = !empty($smallQuotesArr) ? reset($smallQuotesArr) : [];
+        $ltlQuotesArr   = !empty($ltlQuotesArr) ? reset($ltlQuotesArr) : [];
+        $allQuotesArr = $smallQuotesArr + $ltlQuotesArr;
+        if (!empty($allQuotesArr)) {
+            foreach ($allQuotesArr as $origin => $data) {
+                $this->odwData[$origin] = $minimumCommonArr[$origin] ?? $data;
+            }
+            $this->setOrderDetailData();
+        }
+    }
+
+    public function setOrderDetailData()
+    {
+        $this->addQuotesIndex();
+        $orderDetail['residentialDelivery'] = 0;
+        $setPkgForOrderDetailReg = null !== $this->registry->registry('setPackageDataForOrderDetail') ?
+            $this->registry->registry('setPackageDataForOrderDetail') : [];
+        $orderDetail['shipmentData'] = array_replace_recursive($setPkgForOrderDetailReg, $this->odwData);
+        // set order detail widget data
+        $this->session->start();
+        $this->session->setSemiOrderDetailSession($orderDetail);
+    }
+
+    public function addQuotesIndex()
+    {
+        $dataArray = [];
+        foreach ($this->odwData as $key => $array) {
+            $resi = $array['resi']['residential'] ?? false;
+            $this->resiLabel = $array['resi']['label'];
+            unset($array['resi']);
+            $array['residentialDelivery'] = $resi;
+            $dataArray[$key] = ['quotes'=> $array];
+        }
+        $this->odwData = $dataArray;
     }
 }

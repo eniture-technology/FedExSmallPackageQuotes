@@ -1,18 +1,11 @@
 <?php
-$standardPlan = $block->getPlanInfo();
+$planInfo = $block->getPlanInfo();
 $hazmatMsg = $insuranceMsg = "";
+$getPlanMsg = $block->planMsg($planInfo);
+$hazmatMsg = $getPlanMsg['hazmatMsg'];
+$insuranceMsg = $getPlanMsg['insuranceMsg'];
 
-foreach ($standardPlan as $res) {
-    if ($res['hazmat'] == 'Enabled') {
-        $hazmatMsg .= ($res['label'] != "") ? $res['label'].' :'.$res['hazmat'].';' : ' ';
-    }
-
-    if ($res['insurance'] == 'Enabled') {
-        $insuranceMsg .= ($res['label'] != "") ? $res['label'].' :'.$res['insurance'].';' : ' ';
-    }
-}
-
-$msg = '<a href="https://eniture.com/magento2-fedex-small-package" target="_blank" class="required-plan-msg">Standard Plan required</a>';
+$msg = '<a class="required-plan-msg">Standard Plan required</a>';
 ?>
 <script type="text/javascript">
     require([
@@ -28,7 +21,7 @@ $msg = '<a href="https://eniture.com/magento2-fedex-small-package" target="_blan
 
                 if($('select[name="product[en_hazmat]"]').length){
 
-                    var hazmatMsg = '<?= /* @noEscape */ ($hazmatMsg === '') ? $msg : $hazmatMsg; ?>';
+                    var hazmatMsg = '<?= /* @noEscape */ ($hazmatMsg === '') ? $msg : '<small>'.$hazmatMsg.'</small>'; ?>';
                     var hzDisable = '<?= /* @noEscape */ ($hazmatMsg === '') ? "yes": "no"; ?>';
 
 
@@ -38,7 +31,7 @@ $msg = '<a href="https://eniture.com/magento2-fedex-small-package" target="_blan
                         $('select[name="product[en_hazmat]"]').addClass('inactiveLink');
                     }
 
-                    var insuranceMsg = '<?= /* @noEscape */ ($insuranceMsg === '') ? $msg : $insuranceMsg; ?>';
+                    var insuranceMsg = '<?= /* @noEscape */ ($insuranceMsg === '') ? $msg : '<small>'.$insuranceMsg.'</small>'; ?>';
                     var insDisable = '<?= /* @noEscape */ ($insuranceMsg === '') ? "yes": "no"; ?>';
 
 

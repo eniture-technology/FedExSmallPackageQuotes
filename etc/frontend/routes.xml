@@ -1,7 +1,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../lib/internal/Magento/Framework/App/etc/routes.xsd">
     <router id="standard">
-        <route id="fedexsmallpackages" frontName="fedexsmallpackages">
-            <module name="Eniture_FedExSmallPackages" />
+        <route id="fedexsmallpackagequotes" frontName="fedexsmallpackagequotes">
+            <module name="Eniture_FedExSmallPackageQuotes" />
         </route>
     </router>
 </config>

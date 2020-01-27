@@ -1,7 +1,11 @@
 <?php
 
-namespace Eniture\FedExSmallPackages\Model\Source;
+namespace Eniture\FedExSmallPackageQuotes\Model\Source;
 
+/**
+ * Class TransitDaysRestrictionBy
+ * @package Eniture\FedExSmallPackageQuotes\Model\Source
+ */
 class TransitDaysRestrictionBy implements \Magento\Framework\Option\ArrayInterface
 {
     /**
