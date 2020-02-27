@@ -48,7 +48,7 @@ class OrderPlacebeforeSaveData implements ObserverInterface
                 $order->setData('order_detail_data', json_encode($orderDetailData));
                 $order->save();
 
-                $this->coreSession->unsFdxOrderDetailSession([]);
+                $this->coreSession->unsFdxOrderDetailSession();
             }
         } catch (\Exception $e) {
             $e->getMessage();

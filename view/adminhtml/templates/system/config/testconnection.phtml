@@ -3,7 +3,8 @@
 $formData = [
     'divElement'       =>  '#success',
 ];
-$serializedFormData = $block->helper('Magento\Framework\Json\Helper\Data')->jsonEncode($formData);
+$serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonEncode($formData);
+
 $planMsg = $block->fedexSmallPlanNotice();
 ?>
 <script type="text/javascript">

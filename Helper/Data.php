@@ -443,16 +443,35 @@ class Data extends AbstractHelper
             if (isset($quote->severity) && $quote->severity == 'ERROR') {
                 return [];
             }
+            $isQuotes = false;
+            //This is to check if Box exceeds 15 limit for a service
+            foreach ($quote as $serviceName => $data) {
+                if (isset($data->severity) && $data->severity == 'ERROR') {
+                    unset($quote->$serviceName);
+                } elseif (isset($data->q)) {
+                    $isQuotes = true;
+                }
+            }
+            
+            //This is to check if this origin still has some quotes
+            if (!$isQuotes) {
+                return [];
+            }
+            
+
+            $quoteServices = [];
             $binPackaging = $this->setBinPackagingData($quote, $key);
 
             $binPackagingArr[] = $binPackaging;
 
             $shipment = $quote->shipment;
             $quoteServices[$shipment] = (isset($allConfigServices[$shipment])) ? $allConfigServices[$shipment] : [];
+            
             $onerateSrvcs['fedexOneRate'] = $allConfigServices['onerateServices'];
 
             $filteredQuotes[$key] = $this->parseFedexSmallOutput($quote, $quoteServices, $onerateSrvcs, $scopeConfig, $binPackaging[$key]);
         }
+
         $this->coreSession->start();
         $this->coreSession->setFdxBinPackaging($binPackagingArr);
 
@@ -461,6 +480,8 @@ class Data extends AbstractHelper
             return $getMinimum ? $filteredQuotes : reset($filteredQuotes);
         } else {
             $multiShipQuotes = $this->getMultishipmentQuotes($filteredQuotes);
+            
+            
             $this->setOrderDetailWidgetData($multiShipQuotes['orderWidgetQ'], $scopeConfig);
             return $multiShipQuotes['multiShipQ'];
         }
@@ -501,6 +522,7 @@ class Data extends AbstractHelper
         $binPackaging[$key]['fedexServices'] = [];
         $binPackaging[$key]['fedexOneRate'] = [];
         $binPackaging[$key]['fedexAirServices'] = [];
+        $binPackaging[$key]['fedexSmartPost'] = [];
         if (isset($quote->fedexServices->binPackagingData)) {
             $binPackaging[$key]['fedexServices'] = $quote->fedexServices->binPackagingData;
             $binPackaging[$key]['fedexServices']->boxesFee = isset($quote->fedexServices->binPackagingData->response) ?
@@ -519,6 +541,12 @@ class Data extends AbstractHelper
             $binPackaging[$key]['fedexAirServices'] = $quote->fedexAirServices->binPackagingData;
             $binPackaging[$key]['fedexAirServices']->boxesFee = isset($quote->fedexAirServices->binPackagingData->response) ?
                 $this->calculateBoxesFee($quote->fedexAirServices->binPackagingData->response)
+                : 0;
+        }
+        if(isset($quote->smartPost->binPackagingData)) {
+            $binPackaging[$key]['fedexSmartPost'] = $quote->smartPost->binPackagingData;
+            $binPackaging[$key]['fedexSmartPost']->boxesFee = isset($quote->smartPost->binPackagingData->response) ?
+                $this->calculateBoxesFee($quote->smartPost->binPackagingData->response)
                 : 0;
         }
 
@@ -585,6 +613,9 @@ class Data extends AbstractHelper
         $autoResTitle = $this->getAutoResidentialTitle($isRad);
         if (isset($result->fedexServices) && !(isset($result->fedexAirServices, $result->fedexOneRate))) {
             $quote['fedexAirServices'] = $this->quoteDetail($result->fedexServices);
+            
+            isset($result->smartPost) ? $quote['fedexSmartPost'] = $this->quoteDetail($result->smartPost) : "";
+            
             $simpleQuotes = 1;
         } else {
             isset($result->fedexOneRate) ?
@@ -595,8 +626,11 @@ class Data extends AbstractHelper
 
             isset($result->fedexServices) ?
                 $quote['fedexServices'] = $this->quoteDetail($result->fedexServices) : "";
+                
+            isset($result->smartPost) ?
+                $quote['fedexSmartPost'] = $this->quoteDetail($result->smartPost) : "";
         }
-
+        
         foreach ($quote as $serviceName => $servicesList) {
             $servicesList = $this->transitTimeRestriction($servicesList);
 
@@ -616,12 +650,12 @@ class Data extends AbstractHelper
                     $serviceTitle,
                     $serviceName
                 );
-            } elseif (isset($servicesList) && (!empty($servicesList))) {
+            }
+            if (isset($servicesList) && (!empty($servicesList))) {
                 $services = ($serviceName == "fedexOneRate") ? $oneRateSrvcs : $idServices;
                 $serviceKeyName = key($services);
 
                 if ($serviceKeyName != "international" && (!isset($simpleQuotes))) {
-                    //if ($serviceName == "fedexAirServices") {
                     if ($serviceName == "fedexServices") {
                         $homeGrdServices = [];
                         (isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) ?
@@ -629,7 +663,6 @@ class Data extends AbstractHelper
                         (isset($services[$serviceKeyName]['FEDEX_GROUND'])) ?
                             $homeGrdServices[$serviceKeyName]['FEDEX_GROUND'] = 'FedEx Ground' : "";
                         $services = $homeGrdServices;
-                        //} elseif ($serviceName == "fedexServices") {
                     } elseif ($serviceName == "fedexAirServices") {
                         if (isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) {
                             unset($services[$serviceKeyName]['GROUND_HOME_DELIVERY']);
@@ -643,8 +676,6 @@ class Data extends AbstractHelper
                 foreach ($servicesList as $serviceKey => $service) {
                     if ($serviceTitle = (isset($services[$serviceKeyName][$service->serviceType])) ?
                         $services[$serviceKeyName][$service->serviceType] : "") {
-                        // if (($serviceKeyName == "international" && $serviceName != "fedexAirServices") || $serviceKeyName != "international") {
-                        // if ($serviceKeyName != "fedexOneRate" || ($serviceName != "fedexAirServices" || $serviceKeyName != "international")) {
                         if (($serviceKeyName == "international" && $serviceName != "fedexServices") || $serviceKeyName != "international") {
                             $transitTime = (isset($service->transitTime)) ? $service->transitTime : '';
 
@@ -670,10 +701,13 @@ class Data extends AbstractHelper
         }
 
         $priceSortedKey = [];
+
         $allServicesArray = array_filter($allServicesArray);
+        
         foreach ($allServicesArray as $key => $costCarrier) {
             $priceSortedKey[$key] = $costCarrier['rate'];
         }
+
         array_multisort($priceSortedKey, SORT_ASC, $allServicesArray);
 
         if (isset($result->fedexServices->InstorPickupLocalDelivery) && !empty($result->fedexServices->InstorPickupLocalDelivery)) {
@@ -808,6 +842,10 @@ class Data extends AbstractHelper
                 break;
             case 'fedexServices':
                 $code = 'NML';
+                break;
+                
+            case 'fedexSmartPost':
+                $code = 'FSP';
                 break;
             default:
                 break;

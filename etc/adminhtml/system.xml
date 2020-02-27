@@ -98,10 +98,7 @@
                     <can_be_empty>1</can_be_empty>
                     <source_model>Eniture\FedExSmallPackageQuotes\Model\Source\InternationalServices</source_model>
                 </field>
-                <field id="FedExSmartPost" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>FedEx SmartPost</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
+
                 <field id="transitDaysNumber" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enter the number of transit days to restrict ground service to. Leave blank to disable this feature.</label>
                     <validate>validate-number validate-length maximum-length-7 validate-not-negative-number</validate>

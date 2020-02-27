@@ -122,8 +122,8 @@ class FedExSmpkgGenerateRequestData
 
             'autoResidentials' => $this->autoResidentialDelivery(),
             'liftGateWithAutoResidentials' => $this->registry->registry('radForLiftgate'),
-            'FedexOneRatePricing' => ($smartPost) ? '0' : $this->FedexOneRatePricing,
-            'FedexSmartPostPricing' => $smartPost,
+            'FedexOneRatePricing' => $this->FedexOneRatePricing,
+            'FedexSmartPostPricing' => 0, //$smartPost,
 
             'requestKey'        => $cart->getQuote()->getId(),
             'carriers'          => $carriers,
