@@ -2,7 +2,7 @@
 
 if ($block->enable == 'yes') {
     $fedExModuleFlag = 'YES';
-    include($block->getTemplateFile('Eniture_StandardBoxSizes::/system/config/boxsizestab.phtml'));
+    echo $block->setTemplate('Eniture_StandardBoxSizes::/system/config/boxsizestab.phtml')->toHtml();
 } else {
     ?>
         <div class="boxsizes">

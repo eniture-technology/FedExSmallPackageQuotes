@@ -260,10 +260,10 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                 'buildQuery' => http_build_query($requestArr),
                 'request' => $requestArr,
                 'quotes' => $quotes];
-            echo '<pre>';
+            print_r('<pre>');
             print_r($printData);
-            echo '</pre>';
-            exit;
+            print_r('</pre>');
+            return;
         }
 
         $this->fedexMangQuotes->_init(
