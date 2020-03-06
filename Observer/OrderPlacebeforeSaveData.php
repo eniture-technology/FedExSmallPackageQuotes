@@ -30,7 +30,14 @@ class OrderPlacebeforeSaveData implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         try {
+            $isMulti = '0';
             $order = $observer->getEvent()->getOrder();
+            $quote = $order->getQuote();
+
+            if (isset($quote)) {
+                $isMulti = $quote->getIsMultiShipping();
+            }
+
             $method =  $order->getShippingMethod();
 
             if (strpos($method, 'ENFedExSmpkg') !== false) {
@@ -48,7 +55,9 @@ class OrderPlacebeforeSaveData implements ObserverInterface
                 $order->setData('order_detail_data', json_encode($orderDetailData));
                 $order->save();
 
-                $this->coreSession->unsFdxOrderDetailSession();
+                if (!$isMulti) {
+                    $this->coreSession->unsFdxOrderDetailSession();
+                }
             }
         } catch (\Exception $e) {
             $e->getMessage();

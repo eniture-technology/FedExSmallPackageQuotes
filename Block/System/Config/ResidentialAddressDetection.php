@@ -96,6 +96,16 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     {
         return $this->_toHtml();
     }
+
+    /**
+     * This function returns the HTML, used in the Block
+     * @return mixed
+     */
+
+    public function getHtml()
+    {
+        return $this->_toHtml();
+    }
    
     /**
      * checkBinPackagingModule

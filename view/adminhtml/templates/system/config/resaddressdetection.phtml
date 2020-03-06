@@ -10,7 +10,8 @@
 <?php
 
 if ($block->enable == 'yes') {
-    echo $block->setTemplate('Eniture_ResidentialAddressDetection::/system/config/residentialaddressdetection.phtml');
+    $block->setTemplate('Eniture_ResidentialAddressDetection::/system/config/residentialaddressdetection.phtml');
+    echo $block->getHtml();
 } else {
     ?>      
     <div class="rad">

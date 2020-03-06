@@ -369,13 +369,13 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
 
         foreach ($items as $key => $item) {
             $locationId = 0;
-            if ($item->getRealProductType() == 'configurable') {
+            $_product       = $this->productloader->create()->load($item->getProductId());
+            $product_type =$item->getRealProductType() ?? $_product->getTypeId();
+            if ($product_type == 'configurable') {
                 $this->qty = $item->getQty();
             }
-            if ($item->getRealProductType() == 'simple') {
+            if ($product_type == 'simple') {
                 $productQty = ($this->qty > 0) ? $this->qty : $item->getQty();
-
-                $_product       = $this->productloader->create()->load($item->getProductId());
 
                 $isEnableLtl    = $_product->getData('en_ltl_check');
 

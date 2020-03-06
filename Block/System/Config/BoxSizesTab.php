@@ -112,6 +112,16 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
     }
 
     /**
+     * This function returns the HTML, used in the Block
+     * @return mixed
+     */
+
+    public function getHtml()
+    {
+        return $this->_toHtml();
+    }
+
+    /**
      * checkBinPackagingModule
      */
     public function checkBinPackagingModule()
