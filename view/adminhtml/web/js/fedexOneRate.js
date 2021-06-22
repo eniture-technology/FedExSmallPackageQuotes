@@ -3,7 +3,7 @@
      * @type type
      */
     
-    require([ 'jquery', 'jquery/ui'], function($){ 
+    require([ 'jquery'], function($){
         $(document).ready(function($) {
             showNotification = false;
             var oneRateSrvcs = $('#fedexQuoteSetting_third_FedExOneRateServices > option').length;

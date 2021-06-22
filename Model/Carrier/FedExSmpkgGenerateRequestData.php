@@ -79,7 +79,7 @@ class FedExSmpkgGenerateRequestData
             'serverName'    => $this->request->getServer('SERVER_NAME'),
             'carrierMode'   => 'pro', // use test / pro
             'quotestType'   => 'small',
-            'version'       => '1.0.0',
+            'version'       => '1.0.2',
             'api'           => $this->getApiInfoArr($request->getDestCountryId(), $origin),
             'getDistance'   => $getDistance,
         ];

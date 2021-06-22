@@ -1,13 +1,17 @@
 <?php
 namespace Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Order\View\Tab;
 
+use Magento\Backend\Block\Template;
+use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Tab\TabInterface;
+use Magento\Framework\Registry;
+use Magento\Sales\Model\Order;
 
 /**
  * Class OrderDetailWidget
  * @package Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Order\View\Tab
  */
-class OrderDetailWidget extends \Magento\Backend\Block\Template implements TabInterface
+class OrderDetailWidget extends Template implements TabInterface
 {
     /**
      * Template
@@ -19,18 +23,18 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements TabIn
     /**
      * Core registry
      *
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     private $coreRegistry = null;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context $context
-     * @param \Magento\Framework\Registry $registry
+     * @param Context $context
+     * @param Registry $registry
      * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
-        \Magento\Framework\Registry $registry,
+        Context $context,
+        Registry $registry,
         array $data = []
     ) {
         $this->coreRegistry = $registry;
@@ -40,7 +44,7 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements TabIn
     /**
      * Retrieve order model instance
      *
-     * @return \Magento\Sales\Model\Order
+     * @return Order
      */
     public function getOrder()
     {
@@ -109,6 +113,6 @@ class OrderDetailWidget extends \Magento\Backend\Block\Template implements TabIn
      */
     public function getTabUrl()
     {
-        return $this->getUrl('orderdetailwidget/*/OrderDetailWidget', ['_current' => true]);
+        return $this->getUrl('orderdetailwidget_fedexsmall/*/OrderDetailWidget', ['_current' => true]);
     }
 }

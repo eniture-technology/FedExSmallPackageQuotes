@@ -3,7 +3,7 @@
      * @type type
      */
     
-    require([ 'jquery', 'jquery/ui'], function($){ 
+    require([ 'jquery'], function($){
         $(document).ready(function($) {
             if($("#suspend-rad-use").length > 0 && $("#suspend-rad-use").is(":disabled") == false) {
                 disablealwaysresidentialfedex();

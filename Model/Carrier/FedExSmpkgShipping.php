@@ -61,7 +61,7 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
     /**
      * @var
      */
-    public $qty;
+    public $qty = 0;
 
     /**
      * @var \Magento\Framework\Session\SessionManagerInterface
@@ -114,6 +114,10 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
      * @var \Magento\Framework\App\RequestInterface
      */
     public $httpRequest;
+    /**
+     * @var bool
+     */
+    private $freeShipping = false;
 
 
     /**
@@ -190,6 +194,8 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
      */
     public function collectRates(RateRequest $request)
     {
+        $this->freeShipping = $request->getFreeShipping();
+
         if (!$this->scopeConfig->getValue(
             'carriers/ENFedExSmpkg/active',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -231,7 +237,6 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
 
         $this->fedExSetGlobalCarrier->_init($this->dataHelper);
         $resp = $this->fedExSetGlobalCarrier->manageCarriersGlobaly($fedexSmpkgArr, $this->registry);
-
         $getQuotesFromSession = $this->quotesFromSession();
         if (null !== $getQuotesFromSession) {
             return $getQuotesFromSession;
@@ -276,7 +281,6 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
             $this->objectManager
         );
         $quotesResult = $this->fedexMangQuotes->getQuotesResultArr($request);
-
         $this->session->setEnShippingQuotes($quotesResult);
 
         $fedexSmpkgQuotes = (!empty($quotesResult)) ? $this->setCarrierRates($quotesResult) : '';
@@ -368,14 +372,18 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         );
 
         foreach ($items as $key => $item) {
+
+
             $locationId = 0;
             $_product       = $this->productloader->create()->load($item->getProductId());
             $product_type =$item->getRealProductType() ?? $_product->getTypeId();
+
             if ($product_type == 'configurable') {
                 $this->qty = $item->getQty();
             }
             if ($product_type == 'simple') {
                 $productQty = ($this->qty > 0) ? $this->qty : $item->getQty();
+                $this->qty = 0;
 
                 $isEnableLtl    = $_product->getData('en_ltl_check');
 
@@ -419,12 +427,13 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
 
                 $orderWidget[$originAddress['senderZip']]['origin'] = $originAddress;
 
-                $length = ( $this->mageVersion < '2.2.5' || $this->mageVersion > '2.3.2' ) ?
+                $length = ($_product->getData('en_length') != null) ?
                     $_product->getData('en_length') : $_product->getData('ts_dimensions_length');
-                $width = ( $this->mageVersion < '2.2.5' || $this->mageVersion > '2.3.2' ) ?
+                $width = ( $_product->getData('en_width') != null) ?
                     $_product->getData('en_width') : $_product->getData('ts_dimensions_width');
-                $height = ( $this->mageVersion < '2.2.5' || $this->mageVersion > '2.3.2' ) ?
+                $height = ( $_product->getData('en_height') != null) ?
                     $_product->getData('en_height') : $_product->getData('ts_dimensions_height');
+
 
                 $lineItems = [
                     'lineItemClass'          => ($lineItemClass == 'No Freight Class'
@@ -445,7 +454,8 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                     'vertical_rotation'         => $_product->getData('en_vertical_rotation'),
                 ];
 
-                $package['items'][$_product->getId()] = array_merge($lineItems);
+//                $package['items'][$_product->getId()] = array_merge($lineItems);
+                $package['items'][$_product->getId()] = $lineItems;
                 $orderWidget[$originAddress['senderZip']]['item'][] = $package['items'][$_product->getId()];
             }
         }
@@ -503,20 +513,22 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         $result = $this->rateResultFactory->create();
 
         foreach ($quotes as $carrierkey => $quote) {
-            foreach ($quote as $key => $carreir) {
+            foreach ($quote as $key => $carrier) {
                 $method = $this->rateMethodFactory->create();
-                $carrierCode    = (isset($carrersTitle[$carrierkey])) ? $carrersTitle[$carrierkey] : $this->code;
-                $carrierTitle   = (isset($carrersArray[$carrierkey])) ?
-                    $carrersArray[$carrierkey] : $this->getConfigData('title');
+                $carrierCode    = $carrersTitle[$carrierkey] ?? $this->code;
+                $carrierTitle   = $carrersArray[$carrierkey] ?? $this->getConfigData('title');
+                $price = $this->freeShipping ? 0 : $carrier['rate'];
                 $method->setCarrierTitle($carrierCode);
                 $method->setCarrier($carrierTitle);
-                $method->setMethod($carreir['code']);
-                $method->setMethodTitle($carreir['title']);
-                $method->setPrice($carreir['rate']);
+                $method->setMethod($carrier['code']);
+                $method->setMethodTitle($carrier['title']);
+                $method->setPrice($price);
+                $method->setCost($price);
 
                 $result->append($method);
             }
         }
+        $this->registry->unregister('enitureCarriers');
 
         return $result;
     }

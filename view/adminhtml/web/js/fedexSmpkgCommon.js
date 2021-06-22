@@ -1,5 +1,5 @@
     /**
-     * 
+     *
      * @return {Boolean}
      */
     function checkFedexConnectionFields(){
@@ -11,7 +11,7 @@
             'fedexconnsettings_first_AuthenticationKey',
             'fedexconnsettings_first_licnsKey'
         ];
-        
+
         var validationCheck = fedexSmpkgFieldsValidation('#fedexconnsettings_first');
         if(!validationCheck){
             connIDs.each(function(id) {
@@ -21,13 +21,13 @@
         }
         return true;
     }
-    
+
     /**
      * Document load function
      * @type type
      */
-    
-    require([ 'jquery', 'jquery/ui'], function($){ 
+
+    require(['jquery'], function($){
         $(document).ready(function($) {
 
             $('.numberonly').bind('keyup keydown',function(event) {
@@ -59,16 +59,16 @@
 
             connSettingsNote($);
             $('#fedexQuoteSetting_third span, #fedexconnsettings_first span').attr('data-config-scope', '');
-            
-            $('.close').click(function(){ 
-                $('.fedexSmpkg_warehouse_overlay').hide(); 
+
+            $('.close').click(function(){
+                $('.fedexSmpkg_warehouse_overlay').hide();
             });
-            $('.add_dropship_btn, .add_warehouse_btn').click(function(){ 
-                $('.fedexSmpkg_warehouse_overlay').show(); 
+            $('.add_dropship_btn, .add_warehouse_btn').click(function(){
+                $('.fedexSmpkg_warehouse_overlay').show();
             });
-            
+
             $('#fedexQuoteSetting_third_hndlngFee').attr('title', 'Handling Fee / Markup');
-            
+
             $('#save').on('click', function(){
                 setTimeout(function() {
                     checkFedexConnectionFields();
@@ -82,13 +82,13 @@
             $( '.hide_drop_val' ).click( function () {
                 fedexSmpkgEmptyFieldsAndErr('#fedexSmpkgDropshipForm');
             });
-            
-            $('.close-ds').click(function(){           
+
+            $('.close-ds').click(function(){
                 $('html, body').animate({
                     'scrollTop' : $('.warehouse_text').offset().top
                 });
             });
-            
+
             // Set focus on first input field
             $('.add_warehouse_btn').click(function(){
                 setTimeout(function(){
@@ -104,7 +104,7 @@
                   }
                 },500);
             });
-            
+
         });
     });
 
@@ -118,20 +118,19 @@
      * Display connection setting fedex account note
      */
     function connSettingsNote($) {
-        var divafter = '<div class="conn-setting-note">Note! You must have a FedEx account to use this application. If you do not have one, contact FedEx at 800-463-3339 or <a target="_blank" href="https://www.fedex.com/en-us/create-account.html">register online</a>.</div>';
+        var divafter = '<div class="conn-setting-note">Note! You must have a Fedex account to use this application. If you do not have one, contact FedEx at 800-463-3339 or <a target="_blank" href="https://www.fedex.com/en-us/create-account.html">register online</a>.</div>';
         var carrierdiv = '#fedexconnsettings_first-head';
         notesToggleHandling($, divafter, '.conn-setting-note', carrierdiv);
     }
-    
+
     function currentPlanNote($, planMsg, carrierdiv){
         var divafter = '<div class="plan-note">'+planMsg+'</div>';
         notesToggleHandling($, divafter, '.plan-note', carrierdiv);
     }
-    
+
     function notesToggleHandling($, divafter, className, carrierdiv){
-        
+
         if($(carrierdiv).attr('class') === 'open'){
-            console.log('');
             $(carrierdiv).after(divafter);
         }
         $(carrierdiv).click(function(){
@@ -142,7 +141,7 @@
             }
         });
     }
-    
+
     /**
      * Set empty values to warehouse and dropship fields and remove error class
      * @param {string} form_id
@@ -216,9 +215,9 @@
 
         return has_err;
     }
-    
+
     /**
-     * Validate Input String 
+     * Validate Input String
      * @param {type} string
      * @returns {String|Boolean}
      */
@@ -234,7 +233,7 @@
 
 
 
-        
+
     /**
      * check int value
      * @param {type} value
@@ -248,7 +247,7 @@
         }
         return insInt;
     }
-        
+
     /**
      * check float value
      * @param {type} value
@@ -262,7 +261,7 @@
         }
         return inFloat;
     }
-        
+
     /**
      * call for warehouse ajax requests
      * @param {type} parameters
@@ -283,7 +282,7 @@
             }
         });
     }
-    
+
     /**
      * @param canAddWh
      */
@@ -294,7 +293,7 @@
                 jQuery("#append_warehouse").find("tr").removeClass('inactiveLink');
                 jQuery('.add_warehouse_btn').addClass('inactiveLink');
                 if (jQuery( ".required-plan-msg" ).length == 0) {
-                    jQuery('.add_warehouse_btn').after('<span class="required-plan-msg">Standard Plan required</span>');   
+                    jQuery('.add_warehouse_btn').after('<a href="https://eniture.com/magento2-fedex-small-package" target="_blank" class="required-plan-msg">Standard Plan required</a>');
                 }
                 jQuery("#append_warehouse").find("tr:gt(1)").addClass('inactiveLink');
                 break;
@@ -306,9 +305,9 @@
             default:
                 break;
         }
-            
+
     }
-    
+
     /**
      * Restrict Quote Settings Fields
      * @param {array} qRestriction
@@ -318,22 +317,22 @@
         var quoteSecID = "#fedexQuoteSetting_third_";
         var parsedData = JSON.parse(qRestriction)
         if(parsedData['advance']){
-            jQuery(''+quoteSecRowID+'transitDaysNumber').before('<tr><td><label><span data-config-scope=""></span></label></td><td class="value"><span class="required-plan-msg adv-plan-err">Advance Plan required</span></td><td class=""></td></tr>');
+            jQuery(''+quoteSecRowID+'transitDaysNumber').before('<tr><td><label><span data-config-scope=""></span></label></td><td class="value"><a href="https://eniture.com/magento2-fedex-small-package" target="_blank" class="required-plan-msg adv-plan-err">Advance Plan required</a></td><td class=""></td></tr>');
             disabledFieldsLoop(parsedData['advance'], quoteSecID);
         }
-        
+
         if(parsedData['standard']){
-            jQuery(''+quoteSecRowID+'onlyGndService').before('<tr><td><label><span data-config-scope=""></span></label></td><td class="value"><span class="required-plan-msg std-plan-err">Standard Plan required</span></td><td class=""></td></tr>');
+            jQuery(''+quoteSecRowID+'onlyGndService').before('<tr><td><label><span data-config-scope=""></span></label></td><td class="value"><a href="https://eniture.com/magento2-fedex-small-package" target="_blank" class="required-plan-msg std-plan-err">Standard Plan required</a></td><td class=""></td></tr>');
             disabledFieldsLoop(parsedData['standard'], quoteSecID);
         }
     }
-    
+
     function disabledFieldsLoop(dataArr, quoteSecID){
         jQuery.each(dataArr, function( index, value ) {
             jQuery(quoteSecID + value).attr('disabled','disabled');
         });
     }
-    
+
     function loadInsidePikupAndLocalDeliveryData(data, formid){
         var instore = JSON.parse(data.in_store);
         var localdel= JSON.parse(data.local_delivery);

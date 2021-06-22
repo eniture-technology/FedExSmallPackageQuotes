@@ -1,13 +1,13 @@
 <?php
 /**
- * FedEx Small Package Quotes
+ * Fedex Small Package Quotes
  * @package EnableCity
  * @author Eniture
  * @license https://eniture.com
  */
- 
+
 namespace Eniture\FedExSmallPackageQuotes\Model\Checkout\Block\Cart;
- 
+
 /**
  * Checkout cart shipping block plugin
  */
@@ -27,7 +27,7 @@ class Shipping extends \Magento\Checkout\Block\Cart\LayoutProcessor
     ) {
         parent::__construct($merger, $countryCollection, $regionCollection);
     }
- 
+
     /**
      * Show City in Shipping Estimation
      *

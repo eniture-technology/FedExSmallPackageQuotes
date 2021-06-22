@@ -22,7 +22,7 @@ if ($plan == 1) {
     <div id="delete_dropship_btn" class="fedexSmpkg_warehouse_overlay">
         <div class="add_warehouse_popup delete_ds_popup">
             <h2 class="del_hdng">
-                <?= /* @noEscape */ __('FedEx Small Package Quotes') ?>
+                <?= /* @noEscape */ __('Fedex Small Package Quotes') ?>
             </h2>
             <p class="delete_p">
                 <?= /* @noEscape */ __('Warning! If you delete this location, Drop ship location settings will be disabled against products.') ?>
@@ -155,40 +155,40 @@ if ($plan == 1) {
                         <strong>
                             <?=
                                 /* @noEscape */ __('Error!')
-                            ?> 
+                            ?>
                         </strong>
                             <?=
                                 /* @noEscape */ __('Drop ship already exists.')
                             ?>
                     </div>
                 </div>
-                
+
                 <div class="message message-error error not_allowed">
                     <div data-ui-id="messages-message-error">
                         <strong>
                             <?=
                                 /* @noEscape */ __('Error!')
-                            ?> 
+                            ?>
                         </strong>
                             <?=
                                 /* @noEscape */ __('Please select US or CA address.')
                             ?>
                     </div>
                 </div>
-                
+
                 <div class="message message-error error api_error">
                     <div data-ui-id="messages-message-error">
                         <strong>
                             <?=
                                 /* @noEscape */ __('Error!')
-                            ?> 
+                            ?>
                         </strong>
                             <?=
                                 /* @noEscape */ __('Request is not processed, please enter Drop ship information manually.')
                             ?>
                     </div>
                 </div>
-                
+
                 <div id="fedexSmpkgDropshipForm">
                     <input type="hidden" name="edit_dropship_form_id" value="" id="edit_dropship_form_id">
                     <div class="add_warehouse_input ds-input">
@@ -238,7 +238,7 @@ if ($plan == 1) {
                         <input type="hidden" name="dropship_location" value="dropship" id="dropship_location">
                         <span class="err"></span>
                     </div>
-                    
+
                     <!--In store Pickup Section-->
 
                     <div class="row" style="clear: both">
@@ -246,7 +246,7 @@ if ($plan == 1) {
                             <?= /** @noEscape */ __('In-store Pick Up') ?>
                         </h2>
                         <?php if (!$advancedPlan) : ?>
-                            <a class="is_heading_right">
+                            <a class="is_heading_right" href="https://eniture.com/magento2-fedex-small-package">
                                 <?=
                                 /** @noEscape */ __('Advanced Plan Required')
                                 ?>
@@ -259,14 +259,14 @@ if ($plan == 1) {
                             <strong>
                                 <?=
                                     /* @noEscape */ __('Error!')
-                                ?> 
+                                ?>
                             </strong>
                                 <?=
                                     /* @noEscape */ __('You must provide Miles or Postal Code.')
                                 ?>
                         </div>
                     </div>
-                
+
                     <div id="disableddiv" class="<?= $class ?>">
                         <div class="add_warehouse_input">
                             <label for="ds_enable_instore_pickup">
@@ -310,7 +310,7 @@ if ($plan == 1) {
                             ?>
                         </h2>
                         <?php if (!$advancedPlan) : ?>
-                            <a class="ld_heading_right">
+                            <a class="ld_heading_right" href="https://eniture.com/magento2-fedex-small-package">
                                 <?=
                                 /** @noEscape */ __('Advanced Plan Required')
                                 ?>
@@ -322,7 +322,7 @@ if ($plan == 1) {
                             <strong>
                                 <?=
                                     /* @noEscape */ __('Error!')
-                                ?> 
+                                ?>
                             </strong>
                                 <?=
                                     /* @noEscape */ __('You must provide Miles or Postal Code.')
@@ -382,7 +382,7 @@ if ($plan == 1) {
                         </div>
                     </div>
                     <!--Local Delivery Section End-->
-                    
+
                     <div class="form-btns">
                         <input type="submit" name="submit_dropship" value="Save" class="save_warehouse_form" onclick="return fedexSmpkgSaveDropship('<?= /* @noEscape */ $block->saveDropshipAjaxCheckUrl() ?>');">
                     </div>
@@ -390,4 +390,4 @@ if ($plan == 1) {
             </div>
         </div>
     </div>
-     
+

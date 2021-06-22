@@ -2,50 +2,59 @@
 namespace Eniture\FedExSmallPackageQuotes\Controller\Adminhtml\Order;
 
 use Magento\Backend\App\Action;
+use Magento\Framework\App\Response\Http\FileFactory;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\Result\Raw;
+use Magento\Framework\Controller\Result\RawFactory;
+use Magento\Framework\Registry;
+use Magento\Framework\Translate\InlineInterface;
+use Magento\Framework\View\LayoutFactory;
+use Magento\Framework\View\Result\PageFactory;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Controller\Adminhtml\Order;
 use Psr\Log\LoggerInterface;
 
 /**
  * Class OrderDetailWidget
  * @package Eniture\FedExSmallPackageQuotes\Controller\Adminhtml\Order
  */
-class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
+class OrderDetailWidget extends Order
 {
     /**
-     * @var \Magento\Framework\View\LayoutFactory
+     * @var LayoutFactory
      */
-    private $layoutFactory;
+    public $layoutFactory;
 
 
     /**
      * OrderDetailWidget constructor.
      * @param Action\Context $context
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Framework\App\Response\Http\FileFactory $fileFactory
-     * @param \Magento\Framework\Translate\InlineInterface $translateInline
-     * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     * @param Registry $coreRegistry
+     * @param FileFactory $fileFactory
+     * @param InlineInterface $translateInline
+     * @param PageFactory $resultPageFactory
+     * @param JsonFactory $resultJsonFactory
      * @param \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory
-     * @param \Magento\Framework\Controller\Result\RawFactory $resultRawFactory
+     * @param RawFactory $resultRawFactory
      * @param OrderManagementInterface $orderManagement
      * @param OrderRepositoryInterface $orderRepository
      * @param LoggerInterface $logger
-     * @param \Magento\Framework\View\LayoutFactory $layoutFactory
+     * @param LayoutFactory $layoutFactory
      */
     public function __construct(
         Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Framework\App\Response\Http\FileFactory $fileFactory,
-        \Magento\Framework\Translate\InlineInterface $translateInline,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        Registry $coreRegistry,
+        FileFactory $fileFactory,
+        InlineInterface $translateInline,
+        PageFactory $resultPageFactory,
+        JsonFactory $resultJsonFactory,
         \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
-        \Magento\Framework\Controller\Result\RawFactory $resultRawFactory,
+        RawFactory $resultRawFactory,
         OrderManagementInterface $orderManagement,
         OrderRepositoryInterface $orderRepository,
         LoggerInterface $logger,
-        \Magento\Framework\View\LayoutFactory $layoutFactory
+        LayoutFactory $layoutFactory
     ) {
         $this->layoutFactory = $layoutFactory;
         parent::__construct(
@@ -66,7 +75,7 @@ class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
     /**
      * Generate order history for ajax request
      *
-     * @return \Magento\Framework\Controller\Result\Raw
+     * @return Raw
      */
     public function execute()
     {
@@ -76,7 +85,7 @@ class OrderDetailWidget extends \Magento\Sales\Controller\Adminhtml\Order
         $html = $layout->createBlock('Eniture\FedExSmallPackageQuotes\Block\Adminhtml\Order\View\Tab\OrderDetailWidget')
             ->toHtml();
         $this->_translateInline->processResponseBody($html);
-        /** @var \Magento\Framework\Controller\Result\Raw $resultRaw */
+        /** @var Raw $resultRaw */
         $resultRaw = $this->resultRawFactory->create();
         $resultRaw->setContents($html);
         return $resultRaw;

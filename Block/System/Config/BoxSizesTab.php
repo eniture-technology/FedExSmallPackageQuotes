@@ -22,6 +22,10 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
      */
     public $enable = 'no';
     /**
+     * @var string
+     */
+    public $enableForFedExSm = 'NO';
+    /**
      * @var
      */
     public $boxSizeData;
@@ -131,6 +135,7 @@ class BoxSizesTab extends \Magento\Config\Block\System\Config\Form\Field
             $configPath             = "fedexconnsettings/first/licnsKey";
             $this->licenseKey = $scopeConfig->getValue($configPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
             $this->enable           = 'yes';
+            $this->enableForFedExSm = 'YES';
             $dataHelper             = $this->objectManager->get("Eniture\StandardBoxSizes\Helper\Data");
             $this->boxSizeData      = $dataHelper->boxSizesDataHandling($this->licenseKey);
             $this->smallTrialMsg    = $dataHelper->checkSmallModuleTrial();

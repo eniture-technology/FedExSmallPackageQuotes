@@ -16,6 +16,7 @@ use \Magento\Framework\App\Helper\AbstractHelper;
  */
 class Data extends AbstractHelper
 {
+
     /**
      * @var \Magento\Shipping\Model\Config
      */
@@ -147,12 +148,13 @@ class Data extends AbstractHelper
     public function wsHittingUrls($index)
     {
         $allWsUrl = [
-            'testConnection' => 'https://eniture.com/ws/s/fedex/fedex_shipment_rates_test.php',
-            'getAddress' => 'https://eniture.com/ws/addon/google-location.php',
-            'multiDistance' => 'https://eniture.com/ws/addon/google-location.php',
-            'planUpgrade' => 'https://eniture.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php',
-            'getQuotes' => 'https://eniture.com/ws/v2.0/index.php'
+            'testConnection' => 'https://ws066.eniture.com/s/fedex/fedex_shipment_rates_test.php',
+            'getAddress' => 'https://ws066.eniture.com/addon/google-location.php',
+            'multiDistance' => 'https://ws066.eniture.com/addon/google-location.php',
+            'planUpgrade' => 'https://ws066.eniture.com/web-hooks/subscription-plans/create-plugin-webhook.php',
+            'getQuotes' => 'https://ws066.eniture.com/v2.0/index.php'
         ];
+
         return $allWsUrl[$index];
     }
 
@@ -256,7 +258,6 @@ class Data extends AbstractHelper
      * @param $inputData
      * @return array
      */
-
     public function fedexSmpkgOriginArray($inputData)
     {
         $dataArr = [
@@ -448,16 +449,16 @@ class Data extends AbstractHelper
             foreach ($quote as $serviceName => $data) {
                 if (isset($data->severity) && $data->severity == 'ERROR') {
                     unset($quote->$serviceName);
-                } elseif (isset($data->q)) {
-                    $isQuotes = true;
                 }
+//                elseif (isset($data->q)) {
+//                    $isQuotes = true;
+//                }
             }
-            
+            // comment this because, it doesn't show rates in case on only instore local del and suppress other rates (zip matched)
             //This is to check if this origin still has some quotes
-            if (!$isQuotes) {
-                return [];
-            }
-            
+//            if (!$isQuotes) {
+//                return [];
+//            }
 
             $quoteServices = [];
             $binPackaging = $this->setBinPackagingData($quote, $key);
@@ -466,10 +467,12 @@ class Data extends AbstractHelper
 
             $shipment = $quote->shipment;
             $quoteServices[$shipment] = (isset($allConfigServices[$shipment])) ? $allConfigServices[$shipment] : [];
-            
-            $onerateSrvcs['fedexOneRate'] = $allConfigServices['onerateServices'];
 
-            $filteredQuotes[$key] = $this->parseFedexSmallOutput($quote, $quoteServices, $onerateSrvcs, $scopeConfig, $binPackaging[$key]);
+            $onerateSrvcs['fedexOneRate'] = $allConfigServices['onerateServices'];
+            // log id: 0001 (2 changes)
+            if(empty($filteredQuotes[$key])){
+                $filteredQuotes[$key] = $this->parseFedexSmallOutput($quote, $quoteServices, $onerateSrvcs, $scopeConfig, $binPackaging[$key]);
+            }
         }
 
         $this->coreSession->start();
@@ -480,8 +483,7 @@ class Data extends AbstractHelper
             return $getMinimum ? $filteredQuotes : reset($filteredQuotes);
         } else {
             $multiShipQuotes = $this->getMultishipmentQuotes($filteredQuotes);
-            
-            
+
             $this->setOrderDetailWidgetData($multiShipQuotes['orderWidgetQ'], $scopeConfig);
             return $multiShipQuotes['multiShipQ'];
         }
@@ -611,11 +613,13 @@ class Data extends AbstractHelper
         $transitTime = "";
         $isRad = $result->autoResidentialsStatus ?? '';
         $autoResTitle = $this->getAutoResidentialTitle($isRad);
+
         if (isset($result->fedexServices) && !(isset($result->fedexAirServices, $result->fedexOneRate))) {
-            $quote['fedexAirServices'] = $this->quoteDetail($result->fedexServices);
-            
+
+            $quote['fedexServices'] = $this->quoteDetail($result->fedexServices);
+
             isset($result->smartPost) ? $quote['fedexSmartPost'] = $this->quoteDetail($result->smartPost) : "";
-            
+
             $simpleQuotes = 1;
         } else {
             isset($result->fedexOneRate) ?
@@ -626,11 +630,11 @@ class Data extends AbstractHelper
 
             isset($result->fedexServices) ?
                 $quote['fedexServices'] = $this->quoteDetail($result->fedexServices) : "";
-                
+
             isset($result->smartPost) ?
                 $quote['fedexSmartPost'] = $this->quoteDetail($result->smartPost) : "";
         }
-        
+
         foreach ($quote as $serviceName => $servicesList) {
             $servicesList = $this->transitTimeRestriction($servicesList);
 
@@ -656,6 +660,7 @@ class Data extends AbstractHelper
                 $serviceKeyName = key($services);
 
                 if ($serviceKeyName != "international" && (!isset($simpleQuotes))) {
+                    //if ($serviceName == "fedexAirServices") {
                     if ($serviceName == "fedexServices") {
                         $homeGrdServices = [];
                         (isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) ?
@@ -663,6 +668,7 @@ class Data extends AbstractHelper
                         (isset($services[$serviceKeyName]['FEDEX_GROUND'])) ?
                             $homeGrdServices[$serviceKeyName]['FEDEX_GROUND'] = 'FedEx Ground' : "";
                         $services = $homeGrdServices;
+                        //} elseif ($serviceName == "fedexServices") {
                     } elseif ($serviceName == "fedexAirServices") {
                         if (isset($services[$serviceKeyName]['GROUND_HOME_DELIVERY'])) {
                             unset($services[$serviceKeyName]['GROUND_HOME_DELIVERY']);
@@ -676,7 +682,11 @@ class Data extends AbstractHelper
                 foreach ($servicesList as $serviceKey => $service) {
                     if ($serviceTitle = (isset($services[$serviceKeyName][$service->serviceType])) ?
                         $services[$serviceKeyName][$service->serviceType] : "") {
-                        if (($serviceKeyName == "international" && $serviceName != "fedexServices") || $serviceKeyName != "international") {
+                        // if (($serviceKeyName == "international" && $serviceName != "fedexAirServices") || $serviceKeyName != "international") {
+                        // if ($serviceKeyName != "fedexOneRate" || ($serviceName != "fedexAirServices" || $serviceKeyName != "international")) {
+//                        if (($serviceKeyName == "international" && $serviceName != "fedexServices") || $serviceKeyName != "international") {
+                        // log id: 0001 (2 changes)
+                        if (($serviceKeyName == "international" && ($serviceName == "fedexServices" || $serviceName == "fedexAirServices")) || $serviceKeyName != "international") {
                             $transitTime = (isset($service->transitTime)) ? $service->transitTime : '';
 
                             $serviceType = $service->serviceType;
@@ -685,7 +695,6 @@ class Data extends AbstractHelper
 
                             $addedHandling = $this->calculateHandlingFee($totalCharge, $scopeConfig);
                             $grandTotal = $this->calculateHazardousFee($serviceType, $addedHandling);
-
                             $allServicesArray[] = $this->getAllServicesArr(
                                 $serviceType . "_" . $serviceName,
                                 $this->getQuoteServiceCode($serviceType . "_" . $serviceName),
@@ -703,7 +712,7 @@ class Data extends AbstractHelper
         $priceSortedKey = [];
 
         $allServicesArray = array_filter($allServicesArray);
-        
+
         foreach ($allServicesArray as $key => $costCarrier) {
             $priceSortedKey[$key] = $costCarrier['rate'];
         }
@@ -843,7 +852,7 @@ class Data extends AbstractHelper
             case 'fedexServices':
                 $code = 'NML';
                 break;
-                
+
             case 'fedexSmartPost':
                 $code = 'FSP';
                 break;
@@ -1260,10 +1269,10 @@ class Data extends AbstractHelper
      */
     public function diplayPlanMessages($planPackage)
     {
-        $planMsg = __('Eniture - FedEx Small Package Quotes plan subscription is inactive. Please activate plan subscription from our website.');
+        $planMsg = __('Eniture - Fedex Small Package Quotes plan subscription is inactive. Please activate plan subscription from <a target="_blank" href="https://eniture.com/magento2-fedex-small-package/">here</a>.');
         if (isset($planPackage) && !empty($planPackage)) {
             if (!is_null($planPackage['planNumber']) && $planPackage['planNumber'] != '-1') {
-                $planMsg = __('Eniture - FedEx Small Package Quotes is currently on the '.$planPackage['planName'].'. Your plan will expire within '.$planPackage['expireDays'].' days and plan renews on '.$planPackage['expiryDate'].'.');
+                $planMsg = __('Eniture - Fedex Small Package Quotes is currently on the '.$planPackage['planName'].'. Your plan will expire within '.$planPackage['expireDays'].' days and plan renews on '.$planPackage['expiryDate'].'.');
             }
         }
         return $planMsg;

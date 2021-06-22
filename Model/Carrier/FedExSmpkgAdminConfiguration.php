@@ -28,7 +28,7 @@ class FedExSmpkgAdminConfiguration
         $this->setCarriersAndHelpersCodesGlobaly();
         $this->myUniqueLineItemAttribute();
     }
-    
+
     /**
      * This functuon set unique Line Item Attributes of carriers
      */
@@ -39,19 +39,19 @@ class FedExSmpkgAdminConfiguration
             $this->registry->register('UniqueLineItemAttributes', $lineItemAttArr);
         }
     }
-    
+
     /**
      * This function is for set carriers codes and helpers code globaly
      */
     public function setCarriersAndHelpersCodesGlobaly()
     {
         $this->setCodesGlobaly('enitureCarrierCodes', 'ENFedExSmpkg');
-        $this->setCodesGlobaly('enitureCarrierTitle', 'FedEx Small Package Quotes');
+        $this->setCodesGlobaly('enitureCarrierTitle', 'Fedex Small Package Quotes');
         $this->setCodesGlobaly('enitureHelpersCodes', '\Eniture\FedExSmallPackageQuotes');
         $this->setCodesGlobaly('enitureActiveModules', $this->checkModuleIsEnabled());
         $this->setCodesGlobaly('enitureModuleTypes', 'small');
     }
-    
+
     /**
      * return if this module is enable or not
      * @return boolean
@@ -61,7 +61,7 @@ class FedExSmpkgAdminConfiguration
         $grpSecPath = "carriers/ENFedExSmpkg/active";
         return $this->scopeConfig->getValue($grpSecPath, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
-    
+
     /**
      * This function sets Codes Globaly e.g carrier code or helper code
      * @param $globArrayName

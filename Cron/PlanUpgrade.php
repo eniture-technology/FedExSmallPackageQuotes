@@ -27,7 +27,7 @@ class PlanUpgrade
     /**
      * @var string
      */
-    private $curlUrl = 'https://eniture.com/ws/web-hooks/subscription-plans/create-plugin-webhook.php';
+    private $curlUrl = 'https://ws066.eniture.com/web-hooks/subscription-plans/create-plugin-webhook.php';
 
     /**
      * PlanUpgrade constructor.
@@ -84,7 +84,7 @@ class PlanUpgrade
         $this->saveConfigurations('eniture/ENFedExSmpkg/expiredate', "$expiryDate");
         $this->saveConfigurations('eniture/ENFedExSmpkg/storetype', "$planType");
         $this->saveConfigurations('eniture/ENFedExSmpkg/pakgprice', "$pakgPrice");
-        $this->saveConfigurations('eniture/ENFedExSmpkg/label', "Eniture - FedEx Small Package Quotes");
+        $this->saveConfigurations('eniture/ENFedExSmpkg/label', "Eniture - Fedex Small Package Quotes");
         $this->logger->info($output);
     }
 

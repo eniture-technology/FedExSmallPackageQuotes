@@ -8,7 +8,7 @@ $serializedFormData = $this->helper('Magento\Framework\Json\Helper\Data')->jsonE
 $planMsg = $block->fedexSmallPlanNotice();
 ?>
 <script type="text/javascript">
-    require([ 'jquery', 'domReady!'], function($){ 
+    require([ 'jquery', 'domReady!'], function($){
         var carrierdiv = '#fedexconnsettings_first-head';
         currentPlanNote($, '<?php echo $planMsg; ?>', carrierdiv);
     });
@@ -47,7 +47,7 @@ $planMsg = $block->fedexSmallPlanNotice();
         <strong>
             <?=
                 /* @noEscape */ __('Error!')
-            ?> 
+            ?>
         </strong>
         <span id="errorText">
             <?=

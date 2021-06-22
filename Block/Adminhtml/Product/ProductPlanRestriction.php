@@ -63,7 +63,7 @@ class ProductPlanRestriction extends \Magento\Config\Block\System\Config\Form\Fi
         }
         return $this;
     }
-  
+
     /**
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return html
@@ -75,12 +75,17 @@ class ProductPlanRestriction extends \Magento\Config\Block\System\Config\Form\Fi
 
     public function planMsg($planInfo)
     {
-        $data = ['hazmat' => ['count' => 'hazCount',
-            'enabled' => 'hazEnCount',
-            'return' => 'hazmatMsg'],
-            'insurance' => ['count' => 'insCount',
+        $data = [
+            'hazmat' => [
+                'count' => 'hazCount',
+                'enabled' => 'hazEnCount',
+                'return' => 'hazmatMsg'
+            ],
+            'insurance' => [
+                'count' => 'insCount',
                 'enabled' => 'insEnCount',
-                'return' => 'insuranceMsg']
+                'return' => 'insuranceMsg'
+            ]
         ];
         $return = [];
         foreach ($data as $key => $value) {
