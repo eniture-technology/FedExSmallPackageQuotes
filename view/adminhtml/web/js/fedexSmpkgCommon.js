@@ -197,7 +197,8 @@
             if(jQuery(this).parents('#disableddiv').length == 1) {
                 response = true;
             }
-                jQuery( '.validation-advice' ).remove() ;
+            
+            jQuery( '.validation-advice' ).remove() ;
 
             var errorElement = jQuery(this).parent().find('.err');
             jQuery(errorElement).html('');

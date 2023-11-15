@@ -88,6 +88,12 @@ class Data extends AbstractHelper
 
     public $objectManager;
 
+    public $residentialDlvry;
+    public $fedexRates;
+    public $onlyGndService;
+    public $gndHzrdousFee;
+    public $airHzrdousFee;
+
 
     /**
      * Data constructor.
@@ -152,7 +158,7 @@ class Data extends AbstractHelper
             'getAddress' => 'https://ws066.eniture.com/addon/google-location.php',
             'multiDistance' => 'https://ws066.eniture.com/addon/google-location.php',
             'planUpgrade' => 'https://ws066.eniture.com/web-hooks/subscription-plans/create-plugin-webhook.php',
-            'getQuotes' => 'https://ws066.eniture.com/v2.0/index.php'
+            'getQuotes' => 'https://ws066.eniture.com/v3.0/index.php'
         ];
 
         return $allWsUrl[$index];
@@ -300,17 +306,12 @@ class Data extends AbstractHelper
      */
     public function quoteSettingsData($scopeConfig)
     {
-        $fields = [
-            'residentialDlvry'  => 'residentialDlvry',
-            'fedexRates'        => 'fedexRates',
-            'onlyGndService'    => 'onlyGndService',
-            'gndHzrdousFee'     => 'gndHzrdousFee',
-            'airHzrdousFee'     => 'airHzrdousFee',
-        ];
-        foreach ($fields as $key => $field) {
-            $this->$key = $this->adminConfigData($field, $scopeConfig);
-        }
-
+        $this->residentialDlvry = $this->adminConfigData('residentialDlvry', $scopeConfig);
+        $this->fedexRates = $this->adminConfigData('fedexRates', $scopeConfig);
+        $this->onlyGndService = $this->adminConfigData('onlyGndService', $scopeConfig);
+        $this->gndHzrdousFee = $this->adminConfigData('gndHzrdousFee', $scopeConfig);
+        $this->airHzrdousFee = $this->adminConfigData('airHzrdousFee', $scopeConfig);
+        
         // Get origin zipcode array for onerate settings
         $this->getOriginZipCodeArr();
     }
@@ -408,7 +409,12 @@ class Data extends AbstractHelper
         $fieldString = http_build_query($postData);
         $this->curl->post($url, $fieldString);
         $output = $this->curl->getBody();
-        $result = json_decode($output, $isAssocArray);
+        if(!empty($output) && is_string($output)){
+            $result = json_decode($output, $isAssocArray);
+        }else{
+            $result = ($isAssocArray) ? [] : '';
+        }
+        
         return $result;
     }
 
@@ -418,7 +424,7 @@ class Data extends AbstractHelper
      */
     public function getZipcode($key)
     {
-        $key = explode("_", $key);
+        $key = empty($key) ? [] : explode("_", $key);
         return (isset($key[0])) ? $key[0] : "";
     }
 
@@ -736,7 +742,7 @@ class Data extends AbstractHelper
         $daysToRestrict = $this->getConfigData('fedexQuoteSetting/third/transitDaysNumber');
         $transitDayType = $this->getConfigData('fedexQuoteSetting/third/transitDaysRestrictionBy');
         $plan = $this->fedexSmallPlanName('ENFedExSmpkg');
-        if ($plan['planNumber'] == 3 && strlen($daysToRestrict) > 0 && strlen($transitDayType) > 0) {
+        if ($plan['planNumber'] == 3 && !empty($daysToRestrict) && strlen($daysToRestrict) > 0 && !empty($transitDayType) && strlen($transitDayType) > 0) {
             foreach ($response as $row => $service) {
                 if ($service->serviceType == "FEDEX_GROUND" &&
                     isset($service->$transitDayType) &&
@@ -821,7 +827,7 @@ class Data extends AbstractHelper
      */
     public function getQuoteServiceCode($serviceType)
     {
-        $explode = explode('_', $serviceType);
+        $explode = empty($serviceType) ? [] : explode('_', $serviceType);
         $lastKey = end($explode);         // move the internal pointer to the end of the array
         $lastKeyCode = $this->getLastKeyCode($lastKey);
 
@@ -1040,19 +1046,19 @@ class Data extends AbstractHelper
             $grpSec.'/FedExDomesticServices',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        $domSrvcs     = explode(',', $domSrvcs);
+        $domSrvcs     = empty($domSrvcs) ? [] : explode(',', $domSrvcs);
 
         $intSrvcs     = $scopeConfig->getValue(
             $grpSec.'/FedExInternationalServices',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        $intSrvcs     = explode(',', $intSrvcs);
+        $intSrvcs     = empty($intSrvcs) ? [] : explode(',', $intSrvcs);
 
         $onerateSrvcs     = $scopeConfig->getValue(
             $grpSec.'/FedExOneRateServices',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        $onerateSrvcs     = explode(',', $onerateSrvcs);
+        $onerateSrvcs     = empty($onerateSrvcs) ? [] : explode(',', $onerateSrvcs);
 
         foreach ($domSrvcs as $key => $service) {
             $domestic[$service] = $this->getServiceTitle($service, 'domestic');
@@ -1065,9 +1071,9 @@ class Data extends AbstractHelper
         }
 
         $allConfigServices = [
-            'domestic' => $domestic,
-            'international' => $international,
-            'onerateServices' => $onerate
+            'domestic' => $domestic ?? [],
+            'international' => $international ?? [],
+            'onerateServices' => $onerate ?? []
         ];
 
         return $allConfigServices;
@@ -1252,14 +1258,14 @@ class Data extends AbstractHelper
     /**
      * @return string
      */
-    public function fedexSmallSetPlanNotice()
+    public function fedexSmallSetPlanNotice($planRefreshUrl = '')
     {
         $planMsg = '';
         $planPackage = $this->fedexSmallPlanName('ENFedExSmpkg');
         if (is_null($planPackage['storeType'])) {
             $planPackage = [];
         }
-        $planMsg = $this->diplayPlanMessages($planPackage);
+        $planMsg = $this->diplayPlanMessages($planPackage, $planRefreshUrl);
         return $planMsg;
     }
 
@@ -1267,14 +1273,23 @@ class Data extends AbstractHelper
      * @param type $planPackage
      * @return type
      */
-    public function diplayPlanMessages($planPackage)
+    public function diplayPlanMessages($planPackage, $planRefreshUrl = '')
     {
-        $planMsg = __('Eniture - Fedex Small Package Quotes plan subscription is inactive. Please activate plan subscription from <a target="_blank" href="https://eniture.com/magento2-fedex-small-package/">here</a>.');
+
+        $planRefreshLink = '';
+        if (!empty($planRefreshUrl)) {
+            $planRefreshLink = ' <a href="javascript:void(0)" id="plan-refresh-link" planRefAjaxUrl = '.$planRefreshUrl.' onclick="fedexSmpkgPlanRefresh(this)" >Click here</a> to refresh the plan (please sign-in again after this action).';
+            $planMsg = __('The subscription to the Fedex Small Freight Quotes module is inactive. If you believe the subscription should be active and you recently changed plans (e.g. upgraded your plan), your firewall may be blocking confirmation from our licensing system. To resolve the situation, <a href="javascript:void(0)" id="plan-refresh-link" planRefAjaxUrl = '.$planRefreshUrl.' onclick="fedexSmpkgPlanRefresh(this)" >click this link</a> and then sign in again. If this does not resolve the issue, log in to eniture.com and verify the license status.');
+        }else{
+            $planMsg = __('The subscription to the Fedex Small Freight Quotes module is inactive. Please log into eniture.com and update your license.');
+        }
+
         if (isset($planPackage) && !empty($planPackage)) {
-            if (!is_null($planPackage['planNumber']) && $planPackage['planNumber'] != '-1') {
-                $planMsg = __('Eniture - Fedex Small Package Quotes is currently on the '.$planPackage['planName'].'. Your plan will expire within '.$planPackage['expireDays'].' days and plan renews on '.$planPackage['expiryDate'].'.');
+            if ($planPackage['planNumber'] !== null && $planPackage['planNumber'] != '-1') {
+                $planMsg = __('The Fedex Small Freight Quotes from Eniture Technology is currently on the '.$planPackage['planName'].' and will renew on '.$planPackage['expiryDate'].'. If this does not reflect changes made to the subscription plan'.$planRefreshLink.'.');
             }
         }
+
         return $planMsg;
     }
     /**
@@ -1424,16 +1439,26 @@ class Data extends AbstractHelper
             ->addFilter('warehouse_id', ['eq' => $data['locationId']]);
 
         $whCollection = $this->purifyCollectionData($whCollection);
-        $instore = json_decode($whCollection[0]['in_store'], true);
-        $locDel  = json_decode($whCollection[0]['local_delivery'], true);
 
-        if ($instore) {
-            $inStoreTitle = $instore['checkout_desc_store_pickup'];
+        if(!empty($whCollection[0]['in_store']) && is_string($whCollection[0]['in_store'])){
+            $inStore = json_decode($whCollection[0]['in_store'], true);
+        }else{
+            $inStore = [];
+        }
+
+        if(!empty($whCollection[0]['local_delivery']) && is_string($whCollection[0]['local_delivery'])){
+            $locDel = json_decode($whCollection[0]['local_delivery'], true);
+        }else{
+            $locDel = [];
+        }
+
+        if ($inStore) {
+            $inStoreTitle = $inStore['checkout_desc_store_pickup'];
             if (empty($inStoreTitle)) {
                 $inStoreTitle = "In-store pick up";
             }
             $return['inStoreTitle'] = $inStoreTitle;
-            $return['suppress_other'] = $instore['suppress_other']=='1' ? true : false;
+            $return['suppress_other'] = $inStore['suppress_other']=='1' ? true : false;
         }
 
         if ($locDel) {

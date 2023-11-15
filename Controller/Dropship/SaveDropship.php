@@ -40,12 +40,12 @@ class SaveDropship extends Action
      */
     public function execute()
     {
-        $insertQry = 0;
+        $insertQry = ['insertId' => 0, 'lastId' => 0];
         $updateQry = 0;
         $updateInspLd = 'no';
 
         foreach ($this->getRequest()->getPostValue() as $key => $post) {
-            $saveDsData[$key] = filter_var($post, FILTER_SANITIZE_STRING);
+            $saveDsData[$key] = htmlspecialchars($post, ENT_QUOTES);
         }
 
         $inputDataArr = $this->dataHelper->fedexSmpkgOriginArray($saveDsData);

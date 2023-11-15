@@ -64,7 +64,11 @@ class PlanUpgrade
 
         $this->curl->post($this->curlUrl, $postData);
         $output = $this->curl->getBody();
-        $result = json_decode($output, true);
+        if(!empty($output) && is_string($output)){
+            $result = json_decode($output, true);
+        }else{
+            $result = [];
+        }
 
         $plan = isset($result['pakg_group']) ? $result['pakg_group'] : '';
         $expireDay = isset($result['pakg_duration']) ? $result['pakg_duration'] : '';
@@ -84,7 +88,7 @@ class PlanUpgrade
         $this->saveConfigurations('eniture/ENFedExSmpkg/expiredate', "$expiryDate");
         $this->saveConfigurations('eniture/ENFedExSmpkg/storetype', "$planType");
         $this->saveConfigurations('eniture/ENFedExSmpkg/pakgprice', "$pakgPrice");
-        $this->saveConfigurations('eniture/ENFedExSmpkg/label', "Eniture - Fedex Small Package Quotes");
+        $this->saveConfigurations('eniture/ENFedExSmpkg/label', "ENITURE SMALL PACKAGE QUOTES - FOR FEDEX");
         $this->logger->info($output);
     }
 

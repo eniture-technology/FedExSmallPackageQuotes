@@ -34,7 +34,7 @@ class DeleteWarehouse extends Action
     public function execute()
     {
         foreach ($this->getRequest()->getPostValue() as $key => $post) {
-            $deleteWhData[$key] = filter_var($post, FILTER_SANITIZE_STRING);
+            $deleteWhData[$key] = htmlspecialchars($post, ENT_QUOTES);
         }
         
         $deleteID = $deleteWhData['delete_id'];

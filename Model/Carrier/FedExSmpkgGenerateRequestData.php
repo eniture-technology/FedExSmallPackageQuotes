@@ -79,7 +79,7 @@ class FedExSmpkgGenerateRequestData
             'serverName'    => $this->request->getServer('SERVER_NAME'),
             'carrierMode'   => 'pro', // use test / pro
             'quotestType'   => 'small',
-            'version'       => '1.0.2',
+            'version'       => '1.1.0',
             'api'           => $this->getApiInfoArr($request->getDestCountryId(), $origin),
             'getDistance'   => $getDistance,
         ];
@@ -173,7 +173,8 @@ class FedExSmpkgGenerateRequestData
 
     public function setValuesInRequest()
     {
-        $domesticServices = explode(',', $this->getConfigData('FedExDomesticServices'));
+        $domesticServList               = $this->getConfigData('FedExDomesticServices');
+        $domesticServices               = empty($domesticServList) ? [] : explode(',', $domesticServList);
         $oneRateChecked                 = $this->getOneRateServices();
         $internationalServicesLength    = $this->getServiceOptionsLength('FedExInternationalServices');
         $oneRateServicesLength          = $this->getServiceOptionsLength('FedExOneRateServices');
@@ -218,7 +219,12 @@ class FedExSmpkgGenerateRequestData
      */
     public function getServiceOptionsLength($services)
     {
-        return strlen($this->getConfigData($services));
+        $servConfData = $this->getConfigData($services);
+        if(empty($servConfData)){
+            return 0;
+        }else{
+            return strlen($servConfData);
+        }
     }
 
     /**
@@ -354,8 +360,12 @@ class FedExSmpkgGenerateRequestData
      */
     public function isServiceActive($serviceId)
     {
-        $domesticServices = explode(',', $this->getConfigData('FedExDomesticServices'));
-        $internationalServices = explode(',', $this->getConfigData('FedExInternationalServices'));
+        $domesticServList               = $this->getConfigData('FedExDomesticServices');
+        $domesticServices               = empty($domesticServList) ? [] : explode(',', $domesticServList);
+
+        $internationalServList          = $this->getConfigData('FedExInternationalServices');
+        $internationalServices          = empty($internationalServList) ? [] : explode(',', $internationalServList);
+
         $servicesArray = array_merge($domesticServices, $internationalServices);
 
         if (in_array($serviceId, $servicesArray)) {

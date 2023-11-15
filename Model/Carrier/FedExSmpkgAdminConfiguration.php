@@ -46,7 +46,7 @@ class FedExSmpkgAdminConfiguration
     public function setCarriersAndHelpersCodesGlobaly()
     {
         $this->setCodesGlobaly('enitureCarrierCodes', 'ENFedExSmpkg');
-        $this->setCodesGlobaly('enitureCarrierTitle', 'Fedex Small Package Quotes');
+        $this->setCodesGlobaly('enitureCarrierTitle', 'FedEx Small Package Quotes');
         $this->setCodesGlobaly('enitureHelpersCodes', '\Eniture\FedExSmallPackageQuotes');
         $this->setCodesGlobaly('enitureActiveModules', $this->checkModuleIsEnabled());
         $this->setCodesGlobaly('enitureModuleTypes', 'small');

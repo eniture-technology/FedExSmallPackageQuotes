@@ -73,3 +73,22 @@
             jQuery("#"+divId).hide('slow');
         }, 5000);
     }
+
+    /**
+     * Plan Refresh ajax call
+     * @param {object} $
+     * @param {string} ajaxURL
+     * @returns {function}
+     */
+    function fedexSmpkgPlanRefresh(e){
+        let ajaxURL = e.getAttribute('planRefAjaxUrl');
+        let parameters = {};
+        ajaxRequest(parameters, ajaxURL, fedexSmpkgPlanRefreshResponse);
+    }
+
+    /**
+     * Handle response
+     * @param {object} data
+     * @returns {void}
+     */
+    function fedexSmpkgPlanRefreshResponse(data){}

@@ -39,7 +39,7 @@ class TestConnection extends Action
     public function execute()
     {
         foreach ($this->getRequest()->getPostValue() as $key => $data) {
-            $credentials[$key] = filter_var($data, FILTER_SANITIZE_STRING);
+            $credentials[$key] = $data;
         }
         $postData = [
             'platform'              => 'magento2',
@@ -67,16 +67,19 @@ class TestConnection extends Action
     {
         $responce1 = [];
         $successMsg = 'The test resulted in a successful connection.';
-        $erMsg = 'The credentials entered did not result in a successful test. Confirm your credentials and try again.';
+        $erMsg = 'Empty response from API';
 
-        if (isset($responce->error) && $responce->error == 1) {
+        if(empty($responce)){
             $responce1['Error'] =  $erMsg;
-        } elseif ((isset($responce->error) && isset($responce->success)) && $responce->error == 1) {
-            $responce1['Error'] =  $erMsg;
+        } elseif ( isset($responce->success) && $responce->success == 1 ) {
+            $responce1['Success'] =  $successMsg;
+        } elseif (( isset($responce->error) && $responce->error == 1 ) 
+        || ( isset($responce->severity) && ($responce->severity == 'ERROR' || $responce->severity == 'error'))) {
+            $responce1['Error'] =  $responce->Message ?? $erMsg;
         } elseif (isset($responce->error) && !is_int($responce->error)) {
             $responce1['Error'] =  $responce->error;
         } else {
-            $responce1['Success'] =  $successMsg;
+            $responce1['Error'] =  'An empty or unknown response format, therefore we are unable to determine whether it was successful or an error';
         }
         return json_encode($responce1);
     }

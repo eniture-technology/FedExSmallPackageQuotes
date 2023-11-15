@@ -158,7 +158,8 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
      */
     public function fedexSmallPlanNotice()
     {
-        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice();
+        $planRefreshUrl = $this->getPlanRefreshUrl();
+        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice($planRefreshUrl);
         return $planMsg;
     }
     
@@ -168,5 +169,13 @@ class ResidentialAddressDetection extends \Magento\Config\Block\System\Config\Fo
     public function planRstrctnQuoteSettng()
     {
         return json_encode($this->dataHelper->quoteSettingFieldsToRestrict());
+    }
+
+    /**
+     * @return url
+     */
+    public function getPlanRefreshUrl()
+    {
+        return $this->getbaseUrl().'fedexsmallpackagequotes/Test/PlanRefresh/';
     }
 }

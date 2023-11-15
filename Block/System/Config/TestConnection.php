@@ -89,9 +89,18 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
      * Show FedEx Small Plan Notice
      * @return string
      */
-    function fedexSmallPlanNotice()
+    public function fedexSmallPlanNotice()
     {
-        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice();
+        $planRefreshUrl = $this->getPlanRefreshUrl();
+        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice($planRefreshUrl);
         return $planMsg;
+    }
+
+    /**
+     * @return url
+     */
+    public function getPlanRefreshUrl()
+    {
+        return $this->getbaseUrl().'fedexsmallpackagequotes/Test/PlanRefresh/';
     }
 }

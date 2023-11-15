@@ -259,18 +259,6 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         $url  = $this->dataHelper->wsHittingUrls('getQuotes');
         $quotes = $this->dataHelper->fedexSmpkgSendCurlRequest($url, $requestArr);
 
-        // Debug point will print data if en_print_query=1
-        if ($this->printQuery()) {
-            $printData = ['url' => $url,
-                'buildQuery' => http_build_query($requestArr),
-                'request' => $requestArr,
-                'quotes' => $quotes];
-            print_r('<pre>');
-            print_r($printData);
-            print_r('</pre>');
-            return;
-        }
-
         $this->fedexMangQuotes->_init(
             $quotes,
             $this->dataHelper,
@@ -444,10 +432,10 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
                     'lineItemName'              => $_product->getName(),
                     'piecesOfLineItem'          => $productQty,
                     'lineItemPrice'             => $_product->getPrice(),
-                    'lineItemWeight'            => number_format($_product->getWeight(), 2, '.', ''),
-                    'lineItemLength'            => number_format($length, 2, '.', ''),
-                    'lineItemWidth'             => number_format($width, 2, '.', ''),
-                    'lineItemHeight'            => number_format($height, 2, '.', ''),
+                    'lineItemWeight'            => number_format((float)$_product->getWeight(), 2, '.', ''),
+                    'lineItemLength'            => number_format((float)$length, 2, '.', ''),
+                    'lineItemWidth'             => number_format((float)$width, 2, '.', ''),
+                    'lineItemHeight'            => number_format((float)$height, 2, '.', ''),
                     'isHazmatLineItem'          => $hazmat,
                     'product_insurance_active'  => $insurance,
                     'shipBinAlone'              => $_product->getData('en_own_package'),
@@ -533,14 +521,4 @@ class FedExSmpkgShipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier
         return $result;
     }
 
-    public function printQuery()
-    {
-        $printQuery = 0;
-        parse_str(parse_url($this->httpRequest->getServer('HTTP_REFERER'), PHP_URL_QUERY), $query);
-
-        if (!empty($query)) {
-            $printQuery = ($query['en_print_query']) ?? 0;
-        }
-        return $printQuery;
-    }
 }

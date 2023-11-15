@@ -54,7 +54,8 @@ class WarehouseTable extends Field
      */
     public function fedexSmallPlanNotice()
     {
-        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice();
+        $planRefreshUrl = $this->getPlanRefreshUrl();
+        $planMsg = $this->dataHelper->fedexSmallSetPlanNotice($planRefreshUrl);
         return $planMsg;
     }
 
@@ -132,5 +133,13 @@ class WarehouseTable extends Field
     public function getCurrentPlan()
     {
         return $this->dataHelper->checkAdvancePlan();
+    }
+
+    /**
+     * @return url
+     */
+    public function getPlanRefreshUrl()
+    {
+        return $this->getbaseUrl().'fedexsmallpackagequotes/Test/PlanRefresh/';
     }
 }

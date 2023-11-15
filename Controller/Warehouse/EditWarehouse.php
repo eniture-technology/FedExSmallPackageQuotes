@@ -40,7 +40,7 @@ class EditWarehouse extends Action
     public function execute()
     {
         foreach ($this->getRequest()->getPostValue() as $key => $post) {
-            $editWhData[$key] = filter_var($post, FILTER_SANITIZE_STRING);
+            $editWhData[$key] = htmlspecialchars($post, ENT_QUOTES);
         }
 
         $getWarehouseId   = $editWhData['edit_id'];

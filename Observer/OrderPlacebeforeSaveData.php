@@ -74,8 +74,8 @@ class OrderPlacebeforeSaveData implements ObserverInterface
      */
     private function setQuotesIfSingleShipment($orderDetailData, $order)
     {
-        $shippingMethod = explode('_', $order->getShippingMethod());
-        $titlePart = "Fedex Small Package Quotes - ";
+        $shippingMethod = empty($order->getShippingMethod()) ? [] : explode('_', $order->getShippingMethod());
+        $titlePart = "FedEx Small Package Quotes - ";
         $newData = [];
         foreach ($orderDetailData['shipmentData'] as $key => $data) {
             $newData[$key]['quotes'] = [
