@@ -1,94 +1,104 @@
-
-    /**
-     * 
-     * @param {type} ajaxURL
-     * @returns {Boolean}
-     */
-    function fedexSmpkgTestConn(ajaxURL) {
-        addfedexSmpkgTestConnTitle();
-        var validationCheck = fedexSmpkgFieldsValidation('#fedexconnsettings_first');
-        if(validationCheck == true){
-            fedexSmpkgTestConnectionAjaxCall(ajaxURL);
+require(["jquery", "domReady!"], function ($) {
+    /* Test Connection Validation */
+    addfedexSmpkgTestConnTitle($);
+    $('#test_fedexsmpkg_connection').click(function (event) {
+        event.preventDefault();
+        if ($('#config-edit-form').valid()) {
+            let ajaxURL = $(this).attr('connAjaxUrl');
+            fedexSmpkgTestConnectionAjaxCall($, ajaxURL);
         }
         return false;
-    }
+    });
+});
+/**
+ * Assign Title to inputs
+ */
+function addfedexSmpkgTestConnTitle($) 
+{
+    $('#fedexconnsettings_first_title').attr('title', 'Plugin Title');
+    $('#fedexconnsettings_first_title').attr('data-optional', '1');
+    $('#fedexconnsettings_first_fedexClientId').attr('title', 'API Key');
+    $('#fedexconnsettings_first_fedexClientSecret').attr('title', 'Secret Key');
+    $('#fedexconnsettings_first_AccountNumber').attr('title', 'Account Number');
+    $('#fedexconnsettings_first_ProdutionPassword').attr('title', 'Production Password');
+    $('#fedexconnsettings_first_MeterNumber').attr('title', 'Meter Number');
+    $('#fedexconnsettings_first_AuthenticationKey').attr('title', 'Authentication Key');
+    $('#fedexconnsettings_first_licnsKey').attr('title', 'Plugin License Key');
+}
     
-    /**
-     * Assign Title to inputs
-     */
-    function addfedexSmpkgTestConnTitle() 
-    {
-        jQuery('#fedexconnsettings_first_title').attr('title', 'Plugin Title');
-        jQuery('#fedexconnsettings_first_title').attr('data-optional', '1');
-        jQuery('#fedexconnsettings_first_AccountNumber').attr('title', 'Account Number');
-        jQuery('#fedexconnsettings_first_ProdutionPassword').attr('title', 'Production Password');
-        jQuery('#fedexconnsettings_first_MeterNumber').attr('title', 'Meter Number');
-        jQuery('#fedexconnsettings_first_AuthenticationKey').attr('title', 'Authentication Key');
-        jQuery('#fedexconnsettings_first_licnsKey').attr('title', 'Plugin License Key');
-    }
-    
-    /**
-     * Test connection ajax call
-     * @param {type} ajaxURL
-     * @returns {Success or Error}
-     */
-    function fedexSmpkgTestConnectionAjaxCall(ajaxURL){
-        var credentials = {
-            accountNumber       : jQuery('#fedexconnsettings_first_AccountNumber').val(),
-            productionPass      : jQuery('#fedexconnsettings_first_ProdutionPassword').val(),
-            meterNumber         : jQuery('#fedexconnsettings_first_MeterNumber').val(),
-            authenticationKey   : jQuery('#fedexconnsettings_first_AuthenticationKey').val(),
-            pluginLicenceKey    : jQuery('#fedexconnsettings_first_licnsKey').val()
-        };
+/**
+ * Test connection ajax call
+ * @param {type} ajaxURL
+ * @returns {Success or Error}
+ */
+function fedexSmpkgTestConnectionAjaxCall($, ajaxURL){
 
-        ajaxRequest(credentials, ajaxURL, fedexSmpkgConnectSuccessFunction);
-        
-    }
-    
-    /**
-     * 
-     * @param {type} data
-     * @returns {undefined}
-     */
-    function fedexSmpkgConnectSuccessFunction(data){
-        if (data.Error) {
-            hideShowDiv("fedexfailCon","errorText",data.Error);
-        }
-        else{
-            hideShowDiv("fedexsuccessCon","succesText",data.Success);
-        }
-    }
-    
-    /**
-     * 
-     * @param {type} divId
-     * @param {type} textId
-     * @param {type} text
-     * @returns {undefined}
-     */
-    function hideShowDiv(divId,textId,text){
-        jQuery("#"+textId).text(text);
-        jQuery("#"+divId).show('slow');     
-        setTimeout(function () {
-            jQuery("#"+divId).hide('slow');
-        }, 5000);
+    let endPoint = $('#fedexconnsettings_first_fedexEndPoint').val();
+
+    let credentials = {
+        accountNumber       : $('#fedexconnsettings_first_AccountNumber').val(),
+        pluginLicenceKey    : $('#fedexconnsettings_first_licnsKey').val()
+    };
+
+    if (endPoint === '1') { 
+        credentials.endPoint = 'legacy';
+        credentials.productionPass = $('#fedexconnsettings_first_ProdutionPassword').val();
+        credentials.meterNumber = $('#fedexconnsettings_first_MeterNumber').val();
+        credentials.authenticationKey = $('#fedexconnsettings_first_AuthenticationKey').val();
+    }else{
+        credentials.endPoint = 'new';
+        credentials.clientId = $('#fedexconnsettings_first_fedexClientId').val();
+        credentials.clientSecret = $('#fedexconnsettings_first_fedexClientSecret').val();
     }
 
-    /**
-     * Plan Refresh ajax call
-     * @param {object} $
-     * @param {string} ajaxURL
-     * @returns {function}
-     */
-    function fedexSmpkgPlanRefresh(e){
-        let ajaxURL = e.getAttribute('planRefAjaxUrl');
-        let parameters = {};
-        ajaxRequest(parameters, ajaxURL, fedexSmpkgPlanRefreshResponse);
-    }
+    ajaxRequest(credentials, ajaxURL, fedexSmpkgConnectSuccessFunction);
+    
+}
 
-    /**
-     * Handle response
-     * @param {object} data
-     * @returns {void}
-     */
-    function fedexSmpkgPlanRefreshResponse(data){}
+/**
+ * 
+ * @param {type} data
+ * @returns {undefined}
+ */
+function fedexSmpkgConnectSuccessFunction(data){
+    if (data.Error) {
+        hideShowDiv("fedexfailCon","errorText",data.Error);
+    }
+    else{
+        hideShowDiv("fedexsuccessCon","succesText",data.Success);
+    }
+}
+
+/**
+ * 
+ * @param {type} divId
+ * @param {type} textId
+ * @param {type} text
+ * @returns {undefined}
+ */
+function hideShowDiv(divId,textId,text){
+    jQuery("#"+textId).text(text);
+    jQuery("#"+divId).show('slow');     
+    setTimeout(function () {
+        jQuery("#"+divId).hide('slow');
+    }, 5000);
+}
+
+/**
+ * Plan Refresh ajax call
+ * @param {object} $
+ * @param {string} ajaxURL
+ * @returns {function}
+ */
+function fedexSmpkgPlanRefresh(e){
+    let ajaxURL = e.getAttribute('planRefAjaxUrl');
+    let parameters = {};
+    ajaxRequest(parameters, ajaxURL, fedexSmpkgPlanRefreshResponse);
+}
+
+/**
+ * Handle response
+ * @param {object} data
+ * @returns {void}
+ */
+function fedexSmpkgPlanRefreshResponse(data){}

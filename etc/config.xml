@@ -10,6 +10,11 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
+        <fedexconnsettings>
+            <first>
+                <fedexEndPoint>1</fedexEndPoint>
+            </first>
+        </fedexconnsettings>
         <fedexQuoteSetting>
             <third>
                 <FedExDomesticServices>GROUND_HOME_DELIVERY,FEDEX_GROUND,FEDEX_EXPRESS_SAVER,FEDEX_2_DAY,FEDEX_2_DAY_AM,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT,FIRST_OVERNIGHT</FedExDomesticServices>

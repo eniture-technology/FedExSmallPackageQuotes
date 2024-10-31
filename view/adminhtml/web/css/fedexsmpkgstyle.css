@@ -324,7 +324,13 @@ label[for="origin_zip"]:after, label[for="origin_city"]:after, label[for="origin
     content: " *";
     color: red;
 }
-label[for="fedexconnsettings_first_AccountNumber"]:after, label[for="fedexconnsettings_first_ProdutionPassword"]:after, label[for="fedexconnsettings_first_MeterNumber"]:after, label[for="fedexconnsettings_first_AuthenticationKey"]:after, label[for="fedexconnsettings_first_licnsKey"]:after{
+label[for="fedexconnsettings_first_AccountNumber"]:not(.mage-error):after, 
+label[for="fedexconnsettings_first_ProdutionPassword"]:not(.mage-error):after, 
+label[for="fedexconnsettings_first_MeterNumber"]:not(.mage-error):after, 
+label[for="fedexconnsettings_first_AuthenticationKey"]:not(.mage-error):after, 
+label[for="fedexconnsettings_first_fedexClientId"]:not(.mage-error):after, 
+label[for="fedexconnsettings_first_fedexClientSecret"]:not(.mage-error):after, 
+label[for="fedexconnsettings_first_licnsKey"]:not(.mage-error):after{
     content: '*';
     color: red;
     padding: 5px;

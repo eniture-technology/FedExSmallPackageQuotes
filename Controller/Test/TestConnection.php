@@ -43,13 +43,21 @@ class TestConnection extends Action
         }
         $postData = [
             'platform'              => 'magento2',
-            'fedex_user_id'         => $credentials['authenticationKey'],
-            'fedex_password'        => $credentials['productionPass'],
-            'fedex_account_number'  => $credentials['accountNumber'],
-            'fedex_meter_number'    => $credentials['meterNumber'],
             'licence_key'           => $credentials['pluginLicenceKey'],
             'server_name'           => $this->request->getServer('SERVER_NAME'),
         ];
+
+        if(isset($credentials['endPoint']) && 'new' == $credentials['endPoint']){
+            $postData['requestForNewAPI'] = '1';
+            $postData['clientId'] = $credentials['clientId'];
+            $postData['clientSecret'] = $credentials['clientSecret'];
+            $postData['accountNumber'] = $credentials['accountNumber'];
+        }else{
+            $postData['fedex_user_id'] = $credentials['authenticationKey'];
+            $postData['fedex_password'] = $credentials['productionPass'];
+            $postData['fedex_account_number'] = $credentials['accountNumber'];
+            $postData['fedex_meter_number'] = $credentials['meterNumber'];
+        }
 
         $response = $this->dataHelper->fedexSmpkgSendCurlRequest($this->dataHelper->wsHittingUrls('testConnection'), $postData);
         $result = $this->fedexSmpkgLtlTestConnResponse($response);
@@ -71,6 +79,8 @@ class TestConnection extends Action
 
         if(empty($responce)){
             $responce1['Error'] =  $erMsg;
+        } elseif ( isset($responce->severity) && $responce->severity == 'SUCCESS' ) {
+            $responce1['Success'] =  $successMsg;
         } elseif ( isset($responce->success) && $responce->success == 1 ) {
             $responce1['Success'] =  $successMsg;
         } elseif (( isset($responce->error) && $responce->error == 1 ) 

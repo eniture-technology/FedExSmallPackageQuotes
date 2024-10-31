@@ -14,7 +14,7 @@ $planMsg = $block->fedexSmallPlanNotice();
     });
 </script>
 <div class="pp-buttons-container">
-    <button class="primary" id="<?= /* @noEscape */ $block->getId() ?>" onclick="return fedexSmpkgTestConn('<?= /* @noEscape */ $block->getAjaxCheckUrl() ?>');">
+    <button class="primary" id="<?= /* @noEscape */ $block->getId() ?>" connAjaxUrl="<?php echo $block->getAjaxCheckUrl() ?>">
         <span>
             <span>
                 <span>

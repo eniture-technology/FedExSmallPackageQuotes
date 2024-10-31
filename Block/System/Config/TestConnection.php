@@ -79,7 +79,6 @@ class TestConnection extends \Magento\Config\Block\System\Config\Form\Field
             [
                 'id'            => 'test_fedexsmpkg_connection',
                 'button_label'  => 'Test Connection',
-                'onclick'       => 'javascript:fedexSmpkgTestConn(); return false;'
             ]
         );
         return $this->_toHtml();

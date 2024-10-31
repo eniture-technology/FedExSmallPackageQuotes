@@ -456,15 +456,7 @@ class Data extends AbstractHelper
                 if (isset($data->severity) && $data->severity == 'ERROR') {
                     unset($quote->$serviceName);
                 }
-//                elseif (isset($data->q)) {
-//                    $isQuotes = true;
-//                }
             }
-            // comment this because, it doesn't show rates in case on only instore local del and suppress other rates (zip matched)
-            //This is to check if this origin still has some quotes
-//            if (!$isQuotes) {
-//                return [];
-//            }
 
             $quoteServices = [];
             $binPackaging = $this->setBinPackagingData($quote, $key);
@@ -642,6 +634,9 @@ class Data extends AbstractHelper
         }
 
         foreach ($quote as $serviceName => $servicesList) {
+            if(isset($servicesList->severity) && $servicesList->severity == 'ERROR'){
+                continue;
+            }
             $servicesList = $this->transitTimeRestriction($servicesList);
 
             if (isset($servicesList->SMART_POST) && $servicesList->SMART_POST->serviceType == "SMART_POST") {

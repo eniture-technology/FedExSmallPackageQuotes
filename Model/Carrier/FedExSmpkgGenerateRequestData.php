@@ -79,7 +79,7 @@ class FedExSmpkgGenerateRequestData
             'serverName'    => $this->request->getServer('SERVER_NAME'),
             'carrierMode'   => 'pro', // use test / pro
             'quotestType'   => 'small',
-            'version'       => '1.1.0',
+            'version'       => '1.2.0',
             'api'           => $this->getApiInfoArr($request->getDestCountryId(), $origin),
             'getDistance'   => $getDistance,
         ];
@@ -297,11 +297,9 @@ class FedExSmpkgGenerateRequestData
         $smartPostData = ($this->getConfigData('FedExSmartPost')) ?
             ['hubId' => $this->getConfigData('hubId'), 'indicia' => 'PARCEL_SELECT'] : [];
 
+        $endPoint = $this->getConfigData('fedexEndPoint');
+
         $apiArray = [
-            'MeterNumber'       => $this->getConfigData('MeterNumber'),
-            'password'          => $this->getConfigData('ProdutionPassword'),
-            'key'               => $this->getConfigData('AuthenticationKey'),
-            'AccountNumber'     => $this->getConfigData('AccountNumber'),
             'prefferedCurrency' => $this->registry->registry('baseCurrency'),
             'includeDeclaredValue' => $this->registry->registry('en_insurance'),
             'shipmentDate'  =>  date("d/m/y"),
@@ -313,6 +311,18 @@ class FedExSmpkgGenerateRequestData
             'homeGroundPricing'     => $this->homeGroundPricing,
             'smartPostData'         => $smartPostData,
         ];
+
+        if(empty($endPoint) || $endPoint == '1'){
+            $apiArray['MeterNumber'] = $this->getConfigData('MeterNumber') ?? '';
+            $apiArray['password'] = $this->getConfigData('ProdutionPassword') ?? '';
+            $apiArray['key'] = $this->getConfigData('AuthenticationKey') ?? '';
+            $apiArray['AccountNumber'] = $this->getConfigData('AccountNumber') ?? '';
+        }else{
+            $apiArray['requestForNewAPI'] = '1';
+            $apiArray['clientId'] = $this->getConfigData('fedexClientId') ?? '';
+            $apiArray['clientSecret'] = $this->getConfigData('fedexClientSecret') ?? '';
+            $apiArray['accountNumber'] = $this->getConfigData('AccountNumber') ?? '';
+        }
 
         return  $apiArray;
     }
